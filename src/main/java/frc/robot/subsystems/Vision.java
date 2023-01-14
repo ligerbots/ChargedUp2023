@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase {
 
-	PhotonCamera m_camera = new PhotonCamera(NetworkTableInstance.getDefault(), "Cam");
+	PhotonCamera m_camera = new PhotonCamera("Cam");
 
 
 	
@@ -24,7 +24,7 @@ public class Vision extends SubsystemBase {
 	public void periodic() {
 		// This method will be called once per scheduler run
 
-		System.out.println(m_camera.getDriverMode());
+		// System.out.println(m_camera.getDriverMode());
 
 		var result = m_camera.getLatestResult();
 		
