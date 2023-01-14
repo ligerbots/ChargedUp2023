@@ -92,13 +92,7 @@ public class DriveTrain extends SubsystemBase {
 	// These are our modules. We initialize them in the constructor.
 	private final SwerveModule[] m_swerveModules = new SwerveModule[4];
 
-	// private final SwerveDrivePoseEstimator m_odometry = new SwerveDrivePoseEstimator(
-	// 		getGyroscopeRotation(),
-	// 		new Pose2d(),
-	// 		m_kinematics,
-	// 		VecBuilder.fill(0.1, 0.1, 0.1),
-	// 		VecBuilder.fill(0.05),
-	// 		VecBuilder.fill(0.1, 0.1, 0.1));
+	private final SwerveDrivePoseEstimator m_odometry;
 
 	// PID controller for swerve
 	private final PIDController m_xController = new PIDController(Constants.X_PID_CONTROLLER_P, 0, 0);
@@ -128,6 +122,10 @@ public class DriveTrain extends SubsystemBase {
 			new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
 			new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER, BACK_RIGHT_MODULE_STEER_OFFSET)
 		);	
+
+		// initialize the odometry class
+		// TODO add in the uncertainty matrices
+		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(), new Pose2d());
 	}
 
 	/**
@@ -141,8 +139,7 @@ public class DriveTrain extends SubsystemBase {
 	// }
 
 	public Pose2d getPose() {
-		return new Pose2d();
-		// return m_odometry.getEstimatedPosition();
+		return m_odometry.getEstimatedPosition();
 	}
 
 	public Rotation2d getGyroscopeRotation() {
@@ -193,13 +190,11 @@ public class DriveTrain extends SubsystemBase {
 	 * @param pose The pose to which to set the odometry.
 	 */
 	public void setPose(Pose2d pose) {
-		// zeroGyroscope(); resetPosition says not to reset gyro
-		// m_odometry.resetPosition(pose, getGyroscopeRotation());
+		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
 	}
 
 	public Rotation2d getHeading() {
-		return new Rotation2d();
-		// return m_odometry.getEstimatedPosition().getRotation();
+		return m_odometry.getEstimatedPosition().getRotation();
 	}
 
 	public SwerveDriveKinematics getKinematics() {
@@ -236,11 +231,11 @@ public class DriveTrain extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		// Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModuleState());
+		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
-		// SmartDashboard.putNumber("drivetrain/xposition", pose.getX());
-		// SmartDashboard.putNumber("drivetrain/yposition", pose.getY());
-		// SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+		SmartDashboard.putNumber("drivetrain/xposition", pose.getX());
+		SmartDashboard.putNumber("drivetrain/yposition", pose.getY());
+		SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
 
 		SmartDashboard.putString("drivetrain/driveMode", m_fieldRelative ? "field-centric" : "robot-centric");
 	}
