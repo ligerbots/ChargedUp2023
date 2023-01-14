@@ -23,8 +23,8 @@ public class NeoDriveController {
     private final double CURRENT_LIMIT = 20.0;
     private final boolean MOTOR_INVERTED = true; 
 
-    private final double DRIVE_REDUCTION = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
-    private final double WHEEL_DIAMETER = 0.10033;
+    public final static double DRIVE_REDUCTION = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
+    public final static double WHEEL_DIAMETER = 0.10033;
 
     public static void checkNeoError(REVLibError error, String message) {
         if (error != REVLibError.kOk) {

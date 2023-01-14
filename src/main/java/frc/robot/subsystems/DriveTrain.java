@@ -8,10 +8,6 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
 
 import edu.wpi.first.wpilibj.SPI.Port;
-import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
-import com.swervedrivespecialties.swervelib.SwerveModule;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -32,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
+
+import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
 public class DriveTrain extends SubsystemBase {
@@ -61,8 +59,8 @@ public class DriveTrain extends SubsystemBase {
 	 */
 	// add arbitrary 3/4 reduction - PaulR
 	public static final double MAX_VELOCITY_METERS_PER_SECOND = 0.75 * 5880.0 / 60.0 *
-			SdsModuleConfigurations.MK4I_L2.getDriveReduction() *
-			SdsModuleConfigurations.MK4I_L2.getWheelDiameter() * Math.PI;
+			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
+	
 	/**
 	 * The maximum angular velocity of the robot in radians per second.
 	 * <p>
@@ -110,46 +108,40 @@ public class DriveTrain extends SubsystemBase {
 	public DriveTrain() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-		m_swerveModules[0] = Mk4iSwerveModuleHelper.createNeo(
-				// This parameter is optional, but will allow you to see the current state of
-				// the module on the dashboard.
-				tab.getLayout("Front Left Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(0, 0),
-				// This can either be STANDARD or FAST depending on your gear configuration
-				Mk4iSwerveModuleHelper.GearRatio.L2,
-				// This is the ID of the drive motor
-				FRONT_LEFT_MODULE_DRIVE_MOTOR,
-				// This is the ID of the steer motor
-				FRONT_LEFT_MODULE_STEER_MOTOR,
-				// This is the ID of the steer encoder
-				FRONT_LEFT_MODULE_STEER_ENCODER,
-				// This is how much the steer encoder is offset from true zero (In our case,
-				// zero is facing straight forward)
-				FRONT_LEFT_MODULE_STEER_OFFSET);
+		// m_swerveModules[0] = Mk4iSwerveModuleHelper.createNeo(
+		// 		// This parameter is optional, but will allow you to see the current state of
+		// 		// the module on the dashboard.
+		// 		tab.getLayout("Front Left Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(0, 0),
+		// 		// This can either be STANDARD or FAST depending on your gear configuration
+		// 		Mk4iSwerveModuleHelper.GearRatio.L2,
+		// 		// This is the ID of the drive motor
+		// 		FRONT_LEFT_MODULE_DRIVE_MOTOR,
+		// 		// This is the ID of the steer motor
+		// 		FRONT_LEFT_MODULE_STEER_MOTOR,
+		// 		// This is the ID of the steer encoder
+		// 		FRONT_LEFT_MODULE_STEER_ENCODER,
+		// 		// This is how much the steer encoder is offset from true zero (In our case,
+		// 		// zero is facing straight forward)
+		// 		FRONT_LEFT_MODULE_STEER_OFFSET);
+		m_swerveModules[0] = new SwerveModule(
+			new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+			new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER, FRONT_LEFT_MODULE_STEER_OFFSET)
+		);	
 
-		// We will do the same for the other modules
-		m_swerveModules[1] = Mk4iSwerveModuleHelper.createNeo(
-				tab.getLayout("Front Right Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(2, 0),
-				Mk4iSwerveModuleHelper.GearRatio.L2,
-				FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-				FRONT_RIGHT_MODULE_STEER_MOTOR,
-				FRONT_RIGHT_MODULE_STEER_ENCODER,
-				FRONT_RIGHT_MODULE_STEER_OFFSET);
-
-		m_swerveModules[2] = Mk4iSwerveModuleHelper.createNeo(
-				tab.getLayout("Back Left Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(4, 0),
-				Mk4iSwerveModuleHelper.GearRatio.L2,
-				BACK_LEFT_MODULE_DRIVE_MOTOR,
-				BACK_LEFT_MODULE_STEER_MOTOR,
-				BACK_LEFT_MODULE_STEER_ENCODER,
-				BACK_LEFT_MODULE_STEER_OFFSET);
-
-		m_swerveModules[3] = Mk4iSwerveModuleHelper.createNeo(
-				tab.getLayout("Back Right Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(6, 0),
-				Mk4iSwerveModuleHelper.GearRatio.L2,
-				BACK_RIGHT_MODULE_DRIVE_MOTOR,
-				BACK_RIGHT_MODULE_STEER_MOTOR,
-				BACK_RIGHT_MODULE_STEER_ENCODER,
-				BACK_RIGHT_MODULE_STEER_OFFSET);
+		m_swerveModules[1] = new frc.robot.swerve.SwerveModule(
+			new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+			new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR, FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET)
+		);	
+	
+		m_swerveModules[2] = new frc.robot.swerve.SwerveModule(
+			new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+			new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER, BACK_LEFT_MODULE_STEER_OFFSET)
+		);	
+	
+		m_swerveModules[3] = new frc.robot.swerve.SwerveModule(
+			new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+			new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER, BACK_RIGHT_MODULE_STEER_OFFSET)
+		);	
 	}
 
 	/**

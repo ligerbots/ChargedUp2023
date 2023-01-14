@@ -4,7 +4,7 @@ public class SwerveModule {
     private NeoDriveController m_driveController;
     private NeoSteerController m_steerController;
 
-    private SwerveModule(NeoDriveController driveController, NeoSteerController steerController) {
+    public SwerveModule(NeoDriveController driveController, NeoSteerController steerController) {
         this.m_driveController = driveController;
         this.m_steerController = steerController;
     }
