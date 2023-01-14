@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -106,23 +107,8 @@ public class DriveTrain extends SubsystemBase {
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
 	public DriveTrain() {
-		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+		// ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-		// m_swerveModules[0] = Mk4iSwerveModuleHelper.createNeo(
-		// 		// This parameter is optional, but will allow you to see the current state of
-		// 		// the module on the dashboard.
-		// 		tab.getLayout("Front Left Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(0, 0),
-		// 		// This can either be STANDARD or FAST depending on your gear configuration
-		// 		Mk4iSwerveModuleHelper.GearRatio.L2,
-		// 		// This is the ID of the drive motor
-		// 		FRONT_LEFT_MODULE_DRIVE_MOTOR,
-		// 		// This is the ID of the steer motor
-		// 		FRONT_LEFT_MODULE_STEER_MOTOR,
-		// 		// This is the ID of the steer encoder
-		// 		FRONT_LEFT_MODULE_STEER_ENCODER,
-		// 		// This is how much the steer encoder is offset from true zero (In our case,
-		// 		// zero is facing straight forward)
-		// 		FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_swerveModules[0] = new SwerveModule(
 			new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
 			new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER, FRONT_LEFT_MODULE_STEER_OFFSET)
@@ -240,11 +226,10 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	// get the swerveModuleState manually
-	public SwerveModuleState[] getModuleState() {
-		SwerveModuleState[] state = new SwerveModuleState[4];
+	public SwerveModulePosition[] getModulePositions() {
+		SwerveModulePosition[] state = new SwerveModulePosition[4];
 		for (int i = 0; i < 4; i++) {
-			state[i] = new SwerveModuleState(m_swerveModules[i].getDriveVelocity(),
-					Rotation2d.fromDegrees(m_swerveModules[i].getSteerAngle()));
+			state[i] = m_swerveModules[i].getSwerveModulePosition();
 		}
 		return state;
 	}

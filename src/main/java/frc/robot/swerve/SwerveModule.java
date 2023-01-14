@@ -1,5 +1,8 @@
 package frc.robot.swerve;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+
 // The LigerBots SwerveModule
 // This has a SteerController and a DriveController
 
@@ -16,7 +19,7 @@ public class SwerveModule {
         return m_driveController.getStateVelocity();
     }
 
-    public double getSteerAngle() {
+    public Rotation2d getSteerAngle() {
         return m_steerController.getStateAngle();
     }
 
@@ -26,14 +29,15 @@ public class SwerveModule {
             steerAngle += 2.0 * Math.PI;
         }
 
-        double difference = steerAngle - getSteerAngle();
+        double currAngle = getSteerAngle().getRadians();
+        double difference = steerAngle - currAngle;
         // Change the target angle so the difference is in the range [-pi, pi) instead of [0, 2pi)
         if (difference >= Math.PI) {
             steerAngle -= 2.0 * Math.PI;
         } else if (difference < -Math.PI) {
             steerAngle += 2.0 * Math.PI;
         }
-        difference = steerAngle - getSteerAngle(); // Recalculate difference
+        difference = steerAngle - currAngle; // Recalculate difference
 
         // If the difference is greater than 90 deg or less than -90 deg the drive can
         // be inverted so the total
@@ -54,4 +58,10 @@ public class SwerveModule {
         m_driveController.setReferenceVoltage(driveVoltage);
         m_steerController.setReferenceAngle(steerAngle);
     }
+
+    // get the swerve module position 
+    public SwerveModulePosition getSwerveModulePosition(){
+        return new SwerveModulePosition(m_driveController.getWheelDistance(), m_steerController.getStateAngle() );
+    }
+
 }
