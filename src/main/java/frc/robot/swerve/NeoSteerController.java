@@ -4,38 +4,22 @@ import com.revrobotics.*;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
-// public static final ModuleConfiguration MK4I_L2 = new ModuleConfiguration(
-//     0.10033,
-//     (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0),
-//     true,
-//     (14.0 / 50.0) * (10.0 / 60.0),
-//     false
-// );
+import frc.robot.Constants;
 
-
-// private static SteerControllerFactory<?, NeoSteerConfiguration<CanCoderAbsoluteConfiguration>> getNeoSteerFactory(Mk4ModuleConfiguration configuration) {
-//     return new NeoSteerControllerFactoryBuilder()
-//             .withVoltageCompensation(configuration.getNOMINAL_VOLTAGE())
-//             .withPidConstants(1.0, 0.0, 0.1)
-//             .withCurrentLimit(configuration.getSteerCurrentLimit())
-//             .build(new CanCoderFactoryBuilder()
-//                     .withReadingUpdatePeriod(100)
-//                     .build());
-// }
-
+// LigerBots SteerController for Swerve
 
 public class NeoSteerController {
     private static final int ENCODER_RESET_ITERATIONS = 500;
     private static final double ENCODER_RESET_MAX_ANGULAR_VELOCITY = Math.toRadians(0.5);
 
-    private double NOMINAL_VOLTAGE = 12.0;
-    private final double CURRENT_LIMIT = 20.0;
+    private static final double CURRENT_LIMIT = 20.0;
 
     // PID configuration
-    private double PID_PROPORTIONAL = 1.0;
-    private double PID_INTEGRAL = 0.0;
-    private double PID_DERIVATIVE = 0.1;
-    private final boolean MOTOR_INVERTED = false; 
+    private static final double PID_PROPORTIONAL = 1.0;
+    private static final double PID_INTEGRAL = 0.0;
+    private static final double PID_DERIVATIVE = 0.1;
+    private static final boolean MOTOR_INVERTED = false;
+    private static final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
     private final CANSparkMax m_motor;
     private final SparkMaxPIDController m_controller;
@@ -43,54 +27,67 @@ public class NeoSteerController {
     private final CanCoder m_absoluteEncoder;
 
     private double m_referenceAngleRadians = 0;
-    private final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
     private double m_resetIteration = 0;
 
-    public static void checkNeoError(REVLibError error, String message) {
+    static void checkNeoError(REVLibError error, String message) {
         if (error != REVLibError.kOk) {
             DriverStation.reportError(String.format("%s: %s", message, error.toString()), false);
         }
     }
 
     public NeoSteerController(int canId, int canCoderCanId, double angleOffset) {
+        // absolute angle encoder CANcoder
         m_absoluteEncoder = new CanCoder(canCoderCanId, angleOffset);
 
+        // the turn motor
         m_motor = new CANSparkMax(canId, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+        // adjust the CANbus update periods and alert on any errors
         checkNeoError(m_motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 100),
                 "Failed to set periodic status frame 0 rate");
         checkNeoError(m_motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20),
                 "Failed to set periodic status frame 1 rate");
         checkNeoError(m_motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 20),
                 "Failed to set periodic status frame 2 rate");
+
+        // set turn moter to brake mode
         checkNeoError(m_motor.setIdleMode(CANSparkMax.IdleMode.kBrake), "Failed to set NEO idle mode");
         m_motor.setInverted(!MOTOR_INVERTED);
-        checkNeoError(m_motor.enableVoltageCompensation(NOMINAL_VOLTAGE), "Failed to enable voltage compensation");
+
+        // enable voltage compensation and current limit
+        checkNeoError(m_motor.enableVoltageCompensation(Constants.MAX_VOLTAGE), "Failed to enable voltage compensation");
         checkNeoError(m_motor.setSmartCurrentLimit((int) Math.round(CURRENT_LIMIT)),
                 "Failed to set NEO current limits");
 
+        // the encoder in the motor
         m_motorEncoder = m_motor.getEncoder();
 
+        // set the builtin encoder scaling for distance and speed
         checkNeoError(
-                m_motorEncoder.setPositionConversionFactor(2.0 * Math.PI * STEER_REDUCTION), "Failed to set NEO encoder conversion factor");
-        checkNeoError(
-                m_motorEncoder
-                        .setVelocityConversionFactor(2.0 * Math.PI * STEER_REDUCTION / 60.0),
+                m_motorEncoder.setPositionConversionFactor(2.0 * Math.PI * STEER_REDUCTION),
                 "Failed to set NEO encoder conversion factor");
+        checkNeoError(
+                m_motorEncoder.setVelocityConversionFactor(2.0 * Math.PI * STEER_REDUCTION / 60.0),
+                "Failed to set NEO encoder conversion factor");
+
+        // set the built in encoder to match the CANcoder
         checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle()),
                 "Failed to set NEO encoder position");
 
+        // PID controller to maintain the turn angle
         m_controller = m_motor.getPIDController();
-            checkNeoError(m_controller.setP(PID_PROPORTIONAL), "Failed to set NEO PID proportional constant");
-            checkNeoError(m_controller.setI(PID_INTEGRAL), "Failed to set NEO PID integral constant");
-            checkNeoError(m_controller.setD(PID_DERIVATIVE), "Failed to set NEO PID derivative constant");
+        checkNeoError(m_controller.setP(PID_PROPORTIONAL), "Failed to set NEO PID proportional constant");
+        checkNeoError(m_controller.setI(PID_INTEGRAL), "Failed to set NEO PID integral constant");
+        checkNeoError(m_controller.setD(PID_DERIVATIVE), "Failed to set NEO PID derivative constant");
         checkNeoError(m_controller.setFeedbackDevice(m_motorEncoder), "Failed to set NEO PID feedback device");
-
     }
 
+    // get the angle setpoint, in radians
     public double getReferenceAngle() {
         return m_referenceAngleRadians;
     }
 
+    // set the angle we want for the wheel (radians)
     public void setReferenceAngle(double referenceAngleRadians) {
         double currentAngleRadians = m_motorEncoder.getPosition();
 
@@ -110,13 +107,13 @@ public class NeoSteerController {
             m_resetIteration = 0;
         }
 
+        // force into 0 -> 2*PI
         double currentAngleRadiansMod = currentAngleRadians % (2.0 * Math.PI);
         if (currentAngleRadiansMod < 0.0) {
             currentAngleRadiansMod += 2.0 * Math.PI;
         }
 
-        // The reference angle has the range [0, 2pi) but the Neo's encoder can go above
-        // that
+        // The reference angle has the range [0, 2pi) but the Neo's encoder can go above that
         double adjustedReferenceAngleRadians = referenceAngleRadians + currentAngleRadians - currentAngleRadiansMod;
         if (referenceAngleRadians - currentAngleRadiansMod > Math.PI) {
             adjustedReferenceAngleRadians -= 2.0 * Math.PI;
@@ -124,11 +121,12 @@ public class NeoSteerController {
             adjustedReferenceAngleRadians += 2.0 * Math.PI;
         }
 
-       m_referenceAngleRadians = referenceAngleRadians;
+        m_referenceAngleRadians = referenceAngleRadians;
 
         m_controller.setReference(adjustedReferenceAngleRadians, CANSparkMax.ControlType.kPosition);
     }
 
+    // get the current module angle in radians
     public double getStateAngle() {
         double motorAngleRadians = m_motorEncoder.getPosition();
         motorAngleRadians %= 2.0 * Math.PI;

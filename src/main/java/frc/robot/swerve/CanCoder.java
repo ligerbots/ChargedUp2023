@@ -8,9 +8,11 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
+// A wrapper around the CANCoder absolute angle sensor
+
 public class CanCoder {
-    private final int PERIOD_MILLISECONDS = 100;
-    private final boolean ROTATION_CLOCKWISE = false;
+    private static final int PERIOD_MILLISECONDS = 100;
+    private static final boolean ROTATION_CLOCKWISE = false;
 
     private final CANCoder m_encoder;
 
@@ -28,6 +30,7 @@ public class CanCoder {
         config.magnetOffsetDegrees = Math.toDegrees(offset);
         config.sensorDirection = ROTATION_CLOCKWISE;
 
+        // set the update period and report any errors
         checkCtreError(m_encoder.configAllSettings(config, 250), "Failed to configure CANCoder");
 
         checkCtreError(
@@ -35,6 +38,7 @@ public class CanCoder {
                 "Failed to configure CANCoder update rate");
     };
 
+    // get the absolute angle, in radians
     public double getAbsoluteAngle() {
         double angle = Math.toRadians(m_encoder.getAbsolutePosition());
         angle %= 2.0 * Math.PI;

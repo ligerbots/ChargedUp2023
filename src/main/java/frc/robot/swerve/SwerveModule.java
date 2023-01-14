@@ -1,12 +1,15 @@
 package frc.robot.swerve;
 
+// The LigerBots SwerveModule
+// This has a SteerController and a DriveController
+
 public class SwerveModule {
-    private NeoDriveController m_driveController;
-    private NeoSteerController m_steerController;
+    private final NeoDriveController m_driveController;
+    private final NeoSteerController m_steerController;
 
     public SwerveModule(NeoDriveController driveController, NeoSteerController steerController) {
-        this.m_driveController = driveController;
-        this.m_steerController = steerController;
+        m_driveController = driveController;
+        m_steerController = steerController;
     }
 
     public double getDriveVelocity() {
@@ -32,10 +35,12 @@ public class SwerveModule {
         }
         difference = steerAngle - getSteerAngle(); // Recalculate difference
 
-        // If the difference is greater than 90 deg or less than -90 deg the drive can be inverted so the total
+        // If the difference is greater than 90 deg or less than -90 deg the drive can
+        // be inverted so the total
         // movement of the module is less than 90 deg
         if (difference > Math.PI / 2.0 || difference < -Math.PI / 2.0) {
-            // Only need to add 180 deg here because the target angle will be put back into the range [0, 2pi)
+            // Only need to add 180 deg here because the target angle will be put back into
+            // the range [0, 2pi)
             steerAngle += Math.PI;
             driveVoltage *= -1.0;
         }
@@ -50,4 +55,3 @@ public class SwerveModule {
         m_steerController.setReferenceAngle(steerAngle);
     }
 }
-
