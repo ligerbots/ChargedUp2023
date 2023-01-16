@@ -25,7 +25,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 
-import frc.robot.Constants;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -36,7 +35,7 @@ public class DriveTrain extends SubsystemBase {
 
 	// the max voltage for drivetrain
 	// adjusted when in precision driving mode
-	private double m_maxVoltage = Constants.MAX_VOLTAGE;
+	private double m_maxVoltage = MAX_VOLTAGE;
 
 	// if true, then robot is in field centric mode
 	private boolean m_fieldCentric = true; 
@@ -92,9 +91,9 @@ public class DriveTrain extends SubsystemBase {
 	private final SwerveDrivePoseEstimator m_odometry;
 
 	// PID controller for swerve
-	private final PIDController m_xController = new PIDController(Constants.X_PID_CONTROLLER_P, 0, 0);
-	private final PIDController m_yController = new PIDController(Constants.Y_PID_CONTROLLER_P, 0, 0);
-	private final ProfiledPIDController m_thetaController = new ProfiledPIDController(Constants.THETA_PID_CONTROLLER_P,
+	private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
+	private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
+	private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P,
 			0, 0,
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
@@ -195,7 +194,7 @@ public class DriveTrain extends SubsystemBase {
 	// toggle precision mode for driving
 	public void togglePrecisionMode() {
 		m_precisionMode = !m_precisionMode;
-		m_maxVoltage = m_precisionMode ? Constants.PRECISION_MAX_VOLTAGE : Constants.MAX_VOLTAGE;
+		m_maxVoltage = m_precisionMode ? PRECISION_MAX_VOLTAGE : MAX_VOLTAGE;
 	}
 
 	// get the swerveModuleState manually
