@@ -11,20 +11,18 @@ import frc.robot.subsystems.DriveTrain;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 
-//this command changes back and forth between field relative mode and not field relative mode(robot centric)
-public class ToggleFieldRelative extends InstantCommand 
-{
-  private final DriveTrain m_driveTrain;
-  public ToggleFieldRelative(DriveTrain driveTrain) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    m_driveTrain = driveTrain;
-  }
+//this command changes back and forth between field centric and robot centric drive modes
+public class ToggleFieldRelative extends InstantCommand {
+    private final DriveTrain m_driveTrain;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    m_driveTrain.toggleFieldRelative(); //toggle drive mode
-  }
+    public ToggleFieldRelative(DriveTrain driveTrain) {
+        m_driveTrain = driveTrain;
+    }
 
-  
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        // toggle the field-centric mode flag
+        m_driveTrain.toggleFieldCentric();
+    }
 }
