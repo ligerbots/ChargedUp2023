@@ -239,6 +239,11 @@ public class DriveTrain extends SubsystemBase {
 		m_maxVoltage = m_precisionMode ? Constants.PRECISION_MAX_VOLTAGE : Constants.MAX_VOLTAGE;
 	}
 
+    public double getPitch() {
+		//gets pitch of robot
+		return m_navx.getPitch();
+    }
+
 	// get the swerveModuleState manually
 	public SwerveModuleState[] getModuleState() {
 		SwerveModuleState[] state = new SwerveModuleState[4];

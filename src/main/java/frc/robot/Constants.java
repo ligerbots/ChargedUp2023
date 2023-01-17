@@ -82,5 +82,8 @@ public final class Constants {
     public static final int XBOX_JL = 9;
     public static final int XBOX_JR = 10;
 
-
+    // balancing constants
+    public static final double CHARGESTATION_BALANCED_GOAL_DEGREES = 0;
+    public static final double CHARGESTATION_BALANCED_KP = 0.02;
+    public static final double CHARGESTATION_MAX_METERSPERSECOND = 0.75;
 }
