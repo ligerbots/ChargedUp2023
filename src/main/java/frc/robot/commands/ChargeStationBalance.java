@@ -45,6 +45,7 @@ public class ChargeStationBalance extends CommandBase {
 
     m_driveTrain.drive(new ChassisSpeeds(driveMPS, 0.0, 0.0));
     
+    //if robot angle is close to 0, adds a true element to arraylist, else adds a false element
     if (error < Constants.CHARGESTATION_BALANCE_ERROR){
       balanceCheck.add(true);
     } else {
@@ -63,6 +64,7 @@ public class ChargeStationBalance extends CommandBase {
   @Override
   public boolean isFinished() {
     
+    //if for the last 50 ticks the robot is balanced, command ends
     int a = 0;
     for (int i = balanceCheck.size() - 50; i < balanceCheck.size(); i++) {
       if (balanceCheck.get(i-1) == true) {
