@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AdjustRobotCone;
+import frc.robot.commands.AdjustRobotCube;
 import frc.robot.commands.Drive;
 import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
@@ -65,7 +67,14 @@ public class RobotContainer {
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
 		//inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
-		}
+		
+		//vision
+		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);//command to adjust to cube
+		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y); //command to adjust to cone
+		xboxBButton.onTrue(new AdjustRobotCube(m_driveTrain, m_vision)); //when button B is pressed
+		xboxYButton.onTrue(new AdjustRobotCone(m_driveTrain, m_vision));// when button Y is pressed
+
+	}
 
 	public Command getDriveCommand() {
 		// The controls are for field-oriented driving:

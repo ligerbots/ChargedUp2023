@@ -247,6 +247,17 @@ public class DriveTrain extends SubsystemBase {
 		m_maxVoltage = m_precisionMode ? Constants.PRECISION_MAX_VOLTAGE : Constants.MAX_VOLTAGE;
 	}
 
+	public PIDController getXController(){ //gets the controller for x position of robot
+		return m_xController;
+	}
+
+	public PIDController getYController(){ //gets controller for y position of bot
+		return m_yController;
+	}
+
+	public ProfiledPIDController getThetaController(){ //gets controller for angle
+		return m_thetaController;
+	}
 	// get the swerveModuleState manually
 	public SwerveModuleState[] getModuleState() {
 		SwerveModuleState[] state = new SwerveModuleState[4];

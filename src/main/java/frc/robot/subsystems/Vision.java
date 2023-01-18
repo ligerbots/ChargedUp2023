@@ -5,15 +5,18 @@
 package frc.robot.subsystems;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Vision extends SubsystemBase {
 
-	PhotonCamera m_camera = new PhotonCamera("Cam");
+	private final PhotonCamera m_camera = new PhotonCamera("Cam");
 
 
 	
@@ -35,9 +38,14 @@ public class Vision extends SubsystemBase {
 			PhotonTrackedTarget target = result.getBestTarget();
 			int targetID = target.getFiducialId();
 			SmartDashboard.putNumber("targetID", targetID);
+
 		} else {
 			SmartDashboard.putNumber("targetID", -1);
 			SmartDashboard.putNumber("PPL", m_camera.getPipelineIndex());
 		}
+	}
+
+	public PhotonCamera getCamera(){
+		return m_camera;
 	}
 }

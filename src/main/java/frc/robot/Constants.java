@@ -55,6 +55,18 @@ public final class Constants {
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
 
+    //photonvision constants, change all of these later
+    public static final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24); //change later
+    
+    public static final double TARGET_HEIGHT_METERS_CUBE = Units.feetToMeters(0); //on ground target for cube?
+
+    public static final double TARGET_HEIGHT_METERS_CONE = Units.feetToMeters(5); //only top target?
+    // Angle between horizontal and the camera.
+    public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0); 
+
+    // How far from the target we want to be
+    public static final double GOAL_RANGE_METERS = Units.feetToMeters(3); //always adjust to 3 feet away from goal 
+
     // max voltages
     /**
 	 * The maximum voltage that will be delivered to the drive motors.
