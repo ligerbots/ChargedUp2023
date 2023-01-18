@@ -215,6 +215,11 @@ public class DriveTrain extends SubsystemBase {
 		SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
+
+		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
