@@ -86,4 +86,5 @@ public final class Constants {
     public static final double CHARGESTATION_BALANCED_GOAL_DEGREES = 0;
     public static final double CHARGESTATION_BALANCED_KP = 0.02;
     public static final double CHARGESTATION_MAX_METERSPERSECOND = 0.75;
+    public static final double CHARGESTATION_BALANCE_ERROR = 1;
 }

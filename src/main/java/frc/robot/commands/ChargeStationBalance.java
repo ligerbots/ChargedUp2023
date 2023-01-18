@@ -8,13 +8,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
+import java.util.ArrayList;
 
 public class ChargeStationBalance extends CommandBase {
 
   private DriveTrain m_driveTrain;
 
   private double error;
-  private Boolean[] balanceCheck;
+  private ArrayList<Boolean> balanceCheck = new ArrayList<Boolean>();
   private double driveMPS;
   private double currentAngle;
 
@@ -26,9 +27,7 @@ public class ChargeStationBalance extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    balanceCheck = new Boolean[]{};
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -46,7 +45,12 @@ public class ChargeStationBalance extends CommandBase {
 
     m_driveTrain.drive(new ChassisSpeeds(driveMPS, 0.0, 0.0));
     
-    //TODO: if balanced, add true elemnent to balanceCheck array, else, add false element
+    if (error < Constants.CHARGESTATION_BALANCE_ERROR){
+      balanceCheck.add(true);
+    } else {
+      balanceCheck.add(false);
+    }
+
   }
 
   // Called once the command ends or is interrupted.
@@ -58,8 +62,20 @@ public class ChargeStationBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //TODO: if balanceCheck array has 50 true elements in a row, return true
-    return false;
+    
+    int a = 0;
+    for (int i = balanceCheck.size() - 50; i < balanceCheck.size(); i++) {
+      if (balanceCheck.get(i-1) == true) {
+        a++;
+      }
+    }
+
+    if (a>=50){
+      return true;
+    } else {
+      return false;
+    }
+
   }
 }
 
