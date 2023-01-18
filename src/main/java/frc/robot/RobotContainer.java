@@ -9,8 +9,6 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.AdjustRobotCone;
-import frc.robot.commands.AdjustRobotCube;
 import frc.robot.commands.Drive;
 import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
@@ -29,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
 	private final DriveTrain m_driveTrain = new DriveTrain();
-	private final Vision m_vision = new Vision();
+	private final Vision m_vision = new Vision(m_driveTrain);
 
 	private final XboxController m_controller = new XboxController(0);
 
@@ -68,11 +66,12 @@ public class RobotContainer {
 		//inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
 		
-		//vision
+		//vision buttons
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);//command to adjust to cube
+		xboxBButton.onTrue(new InstantCommand(m_vision::AdjustRobotCube)); //when button B is pressed adjust to cube
+		
 		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y); //command to adjust to cone
-		xboxBButton.onTrue(new AdjustRobotCube(m_driveTrain, m_vision)); //when button B is pressed
-		xboxYButton.onTrue(new AdjustRobotCone(m_driveTrain, m_vision));// when button Y is pressed
+		xboxYButton.onTrue(new InstantCommand(m_vision::AdjustRobotCone));// when button Y is pressed adjust to cone
 
 	}
 
