@@ -63,4 +63,11 @@ public class NeoDriveController {
     public double getStateVelocity() {
         return m_encoder.getVelocity();
     }
+
+    //get wheel distance        
+    public double getWheelDistance(){
+        return m_encoder.getPosition();
+    }
+
 }
+

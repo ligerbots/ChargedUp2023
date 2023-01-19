@@ -2,6 +2,7 @@ package frc.robot.swerve;
 
 import com.revrobotics.*;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.robot.Constants;
@@ -127,13 +128,13 @@ public class NeoSteerController {
     }
 
     // get the current module angle in radians
-    public double getStateAngle() {
+    public Rotation2d getStateAngle() {
         double motorAngleRadians = m_motorEncoder.getPosition();
         motorAngleRadians %= 2.0 * Math.PI;
         if (motorAngleRadians < 0.0) {
             motorAngleRadians += 2.0 * Math.PI;
         }
 
-        return motorAngleRadians;
+        return Rotation2d.fromRadians(motorAngleRadians);
     }
 }

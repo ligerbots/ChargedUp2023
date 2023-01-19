@@ -28,23 +28,20 @@ public class Drive extends CommandBase {
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
 
-        if(!m_driveTrain.getFieldRelative()){ //if in robot oriented movement
+        if (!m_driveTrain.getFieldCentric()) { // if in robot oriented movement
             m_driveTrain.drive(
-                new ChassisSpeeds(
-                    m_translationXSupplier.getAsDouble(), 
-                    m_translationYSupplier.getAsDouble(), 
-                    m_rotationSupplier.getAsDouble()));
-        }else{ //if in field relative mode 
+                    new ChassisSpeeds(
+                            m_translationXSupplier.getAsDouble(),
+                            m_translationYSupplier.getAsDouble(),
+                            m_rotationSupplier.getAsDouble()));
+        } else { // if in field relative mode
             m_driveTrain.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        m_translationXSupplier.getAsDouble(),
-                        m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble(),
-                        m_driveTrain.getGyroscopeRotation()
-                )
-            );
-        }
- 
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                            m_translationXSupplier.getAsDouble(),
+                            m_translationYSupplier.getAsDouble(),
+                            m_rotationSupplier.getAsDouble(),
+                            m_driveTrain.getHeading()));
+        } 
     }
 
     @Override
