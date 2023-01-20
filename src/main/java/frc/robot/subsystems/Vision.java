@@ -8,6 +8,8 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -47,41 +49,56 @@ public class Vision extends SubsystemBase {
 		}
 	}
 
-	// adjusts robot automatically so it is in position to pick up cone
-	public void AdjustRobotCone() {
-
-	}
-
-	// adjusts robot automatically so it is in position to pick up cube
-	public void AdjustRobotCube() {
-		double forwardSpeed; // how much speed robot needs to go forward to target
-		double rotationSpeed; // how much speed robot needs to rotate to target
-
+	public double getDistanceFromTarget(int targetGrid){ //an integer 1-9
 		var result = m_camera.getLatestResult(); // camera's latest result
-
 		if (result.hasTargets()) {
-			// First calculate range
-			double range = PhotonUtils.calculateDistanceToTargetMeters(
+			// calculate range from target
+			PhotonTrackedTarget target = result.getBestTarget(); //find best target
+			int targetID = target.getFiducialId();
+			SmartDashboard.putNumber("targetID", targetID);
+
+			if(targetGrid == 1 || targetGrid == 4 || targetGrid == 7){ //if aiming to left of AprilTag
+
+			} else if(targetGrid == 2 || targetGrid == 5 || targetGrid == 8){ //aiming towards middle
+				//aim directly to distance
+				return PhotonUtils.calculateDistanceToTargetMeters(
 					Constants.CAMERA_HEIGHT_METERS,
-					Constants.TARGET_HEIGHT_METERS_CUBE,
+					Constants.APRILTAG_TARGET_HEIGHT_METERS,
 					Constants.CAMERA_PITCH_RADIANS,
 					Units.degreesToRadians(result.getBestTarget().getPitch()));
+			}else{ //aiming to right
 
-			// Use this range as the measurement we give to the PID controller.
-			// -1.0 required to ensure positive PID controller effort _increases_ range
-			forwardSpeed = -m_driveTrain.getXController().calculate(range, Constants.GOAL_RANGE_METERS);
-			// use x controller to move forward?
+			}
 
-			// Also calculate angular power
-			// -1.0 required to ensure positive PID controller effort _increases_ yaw
-			rotationSpeed = -m_driveTrain.getThetaController().calculate(result.getBestTarget().getYaw(), 0);
-			// use theta to rotate
-		} else {
-			// If we have no targets, stay still.
-			forwardSpeed = 0;
-			rotationSpeed = 0;
+
+			
 		}
-		m_driveTrain.drive(new ChassisSpeeds(forwardSpeed, 0.0, rotationSpeed)); // make it move forward and rotate
-		// is y affected by adjusting?
+		return 0.0; //if there is no target nothing happens
+		
 	}
+
+	public double getYawFromTarget(){
+		var result = m_camera.getLatestResult(); // camera's latest result
+		if (result.hasTargets()) {
+			return result.getBestTarget().getYaw(); //return yaw from target
+			
+		}
+		return 0.0; //if no target
+	}
+
+
+	private Pose2d getPoseFromAprilTag(){
+		AprilTagFieldLayout aprilTagFieldLayout = new ApriltagFieldLayout(AprilTagFieldLayout.loadFromResource(AprilTagFields.k2022RapidReact.m_resourceFile));
+				//Forward Camera
+		cam = new PhotonCamera("testCamera");
+		Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+		// Construct PhotonPoseEstimator
+		PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cam, robotToCam);
+	}
+	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+        photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        return photonPoseEstimator.update();
+    }
+	
 }

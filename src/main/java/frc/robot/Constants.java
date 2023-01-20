@@ -58,9 +58,10 @@ public final class Constants {
     //photonvision constants, change all of these later
     public static final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24); //change later
     
-    public static final double TARGET_HEIGHT_METERS_CUBE = Units.feetToMeters(0); //on ground target for cube?
+    public static final double TAPE_TARGET_HEIGHT_METERS = 0.56; //in meters, 56 cm from ground
 
-    public static final double TARGET_HEIGHT_METERS_CONE = Units.feetToMeters(5); //only top target?
+    public static final double APRILTAG_TARGET_HEIGHT_METERS = 0.59; //in meters, 59 cm from ground
+   
     // Angle between horizontal and the camera.
     public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0); 
 
