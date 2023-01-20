@@ -33,15 +33,15 @@ import static frc.robot.Constants.*;
 
 public class DriveTrain extends SubsystemBase {
 
-	// the max voltage for drivetrain
+	// the max velocity for drivetrain
 	// adjusted when in precision driving mode
-	private double m_maxVoltage = MAX_VOLTAGE;
+	private double m_maxVelocity = MAX_VELOCITY_METERS_PER_SECOND;
 
 	// if true, then robot is in field centric mode
-	private boolean m_fieldCentric = true; 
+	private boolean m_fieldCentric = true;
 
 	// if true, then robot is in precision mode
-	private boolean m_precisionMode = false; 
+	private boolean m_precisionMode = false;
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
@@ -60,6 +60,9 @@ public class DriveTrain extends SubsystemBase {
 	 */
 	public static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
 			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
+
+	// TODO: tune and check this
+	public static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6;
 
 	/**
 	 * The maximum angular velocity of the robot in radians per second.
@@ -166,11 +169,33 @@ public class DriveTrain extends SubsystemBase {
 		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
 	}
 
+	public void modeDrive(double inputX, double inputY, double inputRotation) {
+		if(m_precisionMode){
+			m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+		}
+
+		// when in field-relative mode
+		if (m_fieldCentric) {
+			drive(
+					ChassisSpeeds.fromFieldRelativeSpeeds(
+							inputX * m_maxVelocity,
+							inputY * m_maxVelocity,
+							inputRotation * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+							getHeading()));
+		}
+		// when in robot-centric mode
+		else {
+			drive(new ChassisSpeeds(inputX * m_maxVelocity,
+					inputY * m_maxVelocity,
+					inputRotation * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
+		}
+	}
+
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocity);
 		for (int i = 0; i < 4; i++) {
-			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * m_maxVoltage,
+			m_swerveModules[i].set(states[i].speedMetersPerSecond / m_maxVelocity * MAX_VOLTAGE,
 					states[i].angle.getRadians());
 		}
 	}
@@ -181,9 +206,10 @@ public class DriveTrain extends SubsystemBase {
 		drive(new ChassisSpeeds(0, 0, 0));
 	}
 
-	// get whether we are in field-centric mode
-	public boolean getFieldCentric() {
-		return m_fieldCentric;
+	// for the beginning of auto rountines
+	public void normalMode(){
+		m_fieldCentric = true;
+		m_precisionMode = false;
 	}
 
 	// toggle whether driving is field-centric
@@ -194,7 +220,6 @@ public class DriveTrain extends SubsystemBase {
 	// toggle precision mode for driving
 	public void togglePrecisionMode() {
 		m_precisionMode = !m_precisionMode;
-		m_maxVoltage = m_precisionMode ? PRECISION_MAX_VOLTAGE : MAX_VOLTAGE;
 	}
 
 	// get the swerveModuleState manually

@@ -93,6 +93,9 @@ public class FollowTrajectory extends CommandBase {
 		m_timer.reset();
 		m_timer.start();
         m_driveTrain.setPose(m_trajectory.getInitialPose());
+
+        // clear all robot mode and drive in field-centric at normal speeds
+        m_driveTrain.normalMode();
 	}
 
 	// Called every time the scheduler runs while the command is scheduled.

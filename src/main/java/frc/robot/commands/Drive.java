@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
@@ -26,26 +25,11 @@ public class Drive extends CommandBase {
 
     @Override
     public void execute() {
-        // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
-
-        if (!m_driveTrain.getFieldCentric()) { // if in robot oriented movement
-            m_driveTrain.drive(
-                    new ChassisSpeeds(
-                            m_translationXSupplier.getAsDouble(),
-                            m_translationYSupplier.getAsDouble(),
-                            m_rotationSupplier.getAsDouble()));
-        } else { // if in field relative mode
-            m_driveTrain.drive(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                            m_translationXSupplier.getAsDouble(),
-                            m_translationYSupplier.getAsDouble(),
-                            m_rotationSupplier.getAsDouble(),
-                            m_driveTrain.getHeading()));
-        } 
+        m_driveTrain.modeDrive(m_translationXSupplier.getAsDouble(),  m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble());
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+        m_driveTrain.modeDrive(0.0, 0.0, 0.0);
     }
 }
