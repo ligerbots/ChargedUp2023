@@ -139,7 +139,14 @@ public final class Constants {
     public static final double ELEVATOR_MAX_VEL_METER_PER_SEC_ASCEND_SLOW = Units.inchesToMeters(1000.0);
     public static final double ELEVATOR_MAX_ACC_METER_PER_SEC_SQ_ASCEND_SLOW = Units.inchesToMeters(62.5);
 
+       // Constants for reaching the top level, middle level, bottom level, and feeder station. Currently just have placeholder values
 
+    public static final double ARM_TOP_ROW = 0.0;
+    public static final double ARM_MIDDLE_ROW = 0.0;
+    public static final double ARM_BOTTOM_ROW = 0.0;
+    public static final double FEEDER_STATION = 0.0;
+
+        
 
 
 }

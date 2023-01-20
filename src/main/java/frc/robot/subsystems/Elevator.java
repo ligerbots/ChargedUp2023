@@ -27,19 +27,15 @@ public class Elevator extends SubsystemBase {
     new ElevatorFeedforward(Constants.ELEVATOR_KS, Constants.ELEVATOR_KG, Constants.ELEVATOR_KV, Constants.ELEVATOR_KA);
 
   private double m_kPElevator;
-  private int m_index;
-
   private boolean m_resetElevatorPos = false;
   
   /** Creates a new Elevator. */
-  public Elevator(int index, boolean inverted, CANSparkMax motor) {
-    m_index = index;
-    m_kPElevator = m_index == 0 ? Constants.ELEVATOR_K_P0 : Constants.ELEVATOR_K_P1;
+  public Elevator(CANSparkMax motor) {
+    m_kPElevator = Constants.ELEVATOR_K_P0;
 
     // Create the motor, PID Controller and encoder.
     m_motor = motor;
     m_motor.restoreFactoryDefaults();
-    m_motor.setInverted(inverted);
 
     m_PIDController = m_motor.getPIDController();
     m_PIDController.setP(m_kPElevator);
@@ -54,13 +50,13 @@ public class Elevator extends SubsystemBase {
 
     m_encoder.setPosition(Constants.ELEVATOR_OFFSET_METER);
 
-    SmartDashboard.putNumber("elevator" + m_index + "/P Gain", m_kPElevator);
+    SmartDashboard.putNumber("elevator" + "/P Gain", m_kPElevator);
   }
 
   @Override
   public void periodic() {
     double encoderValue = m_encoder.getPosition();
-    SmartDashboard.putNumber("elevator" + m_index + "/Encoder" + m_index, Units.metersToInches(encoderValue));
+    SmartDashboard.putNumber("elevator" + "/Encoder", Units.metersToInches(encoderValue));
     
     // update the PID val
     checkPIDVal();
@@ -78,11 +74,11 @@ public class Elevator extends SubsystemBase {
       m_resetElevatorPos = false;
     }
     m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0, feedforward / 12.0);
-    SmartDashboard.putNumber("elevator" + m_index + "/setPoint" + m_index, Units.metersToInches(setPoint.position));
+    SmartDashboard.putNumber("elevator" + "/setPoint", Units.metersToInches(setPoint.position));
   }
 
   private void checkPIDVal() {
-    double p = SmartDashboard.getNumber("elevator" + m_index + "/P Gain", 0);
+    double p = SmartDashboard.getNumber("elevator" + "/P Gain", 0);
     // if PID coefficients on SmartDashboard have changed, write new values to controller
     if ((p != m_kPElevator)) {
       m_PIDController.setP(p);
