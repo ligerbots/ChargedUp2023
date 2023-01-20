@@ -55,7 +55,7 @@ public final class Constants {
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
     public static final double loopPeriodSecs = 0.02;
-    
+    public static final double tapeWidth = 2;
     // max voltages
     /**
 	 * The maximum voltage that will be delivered to the drive motors.
