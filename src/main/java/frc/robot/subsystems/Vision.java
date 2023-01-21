@@ -32,7 +32,7 @@ import frc.robot.Constants;
 
 public class Vision {
 
-	private final PhotonCamera m_camera = new PhotonCamera("Cam");
+	private final PhotonCamera m_camera = new PhotonCamera("ApriltagCamera");
 	private AprilTagFieldLayout m_aprilTagFieldLayout;
 	
 	//Forward Camera
@@ -64,6 +64,10 @@ public class Vision {
 			// Get the current best target.
 			PhotonTrackedTarget target = targetResult.getBestTarget();
 			targetID = target.getFiducialId();
+			SmartDashboard.putNumber("vision/tagOffsetX", target.getBestCameraToTarget().getX());
+			SmartDashboard.putNumber("vision/tagOffsetY", target.getBestCameraToTarget().getY());
+			SmartDashboard.putNumber("vision/tagOffsetAngle", target.getBestCameraToTarget().getRotation().getAngle());
+
 		}
 		SmartDashboard.putNumber("targetID", targetID);
 
@@ -72,7 +76,6 @@ public class Vision {
         // a real robot, this must be calculated based either on latency or timestamps.
         Optional<EstimatedRobotPose> result =
                 getEstimatedGlobalPose(odometry.getEstimatedPosition());
-
         if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
 			var estimatedPose = camPose.estimatedPose;
@@ -86,6 +89,9 @@ public class Vision {
         } else {
             // move it way off the screen to make it disappear
             // m_fieldSim.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+			SmartDashboard.putNumber("vision/estimatedPoseX", 0);
+			SmartDashboard.putNumber("vision/estimatedPoseY", 0);
+			SmartDashboard.putNumber("vision/estimatedPoseZ", 0);	
         }
 
         // m_fieldSim.getObject("Actual Pos").setPose(getPose());
