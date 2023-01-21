@@ -1,23 +1,19 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+package frc.robot;
 
-package frc.robot.swerve.simulation;
-
+import frc.robot.swerve.SwerveModule;
 public interface ModuleIO {
-
+  
   public static class ModuleIOInputs {
     public double drivePositionRad = 0.0;
-    public double driveVelocityRadPerSec = 100;
-    public double driveVelocityFilteredRadPerSec = 12.5;
-    public double driveAppliedVolts = 12.0;
+    public double driveVelocityRadPerSec = 0.0;
+    public double driveAppliedVolts = 0.0;
     public double[] driveCurrentAmps = new double[] {};
     public double[] driveTempCelcius = new double[] {};
 
     public double turnAbsolutePositionRad = 0.0;
     public double turnPositionRad = 0.0;
     public double turnVelocityRadPerSec = 0.0;
-    public double turnAppliedVolts = 12.0;
+    public double turnAppliedVolts = 0.0;
     public double[] turnCurrentAmps = new double[] {};
     public double[] turnTempCelcius = new double[] {};
   }

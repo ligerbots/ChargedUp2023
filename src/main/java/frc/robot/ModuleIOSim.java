@@ -1,16 +1,15 @@
+package frc.robot;
 
-package frc.robot.swerve.simulation;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import frc.robot.Constants;
 
-public class SImModuleIO implements ModuleIO {
-  private FlywheelSim driveSim =
-      new FlywheelSim(DCMotor.getNEO(1), 6.75, 0.025);
-  private FlywheelSim turnSim =
-      new FlywheelSim(DCMotor.getNEO(1), 150.0 / 7.0, 0.004096955);
+
+
+public class ModuleIOSim implements ModuleIO {
+  private FlywheelSim driveSim = new FlywheelSim(DCMotor.getNEO(4), 6.75, 0.025);
+  private FlywheelSim turnSim = new FlywheelSim(DCMotor.getNEO(4), 150.0 / 7.0, 0.004);
 
   private double turnRelativePositionRad = 0.0;
   private double turnAbsolutePositionRad = Math.random() * 2.0 * Math.PI;
@@ -21,8 +20,7 @@ public class SImModuleIO implements ModuleIO {
     driveSim.update(Constants.loopPeriodSecs);
     turnSim.update(Constants.loopPeriodSecs);
 
-    double angleDiffRad =
-        turnSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs;
+    double angleDiffRad = turnSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs;
     turnRelativePositionRad += angleDiffRad;
     turnAbsolutePositionRad += angleDiffRad;
     while (turnAbsolutePositionRad < 0) {
@@ -32,20 +30,19 @@ public class SImModuleIO implements ModuleIO {
       turnAbsolutePositionRad -= 2.0 * Math.PI;
     }
 
-    inputs.drivePositionRad = inputs.drivePositionRad
-        + (driveSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs);
+    inputs.drivePositionRad =
+        inputs.drivePositionRad
+            + (driveSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs);
     inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
     inputs.driveAppliedVolts = driveAppliedVolts;
-    inputs.driveCurrentAmps =
-        new double[] {Math.abs(driveSim.getCurrentDrawAmps())};
+    inputs.driveCurrentAmps = new double[] {Math.abs(driveSim.getCurrentDrawAmps())};
     inputs.driveTempCelcius = new double[] {};
 
     inputs.turnAbsolutePositionRad = turnAbsolutePositionRad;
     inputs.turnPositionRad = turnRelativePositionRad;
     inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
     inputs.turnAppliedVolts = turnAppliedVolts;
-    inputs.turnCurrentAmps =
-        new double[] {Math.abs(turnSim.getCurrentDrawAmps())};
+    inputs.turnCurrentAmps = new double[] {Math.abs(turnSim.getCurrentDrawAmps())};
     inputs.turnTempCelcius = new double[] {};
   }
 
