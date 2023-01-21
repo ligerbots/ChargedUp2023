@@ -7,11 +7,15 @@ package frc.robot;
 import edu.wpi.first.math.util.Units;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
+ * The Constants class provides a convenient place for teams to hold robot-wide
+ * numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants
+ * should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
+ * wherever the
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
@@ -54,17 +58,21 @@ public final class Constants {
     public static final double X_PID_CONTROLLER_P = 0.2;
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
-    public static final double loopPeriodSecs = 0.02;
-
-    // max voltages
+    public static final double ARMGEARING = 7.5;
+    // public static final float MOMENTOFINERTIA = ;
+    // public static final double ARMLENGTH = 28;
+    // public static final Radians ARMMINANGLE = 20.0 ;
+    // public static final Radians ARMMAXANGLE = 108.5 ;
+    public static final float ARMMASS = 20 ;
+   
     /**
-	 * The maximum voltage that will be delivered to the drive motors.
-	 * <p>
-	 * This can be reduced to cap the robot's maximum speed. Typically, this is
-	 * useful during initial testing of the robot.
-	 */
-	public static final double MAX_VOLTAGE = 12.0; //default
-    public static final double PRECISION_MAX_VOLTAGE = 2.0; //precision mode
+     * The maximum voltage that will be delivered to the drive motors.
+     * <p>
+     * This can be reduced to cap the robot's maximum speed. Typically, this is
+     * useful during initial testing of the robot.
+     */
+    public static final double MAX_VOLTAGE = 12.0; // default
+    public static final double PRECISION_MAX_VOLTAGE = 2.0; // precision mode
 
     // Xbox button mapping
     public static final int XBOX_A = 1;
@@ -75,13 +83,12 @@ public final class Constants {
     // bumpers
     public static final int XBOX_LB = 5;
     public static final int XBOX_RB = 6;
-    
+
     public static final int XBOX_BACK = 7;
     public static final int XBOX_START = 8;
 
     // joy stick button
     public static final int XBOX_JL = 9;
     public static final int XBOX_JR = 10;
-
 
 }

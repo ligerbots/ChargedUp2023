@@ -3,6 +3,13 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Chosen Trajectory": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/Chosen Trajectory": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
@@ -20,14 +27,10 @@
         "open": true
       },
       "SmartDashboard": {
-        "drivetrain": {
+        "Chosen Trajectory": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }
