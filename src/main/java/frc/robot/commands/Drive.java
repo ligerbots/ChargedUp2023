@@ -25,11 +25,11 @@ public class Drive extends CommandBase {
 
     @Override
     public void execute() {
-        m_driveTrain.modeDrive(m_translationXSupplier.getAsDouble(),  m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble());
+        m_driveTrain.joystickDrive(m_translationXSupplier.getAsDouble(),  m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble());
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.modeDrive(0.0, 0.0, 0.0);
+        m_driveTrain.stop();
     }
 }

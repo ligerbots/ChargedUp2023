@@ -37,6 +37,8 @@ public class DriveTrain extends SubsystemBase {
 	// adjusted when in precision driving mode
 	private double m_maxVelocity = MAX_VELOCITY_METERS_PER_SECOND;
 
+	private double m_maxAngularVelocity = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+
 	// if true, then robot is in field centric mode
 	private boolean m_fieldCentric = true;
 
@@ -58,11 +60,11 @@ public class DriveTrain extends SubsystemBase {
 	 * This is a measure of how fast the robot should be able to drive in a straight
 	 * line.
 	 */
-	public static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
+	private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
 			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
 
 	// TODO: tune and check this
-	public static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6;
+	private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6;
 
 	/**
 	 * The maximum angular velocity of the robot in radians per second.
@@ -71,8 +73,12 @@ public class DriveTrain extends SubsystemBase {
 	 */
 	// Here we calculate the theoretical maximum angular velocity. You can also
 	// replace this with a measured amount.
-	public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
 			Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+
+
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_VELOCITY_PRECISION_MODE /
+	Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
 	private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
 			// Front left
@@ -169,33 +175,31 @@ public class DriveTrain extends SubsystemBase {
 		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
 	}
 
-	public void modeDrive(double inputX, double inputY, double inputRotation) {
-		if(m_precisionMode){
-			m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		}
-
+	public void joystickDrive(double inputX, double inputY, double inputRotation) {
+		ChassisSpeeds chassisSpeeds;
 		// when in field-relative mode
 		if (m_fieldCentric) {
-			drive(
+			chassisSpeeds = 
 					ChassisSpeeds.fromFieldRelativeSpeeds(
 							inputX * m_maxVelocity,
 							inputY * m_maxVelocity,
-							inputRotation * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-							getHeading()));
+							inputRotation * m_maxAngularVelocity,
+							getHeading());
 		}
 		// when in robot-centric mode
 		else {
-			drive(new ChassisSpeeds(inputX * m_maxVelocity,
+			chassisSpeeds = new ChassisSpeeds(inputX * m_maxVelocity,
 					inputY * m_maxVelocity,
-					inputRotation * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
+					inputRotation * m_maxAngularVelocity);
 		}
+		drive(chassisSpeeds);		
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, m_maxVelocity);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		for (int i = 0; i < 4; i++) {
-			m_swerveModules[i].set(states[i].speedMetersPerSecond / m_maxVelocity * MAX_VOLTAGE,
+			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 					states[i].angle.getRadians());
 		}
 	}
@@ -207,7 +211,7 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	// for the beginning of auto rountines
-	public void normalMode(){
+	public void resetDrivingModes(){
 		m_fieldCentric = true;
 		m_precisionMode = false;
 	}
@@ -215,6 +219,8 @@ public class DriveTrain extends SubsystemBase {
 	// toggle whether driving is field-centric
 	public void toggleFieldCentric() {
 		m_fieldCentric = !m_fieldCentric;
+		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 	}
 
 	// toggle precision mode for driving
