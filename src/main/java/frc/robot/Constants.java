@@ -63,7 +63,6 @@ public final class Constants {
 	 * useful during initial testing of the robot.
 	 */
 	public static final double MAX_VOLTAGE = 12.0; //default
-    public static final double PRECISION_MAX_VOLTAGE = 2.0; //precision mode
 
     // Xbox button mapping
     public static final int XBOX_A = 1;
