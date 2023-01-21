@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -83,8 +84,10 @@ public final class Constants {
     public static final int XBOX_JR = 10;
 
     // balancing constants
+    public static final Rotation2d CHARGESTATION_RAMP_ANGLE_DEGREES = Rotation2d.fromDegrees(10);
+    public static final Rotation2d CHARGESTATION_BALANCE_ERROR = Rotation2d.fromDegrees(3);
     public static final double CHARGESTATION_BALANCED_GOAL_DEGREES = 0;
-    public static final double CHARGESTATION_BALANCED_KP = 0.02;
+    public static final double CHARGESTATION_BALANCED_KP = 0.02; //change to control how fast robot drives during balancing
     public static final double CHARGESTATION_MAX_METERSPERSECOND = 0.75;
-    public static final double CHARGESTATION_BALANCE_ERROR = 1;
+    public static final double CHARGESTATION_BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
 }

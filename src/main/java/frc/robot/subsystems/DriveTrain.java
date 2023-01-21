@@ -239,9 +239,9 @@ public class DriveTrain extends SubsystemBase {
 		m_maxVoltage = m_precisionMode ? Constants.PRECISION_MAX_VOLTAGE : Constants.MAX_VOLTAGE;
 	}
 
-    public double getPitch() {
+    public Rotation2d getPitch() {
 		//gets pitch of robot
-		return m_navx.getPitch();
+		return Rotation2d.fromDegrees(m_navx.getPitch());
     }
 
 	// get the swerveModuleState manually
