@@ -9,12 +9,9 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.AdjustRobotAprilTag;
-import frc.robot.commands.AdjustRobotTape;
 import frc.robot.commands.Drive;
 import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
@@ -29,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
 	private final DriveTrain m_driveTrain = new DriveTrain();
-	private final Vision m_vision = new Vision(m_driveTrain);
 
 	private final XboxController m_controller = new XboxController(0);
 
@@ -67,14 +63,6 @@ public class RobotContainer {
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
 		//inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
-		
-		//vision buttons to adjust to targets
-		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);//command to adjust to cube
-		xboxBButton.onTrue(new AdjustRobotAprilTag(m_vision, m_driveTrain)); //when button B is pressed adjust to aprilTag
-		
-		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y); //command to adjust to cone
-		xboxYButton.onTrue(new AdjustRobotTape(m_vision, m_driveTrain));// when button Y is pressed adjust to face best tape
-
 	}
 
 	public Command getDriveCommand() {

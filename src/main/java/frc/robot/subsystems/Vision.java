@@ -18,6 +18,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -29,92 +30,70 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class Vision extends SubsystemBase {
+public class Vision {
 
 	private final PhotonCamera m_camera = new PhotonCamera("Cam");
-	private final DriveTrain m_driveTrain;
-	AprilTagFieldLayout m_aprilTagFieldLayout;
-
-	//using loadResources, has error
-	//AprilTagFieldLayout m_aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFieldLayout.loadFromResource(AprilTagFields.k2022RapidReact.m_resourceFile));
+	private AprilTagFieldLayout m_aprilTagFieldLayout;
 	
 	//Forward Camera
 	//relative position of the camera on the robot ot the robot center
-	Transform3d m_robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+	private final Transform3d m_robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
-	PhotonPoseEstimator m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
+	PhotonPoseEstimator m_photonPoseEstimator;
 
-	/** Creates a new Vision. */
-	public Vision(DriveTrain driveTrain) throws IOException{
-		this.m_driveTrain = driveTrain;
-		this.m_aprilTagFieldLayout = new AprilTagFieldLayout("src/main/AprilTagPositions.json");
+	public Vision() {
+		try{
+			m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+		} catch(IOException e){
+			System.out.println("Unable to load AprilTag layout" + e.getMessage());
+			m_aprilTagFieldLayout = null;
+		}
 
+		m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
+		// set the driver mode to false
+		m_camera.setDriverMode(false);
 	}
 
-	@Override
-	public void periodic() {
-		// This method will be called once per scheduler run
+	public void updateOdometry(SwerveDrivePoseEstimator odometry) {
 
-		// System.out.println(m_camera.getDriverMode());
+		var targetResult = m_camera.getLatestResult();
 
-		var result = m_camera.getLatestResult();
-
-		SmartDashboard.putBoolean("hasTargets?", result.hasTargets());
-		SmartDashboard.putBoolean("drivemode", m_camera.getDriverMode());
-		if (result.hasTargets()) {
+		SmartDashboard.putBoolean("hasTargets?", targetResult.hasTargets());
+		int targetID = -1;
+		if (targetResult.hasTargets()) {
 			// Get the current best target.
-			PhotonTrackedTarget target = result.getBestTarget();
-			int targetID = target.getFiducialId();
-			SmartDashboard.putNumber("targetID", targetID);
-
-		} else {
-			SmartDashboard.putNumber("targetID", -1);
-			SmartDashboard.putNumber("PPL", m_camera.getPipelineIndex());
+			PhotonTrackedTarget target = targetResult.getBestTarget();
+			targetID = target.getFiducialId();
 		}
-	}
+		SmartDashboard.putNumber("targetID", targetID);
 
-	public double getDistanceFromTarget(int targetGrid){ //an integer 1-9
-		var result = m_camera.getLatestResult(); // camera's latest result
-		if (result.hasTargets()) {
-			// calculate range from target
-			PhotonTrackedTarget target = result.getBestTarget(); //find best target
-			int targetID = target.getFiducialId();
-			SmartDashboard.putNumber("targetID", targetID);
+        // Also apply vision measurements. We use 0.3 seconds in the past as an example
+        // -- on
+        // a real robot, this must be calculated based either on latency or timestamps.
+        Optional<EstimatedRobotPose> result =
+                getEstimatedGlobalPose(odometry.getEstimatedPosition());
 
-			if(targetGrid == 1 || targetGrid == 4 || targetGrid == 7){ //if aiming to left of AprilTag
+        if (result.isPresent()) {
+            EstimatedRobotPose camPose = result.get();
+			var estimatedPose = camPose.estimatedPose;
+            odometry.addVisionMeasurement(estimatedPose.toPose2d(), camPose.timestampSeconds);
+			SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
+			SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
+			SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
 
-			} else if(targetGrid == 2 || targetGrid == 5 || targetGrid == 8){ //aiming towards middle
-				//aim directly to distance
-				return PhotonUtils.calculateDistanceToTargetMeters(
-					Constants.CAMERA_HEIGHT_METERS,
-					Constants.APRILTAG_TARGET_HEIGHT_METERS,
-					Constants.CAMERA_PITCH_RADIANS,
-					Units.degreesToRadians(result.getBestTarget().getPitch()));
-			}else{ //aiming to right
+            // m_fieldSim.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
 
-			}
+        } else {
+            // move it way off the screen to make it disappear
+            // m_fieldSim.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+        }
 
-
-			
-		}
-		return 0.0; //if there is no target nothing happens
-		
-	}
-
-	public double getYawFromTarget(){
-		var result = m_camera.getLatestResult(); // camera's latest result
-		if (result.hasTargets()) {
-			return result.getBestTarget().getYaw(); //return yaw from target
-			
-		}
-		return 0.0; //if no target
-	}
-
-
+        // m_fieldSim.getObject("Actual Pos").setPose(getPose());
+        // m_fieldSim.setRobotPose(m_odometry.getEstimatedPosition());
+    }
 
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return m_photonPoseEstimator.update();
     }
-	
 }

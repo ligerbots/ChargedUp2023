@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
@@ -31,13 +32,13 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 
 
 public class DriveTrain extends SubsystemBase {
-	public PhotonCameraWrapper pcw;
 	// the max voltage for drivetrain
 	// adjusted when in precision driving mode
 	private double m_maxVoltage = MAX_VOLTAGE;
@@ -95,6 +96,10 @@ public class DriveTrain extends SubsystemBase {
 	// the odometry class to keep track of where the robot is on the field
 	private final SwerveDrivePoseEstimator m_odometry;
 
+	private final Vision m_vision;
+
+	// private final Field2d m_fieldSim;
+
 	// PID controller for swerve
 	private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
 	private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
@@ -129,6 +134,8 @@ public class DriveTrain extends SubsystemBase {
 		// TODO add in the uncertainty matrices for encoders vs vision measurements
 		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
 				new Pose2d());
+
+		m_vision = new Vision();
 	}
 
 	/**
@@ -221,33 +228,11 @@ public class DriveTrain extends SubsystemBase {
 		}
 		return state;
 	}
-	
-	public void updateOdometry() {
-		m_odometry.update(getGyroscopeRotation(), getModulePositions());
-
-        // Also apply vision measurements. We use 0.3 seconds in the past as an example
-        // -- on
-        // a real robot, this must be calculated based either on latency or timestamps.
-        Optional<EstimatedRobotPose> result =
-                pcw.getEstimatedGlobalPose(m_odometry.getEstimatedPosition());
-
-        if (result.isPresent()) {
-            EstimatedRobotPose camPose = result.get();
-            m_odometry.addVisionMeasurement(
-                    camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
-            m_fieldSim.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
-        } else {
-            // move it way off the screen to make it disappear
-            m_fieldSim.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
-        }
-
-        m_fieldSim.getObject("Actual Pos").setPose(m_drivetrainSimulator.getPose());
-        m_fieldSim.setRobotPose(m_odometry.getEstimatedPosition());
-    }
 	    
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
