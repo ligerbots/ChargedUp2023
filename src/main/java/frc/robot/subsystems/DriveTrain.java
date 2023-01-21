@@ -64,7 +64,7 @@ public class DriveTrain extends SubsystemBase {
 			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
 
 	// TODO: tune and check this
-	private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6;
+	private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6.0;
 
 	/**
 	 * The maximum angular velocity of the robot in radians per second.
@@ -77,8 +77,8 @@ public class DriveTrain extends SubsystemBase {
 			Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
 
-	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_VELOCITY_PRECISION_MODE /
-	Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
+			MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
 	private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
 			// Front left
@@ -219,13 +219,13 @@ public class DriveTrain extends SubsystemBase {
 	// toggle whether driving is field-centric
 	public void toggleFieldCentric() {
 		m_fieldCentric = !m_fieldCentric;
-		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 	}
 
 	// toggle precision mode for driving
 	public void togglePrecisionMode() {
 		m_precisionMode = !m_precisionMode;
+		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 	}
 
 	// get the swerveModuleState manually
