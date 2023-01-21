@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
+import frc.robot.commands.ResetHeading;
 import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -33,8 +34,6 @@ public class RobotContainer {
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
-
-		// Configure the button bindings
 		configureButtonBindings();
 	}
 
@@ -47,22 +46,20 @@ public class RobotContainer {
 	 * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings() {
-		// Back button zeros the gyroscope
-		/*
-		 * new Button(m_controller::getBackButton)
-		 * // No requirements because we don't need to interrupt anything
-		 * .whenPressed(m_drivetrainSubsystem::zeroGyroscope);
-		 */
-
 		// button A
 		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A); 
 		// when button A is pressed make a new toggle command to toggle mode
-		xboxAButton.whenPressed(new ToggleFieldRelative(m_driveTrain));
+		xboxAButton.onTrue(new ToggleFieldRelative(m_driveTrain));
 
 		// button X
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
-		//inline command to toggle precision mode when button X is pressed
-    	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
+		// inline command to toggle precision mode when button X is pressed
+    	xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+
+		// button Y
+		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_B);
+		// when button Y is pressed reset the robot heading
+		xboxYButton.onTrue(new ResetHeading(m_driveTrain));
 		}
 
 	public Command getDriveCommand() {
