@@ -42,30 +42,28 @@ public class ChargeStationBalance extends CommandBase {
     double driveMPS = 0;
     double currentAngle = m_driveTrain.getPitch().getDegrees();
 
-    // uses difference in current angle and 0 to get speed
-    // while robot is on the ground, drives until gets onto ramp
-    // while robot is on ramp, drives until balanced
-    switch (m_stage) {
-    case GROUND: 
-      error = Constants.CHARGESTATION_RAMP_ANGLE_DEGREES.getDegrees() - currentAngle;
-      driveMPS = error * Constants.CHARGESTATION_BALANCED_KP;
-      
-      //set stage to CHARGESTATION once robot is on ramp
-      if (error < Constants.CHARGESTATION_BALANCE_ERROR.getDegrees()){
-        m_stage = m_stages.CHARGESTATION;
-      }
+    // Automated way to drive robot onto charge station from ground as well as balance on charge station
+    // switch (m_stage) {
+    // case GROUND: 
+    //   error = Constants.CHARGESTATION_RAMP_ANGLE_DEGREES.getDegrees() - currentAngle;
+    //   driveMPS = error * Constants.CHARGESTATION_BALANCED_KP;
+    //
+    // set stage to CHARGESTATION once robot is on ramp
+    // if (error < Constants.CHARGESTATION_BALANCE_ERROR.getDegrees()){
+    //   m_stage = m_stages.CHARGESTATION;
+    // }
+    // case CHARGESTATION: 
 
-    case CHARGESTATION: 
-      error = Constants.CHARGESTATION_BALANCED_GOAL_DEGREES - currentAngle;
-      driveMPS = -(error * Constants.CHARGESTATION_BALANCED_KP);
-    }
+    // uses difference in current angle and 0 to get speed, balancing while on charge station 
+    error = Constants.CHARGESTATION_BALANCED_GOAL_DEGREES - currentAngle;
+    driveMPS = error * Constants.CHARGESTATION_BALANCED_KP;
 
     // cap max speed at 0.75 meters per second
     if (Math.abs(driveMPS) > Constants.CHARGESTATION_MAX_METERSPERSECOND) {
       driveMPS = Math.copySign(Constants.CHARGESTATION_MAX_METERSPERSECOND, driveMPS);
     }
-
-    m_driveTrain.drive(new ChassisSpeeds(driveMPS, 0.0, 0.0));
+    
+    m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getGyroscopeRotation()));
     
     //if balanced, records time when state of being balanced started, if not balanced, sets time to 0
     if (error <= Constants.CHARGESTATION_BALANCE_ERROR.getDegrees() && m_stage == m_stages.CHARGESTATION){

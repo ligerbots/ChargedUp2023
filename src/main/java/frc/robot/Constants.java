@@ -84,7 +84,7 @@ public final class Constants {
     public static final int XBOX_JR = 10;
 
     // balancing constants
-    public static final Rotation2d CHARGESTATION_RAMP_ANGLE_DEGREES = Rotation2d.fromDegrees(10);
+    //public static final Rotation2d CHARGESTATION_RAMP_ANGLE_DEGREES = Rotation2d.fromDegrees(-10); //useful if we are going to automate going on the ramp
     public static final Rotation2d CHARGESTATION_BALANCE_ERROR = Rotation2d.fromDegrees(3);
     public static final double CHARGESTATION_BALANCED_GOAL_DEGREES = 0;
     public static final double CHARGESTATION_BALANCED_KP = 0.02; //change to control how fast robot drives during balancing
