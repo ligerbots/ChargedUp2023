@@ -64,4 +64,8 @@ public class SwerveModule {
         return new SwerveModulePosition(m_driveController.getWheelDistance(), m_steerController.getStateAngle() );
     }
 
+    public double getWheelDistance(){
+        return m_driveController.getWheelDistance();
+    }
+
 }
