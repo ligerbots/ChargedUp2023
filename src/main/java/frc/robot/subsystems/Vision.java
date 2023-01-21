@@ -4,15 +4,20 @@
 
 package frc.robot.subsystems;
 
+import java.io.IOException;
 import java.util.Optional;
+
+import javax.imageio.IIOException;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -28,9 +33,22 @@ public class Vision extends SubsystemBase {
 
 	private final PhotonCamera m_camera = new PhotonCamera("Cam");
 	private final DriveTrain m_driveTrain;
+	AprilTagFieldLayout m_aprilTagFieldLayout;
+
+	//using loadResources, has error
+	//AprilTagFieldLayout m_aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFieldLayout.loadFromResource(AprilTagFields.k2022RapidReact.m_resourceFile));
+	
+	//Forward Camera
+	//relative position of the camera on the robot ot the robot center
+	Transform3d m_robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+	PhotonPoseEstimator m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
+
 	/** Creates a new Vision. */
-	public Vision(DriveTrain driveTrain) {
+	public Vision(DriveTrain driveTrain) throws IOException{
 		this.m_driveTrain = driveTrain;
+		this.m_aprilTagFieldLayout = new AprilTagFieldLayout("src/main/AprilTagPositions.json");
+
 	}
 
 	@Override
@@ -93,17 +111,10 @@ public class Vision extends SubsystemBase {
 	}
 
 
-	private Pose2d getPoseFromAprilTag(){
-		AprilTagFieldLayout aprilTagFieldLayout = new AprilTagFieldLayout("src/main/AprilTagPositions.json");
-				//Forward Camera
-		Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
-		// Construct PhotonPoseEstimator
-		PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cam, robotToCam);
-	}
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-        photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-        return photonPoseEstimator.update();
+        m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        return m_photonPoseEstimator.update();
     }
 	
 }

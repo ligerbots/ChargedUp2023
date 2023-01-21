@@ -30,11 +30,14 @@ import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
+
+import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 
 
 public class DriveTrain extends SubsystemBase {
-
+	public PhotonCameraWrapper pcw;
 	// the max voltage for drivetrain
 	// adjusted when in precision driving mode
 	private double m_maxVoltage = MAX_VOLTAGE;
@@ -220,18 +223,17 @@ public class DriveTrain extends SubsystemBase {
 	}
 	
 	public void updateOdometry() {
-        m_poseEstimator.update(
-                m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+		m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
         // Also apply vision measurements. We use 0.3 seconds in the past as an example
         // -- on
         // a real robot, this must be calculated based either on latency or timestamps.
         Optional<EstimatedRobotPose> result =
-                pcw.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+                pcw.getEstimatedGlobalPose(m_odometry.getEstimatedPosition());
 
         if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
-            m_poseEstimator.addVisionMeasurement(
+            m_odometry.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
             m_fieldSim.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
         } else {
@@ -240,7 +242,7 @@ public class DriveTrain extends SubsystemBase {
         }
 
         m_fieldSim.getObject("Actual Pos").setPose(m_drivetrainSimulator.getPose());
-        m_fieldSim.setRobotPose(m_poseEstimator.getEstimatedPosition());
+        m_fieldSim.setRobotPose(m_odometry.getEstimatedPosition());
     }
 	    
 	@Override
