@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 
 public class Vision {
 
@@ -29,7 +30,7 @@ public class Vision {
 	
 	//Forward Camera
 	//relative position of the camera on the robot ot the robot center
-	private final Transform3d m_robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+	private final Transform3d m_robotToCam = new Transform3d(new Translation3d(Constants.CAMERA_X_OFFSET, Constants.CAMERA_Y_OFFSET, Constants.CAMERA_Z_OFFSET), new Rotation3d(Constants.CAMERA_ROLL_OFFSET,Constants.CAMERA_PITCH_OFFSET,Constants.CAMERA_YAW_OFFSET)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
 	PhotonPoseEstimator m_photonPoseEstimator;
 
