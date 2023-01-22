@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,6 +28,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    if(this.isSimulation()){
+      //At-Home Network Debug Only - host the NT server on photonvision and connect to it.
+      NetworkTableInstance.getDefault().stopServer();
+      // NetworkTableInstance.getDefault().setServer("photonvision.local");
+      NetworkTableInstance.getDefault().setServer("127.0.0.1");
+      NetworkTableInstance.getDefault().startClient4("MainRobotProgram");
+    }
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();

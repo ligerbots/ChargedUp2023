@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
-import frc.robot.commands.ResetHeading;
-import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
@@ -49,18 +47,13 @@ public class RobotContainer {
 		// button A
 		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A); 
 		// when button A is pressed make a new toggle command to toggle mode
-		xboxAButton.onTrue(new ToggleFieldRelative(m_driveTrain));
+		xboxAButton.whenPressed(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
 		// button X
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
-		// inline command to toggle precision mode when button X is pressed
-    	xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
-
-		// button Y
-		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_B);
-		// when button Y is pressed reset the robot heading
-		xboxYButton.onTrue(new ResetHeading(m_driveTrain));
-		}
+		//inline command to toggle precision mode when button X is pressed
+    	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
+	}
 
 	public Command getDriveCommand() {
 		// The controls are for field-oriented driving:
@@ -69,9 +62,9 @@ public class RobotContainer {
 		// Right stick X axis -> rotation
 		return new Drive(
 				m_driveTrain,
-				() -> -modifyAxis(m_controller.getLeftY()) * DriveTrain.MAX_VELOCITY_METERS_PER_SECOND,
-				() -> -modifyAxis(m_controller.getLeftX()) * DriveTrain.MAX_VELOCITY_METERS_PER_SECOND,
-				() -> -modifyAxis(m_controller.getRightX()) * DriveTrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);
+				() -> -modifyAxis(m_controller.getLeftY()),
+				() -> -modifyAxis(m_controller.getLeftX()),
+				() -> -modifyAxis(m_controller.getRightX()));
 	}
 
 	private static double deadband(double value, double deadband) {

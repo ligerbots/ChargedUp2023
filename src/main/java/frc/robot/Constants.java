@@ -55,6 +55,16 @@ public final class Constants {
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
 
+    // TODO: check this again when we mounted the camera
+    // Camera offset to robot
+    public static final double CAMERA_X_OFFSET = 0.5; 
+    public static final double CAMERA_Y_OFFSET = 0.0; 
+    public static final double CAMERA_Z_OFFSET = 0.5; 
+
+    public static final double CAMERA_ROLL_OFFSET = 0.0; 
+    public static final double CAMERA_YAW_OFFSET = 0.0; 
+    public static final double CAMERA_PITCH_OFFSET = 0.0; 
+
     // max voltages
     /**
 	 * The maximum voltage that will be delivered to the drive motors.
@@ -63,7 +73,6 @@ public final class Constants {
 	 * useful during initial testing of the robot.
 	 */
 	public static final double MAX_VOLTAGE = 12.0; //default
-    public static final double PRECISION_MAX_VOLTAGE = 2.0; //precision mode
 
     // Xbox button mapping
     public static final int XBOX_A = 1;
