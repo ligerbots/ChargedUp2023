@@ -62,7 +62,7 @@ public class RobotContainer {
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
 		//inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
-		}
+	}
 
 	public Command getDriveCommand() {
 		// The controls are for field-oriented driving:

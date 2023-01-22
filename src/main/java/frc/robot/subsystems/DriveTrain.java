@@ -9,7 +9,6 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,6 +98,10 @@ public class DriveTrain extends SubsystemBase {
 	// the odometry class to keep track of where the robot is on the field
 	private final SwerveDrivePoseEstimator m_odometry;
 
+	private final Vision m_vision;
+
+	// private final Field2d m_fieldSim;
+
 	// PID controller for swerve
 	private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
 	private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
@@ -133,6 +136,8 @@ public class DriveTrain extends SubsystemBase {
 		// TODO add in the uncertainty matrices for encoders vs vision measurements
 		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
 				new Pose2d());
+
+		m_vision = new Vision();
 	}
 
 	/**
@@ -228,6 +233,17 @@ public class DriveTrain extends SubsystemBase {
 		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 	}
 
+	public PIDController getXController(){ //gets the controller for x position of robot
+		return m_xController;
+	}
+
+	public PIDController getYController(){ //gets controller for y position of bot
+		return m_yController;
+	}
+
+	public ProfiledPIDController getThetaController(){ //gets controller for angle
+		return m_thetaController;
+	}
 	// get the swerveModuleState manually
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] state = new SwerveModulePosition[4];
@@ -236,10 +252,11 @@ public class DriveTrain extends SubsystemBase {
 		}
 		return state;
 	}
-
+	    
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
