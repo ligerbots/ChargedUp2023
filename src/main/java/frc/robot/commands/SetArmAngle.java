@@ -21,7 +21,7 @@ public class SetArmAngle extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_arm.setArmAngle(m_angle);
+    m_arm.setShoulderAngle(m_angle);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

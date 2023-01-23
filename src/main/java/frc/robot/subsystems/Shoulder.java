@@ -20,7 +20,8 @@ import frc.robot.Constants;
 public class Shoulder extends TrapezoidProfileSubsystem {
 
   // Define the motor and encoders
-  private final CANSparkMax m_motor;
+  private final CANSparkMax m_motorLeader;
+  private final CANSparkMax m_motorFollower;
   private final RelativeEncoder m_encoder;
   private final SparkMaxPIDController m_PIDController;
 
@@ -46,18 +47,22 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     
     // Create the motor, PID Controller and encoder.
-    m_motor = new CANSparkMax(Constants.ARM_CAN_IDS[m_index], MotorType.kBrushless);
-    m_motor.restoreFactoryDefaults();
+    m_motorLeader = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
+    m_motorFollower = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
+    m_motorLeader.restoreFactoryDefaults();
+    // Set follower and invert
+    m_motorFollower.follow(m_motorLeader, true);
     
-    m_PIDController = m_motor.getPIDController();
+    m_PIDController = m_motorLeader.getPIDController();
     m_PIDController.setP(m_kPArm);
     m_PIDController.setI(Constants.ARM_K_I);
     m_PIDController.setD(Constants.ARM_K_D);
     m_PIDController.setFF(Constants.ARM_K_FF);
 
-    m_encoder = m_motor.getEncoder();
+    m_encoder = m_motorLeader.getEncoder();
     // Set the position conversion factor. Note that the Trapezoidal control
     // expects angles in radians.
+    // TODO: Set this based on shoulder gearbox gear ratio
     m_encoder.setPositionConversionFactor((1.0 / (25.0 * 60.0 / 16.0)) * 2.0 * Math.PI);
     m_encoder.setPosition(Constants.ARM_OFFSET_RAD);
     SmartDashboard.putNumber("arm" + m_index + "/P Gain", m_kPArm);
@@ -68,7 +73,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     double encoderValue = m_encoder.getPosition();
     
     // Display current values on the SmartDashboard
-    SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motor.getAppliedOutput());
+    SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motorLeader.getAppliedOutput());
     SmartDashboard.putNumber("arm" + m_index + "/Encoder" + m_index, Units.radiansToDegrees(encoderValue));
     SmartDashboard.putBoolean("arm" + m_index + "/CoastMode" + m_index, m_coastMode);
 
@@ -133,24 +138,16 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   }
 
   public CANSparkMax getMotor() {
-    return m_motor;
+    return m_motorLeader;
   }
 
   public RelativeEncoder getEncoder() {
     return m_encoder;
   }
 
-  public void idleMotor(){
-    m_coastMode = true;
-    // set the motor to coast mode 
-    m_motor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    // stop the motor to prevent the last PID setReference() to drive the motor
-    m_motor.stopMotor();
-  }
-
-  public void unIdleMotor(){
-    m_coastMode = false;
-    m_motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+  public void setBrakeMode (boolean brake) {
+    m_motorLeader.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
+    m_coastMode = (brake ? false : true);
   }
 
   public void resetArmPos(){

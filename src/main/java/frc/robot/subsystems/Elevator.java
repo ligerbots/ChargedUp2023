@@ -86,15 +86,16 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  public CANSparkMax getMotor() {
-    return m_motor;
-  }
-  public RelativeEncoder getEncoder() {
-    return m_encoder;
+  public double getExtent() {
+    return m_encoder.getPosition();
   }
 
-  public void resetElevatorPos(){
+  public void resetExtent(){
     setSetPoint(new TrapezoidProfile.State(m_encoder.getPosition(), 0.0));
     m_resetElevatorPos = true;
+  }
+
+  public void setBrakeMode (boolean brake) {
+    m_motor.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
   }
 }

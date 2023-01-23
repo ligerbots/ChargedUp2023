@@ -85,9 +85,9 @@ public final class Constants {
     // These need to be set for this robot.  
 
 
-    // Following four CAN IDs are for the climber subsystem
-    public static final int[] ELEVATOR_CAN_IDS = new int[] {1,2}; //{1,2};
-    public static final int[] ARM_CAN_IDS = new int[] {7,10}; //{7,10};
+    // Following three CAN IDs are for the Arm subsystem
+    public static final int ELEVATOR_CAN_ID = 1; // TODO: Set CanID
+    public static final int[] SHOULDER_CAN_IDS = new int[] {7,10}; // TODO: Set CANIDs
     // Feedforward constants for the each Climber Arm
     public static final double ELEVATOR_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm

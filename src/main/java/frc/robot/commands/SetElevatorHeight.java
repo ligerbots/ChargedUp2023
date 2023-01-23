@@ -47,9 +47,9 @@ public class SetElevatorHeight extends CommandBase {
         // End at desired position in meters; implicitly starts at 0
         new TrapezoidProfile.State(m_height, 0),
         // initial position state
-        new TrapezoidProfile.State(m_arm.getElevatorHeight()[0], 0)),
+        new TrapezoidProfile.State(m_arm.getElevatorExtent(), 0)),
         // Pipe the profile state to the drive
-        setpointState -> m_arm.setElevatorHeight(setpointState));
+        setpointState -> m_arm.setElevatorExtent(setpointState));
 
     CommandScheduler.getInstance().schedule(m_command);
   }
