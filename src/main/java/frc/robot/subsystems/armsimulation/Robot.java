@@ -1,7 +1,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.Simulation.armsimulation;
+package frc.robot.subsystems.armsimulation;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -43,8 +43,8 @@ public class Robot extends TimedRobot {
   //  = (2 * PI rads) / (4096 pulses)
   private static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
 
-  // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  private final DCMotor m_armGearbox = DCMotor.getVex775Pro(2);
+  // The arm gearbox represents a gearbox containing two neo motors.
+  private final DCMotor m_armGearbox = DCMotor.getNEO(2);
 
   // Standard classes for controlling our arm
   private final PIDController m_controller = new PIDController(kArmKp, 0, 0);
@@ -54,18 +54,19 @@ public class Robot extends TimedRobot {
 
   // Simulation classes help us simulate what's going on, including gravity.
   private static final double m_armReduction = 200;
-  private static final double m_armMass = 8.0; // Kilograms
-  private static final double m_armLength = Units.inchesToMeters(30);
+  private static final double m_armMass = 15.0; // Kilograms
+  private static final double m_armLength = Units.inchesToMeters(28.0);
   // This arm sim represents an arm that can travel from -75 degrees (rotated down front)
   // to 255 degrees (rotated down in the back).
   private final SingleJointedArmSim m_armSim =
       new SingleJointedArmSim(
           m_armGearbox,
           m_armReduction,
-          SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
+          81.67,
           m_armLength,
           Units.degreesToRadians(-75),
           Units.degreesToRadians(255),
+          m_armMass, 
           true,
           VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1 tick
           );

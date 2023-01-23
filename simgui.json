@@ -1,17 +1,4 @@
 {
-  "NTProvider": {
-    "types": {
-      "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Chosen Trajectory": "String Chooser"
-    },
-    "windows": {
-      "/SmartDashboard/Chosen Trajectory": {
-        "window": {
-          "visible": true
-        }
-      }
-    }
-  },
   "NetworkTables": {
     "Retained Values": {
       "open": false
@@ -19,18 +6,22 @@
     "transitory": {
       "LiveWindow": {
         ".status": {
-          "open": true
-        },
-        "open": true
-      },
-      "Shuffleboard": {
-        "open": true
+          "open": false
+        }
       },
       "SmartDashboard": {
         "Chosen Trajectory": {
-          "open": true
+          "open": false
         }
       }
+    }
+  },
+  "NetworkTables Info": {
+    "Clients": {
+      "open": false
+    },
+    "Server": {
+      "open": false
     }
   }
 }
