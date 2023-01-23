@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
@@ -24,7 +25,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
  */
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
-	private final DriveTrain m_driveTrain = new DriveTrain();
+
+	private final Vision m_vision = new Vision();
+
+	private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
 
 	private final XboxController m_controller = new XboxController(0);
 
