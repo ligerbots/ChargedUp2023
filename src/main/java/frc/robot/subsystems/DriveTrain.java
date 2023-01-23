@@ -6,26 +6,24 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -34,13 +32,17 @@ import static frc.robot.Constants.*;
 
 public class DriveTrain extends SubsystemBase {
 
-	private double m_maxVoltage = Constants.MAX_VOLTAGE; //var that acts as max voltage for drivetrain
+	// the max velocity for drivetrain
+	// adjusted when in precision driving mode
+	private double m_maxVelocity = MAX_VELOCITY_METERS_PER_SECOND;
 
-	// if var = true, then robot is in field relative mode
-	private boolean m_fieldRelative = true; // var that controls if the robot is in field relative or robot centric mode
+	private double m_maxAngularVelocity = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
-	//if var = true, then robot is in precision mode
-	private boolean m_precisionMode = false; //var that determines precision or non precision mode
+	// if true, then robot is in field centric mode
+	private boolean m_fieldCentric = true;
+
+	// if true, then robot is in precision mode
+	private boolean m_precisionMode = false;
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
@@ -57,10 +59,12 @@ public class DriveTrain extends SubsystemBase {
 	 * This is a measure of how fast the robot should be able to drive in a straight
 	 * line.
 	 */
-	// add arbitrary 3/4 reduction - PaulR
-	public static final double MAX_VELOCITY_METERS_PER_SECOND = 0.75 * 5880.0 / 60.0 *
+	private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
 			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
-	
+
+	// TODO: tune and check this
+	private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6.0;
+
 	/**
 	 * The maximum angular velocity of the robot in radians per second.
 	 * <p>
@@ -68,8 +72,12 @@ public class DriveTrain extends SubsystemBase {
 	 */
 	// Here we calculate the theoretical maximum angular velocity. You can also
 	// replace this with a measured amount.
-	public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
 			Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+
+
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
+			MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
 	private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
 			// Front left
@@ -81,67 +89,55 @@ public class DriveTrain extends SubsystemBase {
 			// Back right
 			new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
-	// By default we use a Pigeon for our gyroscope. But if you use another
-	// gyroscope, like a NavX, you can change this.
-	// The important thing about how you configure your gyroscope is that rotating
-	// the robot counter-clockwise should
-	// cause the angle reading to increase until it wraps back over to zero.
-	private final AHRS m_navx = new AHRS(Port.kMXP, (byte) 200); // NavX connected over MXP
+	// NavX connected over MXP
+	private final AHRS m_navx = new AHRS(Port.kMXP, (byte) 200);
 
 	// These are our modules. We initialize them in the constructor.
 	private final SwerveModule[] m_swerveModules = new SwerveModule[4];
 
-	// private final SwerveDrivePoseEstimator m_odometry = new SwerveDrivePoseEstimator(
-	// 		getGyroscopeRotation(),
-	// 		new Pose2d(),
-	// 		m_kinematics,
-	// 		VecBuilder.fill(0.1, 0.1, 0.1),
-	// 		VecBuilder.fill(0.05),
-	// 		VecBuilder.fill(0.1, 0.1, 0.1));
+	// the odometry class to keep track of where the robot is on the field
+	private final SwerveDrivePoseEstimator m_odometry;
+
+	private final Vision m_vision;
+
+	// private final Field2d m_fieldSim;
 
 	// PID controller for swerve
-	private final PIDController m_xController = new PIDController(Constants.X_PID_CONTROLLER_P, 0, 0);
-	private final PIDController m_yController = new PIDController(Constants.Y_PID_CONTROLLER_P, 0, 0);
-	private final ProfiledPIDController m_thetaController = new ProfiledPIDController(Constants.THETA_PID_CONTROLLER_P, 0, 0,
+	private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
+	private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
+	private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P,
+			0, 0,
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
 	public DriveTrain() {
-		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-		// m_swerveModules[0] = Mk4iSwerveModuleHelper.createNeo(
-		// 		// This parameter is optional, but will allow you to see the current state of
-		// 		// the module on the dashboard.
-		// 		tab.getLayout("Front Left Module", BuiltInLayouts.kList).withSize(2, 4).withPosition(0, 0),
-		// 		// This can either be STANDARD or FAST depending on your gear configuration
-		// 		Mk4iSwerveModuleHelper.GearRatio.L2,
-		// 		// This is the ID of the drive motor
-		// 		FRONT_LEFT_MODULE_DRIVE_MOTOR,
-		// 		// This is the ID of the steer motor
-		// 		FRONT_LEFT_MODULE_STEER_MOTOR,
-		// 		// This is the ID of the steer encoder
-		// 		FRONT_LEFT_MODULE_STEER_ENCODER,
-		// 		// This is how much the steer encoder is offset from true zero (In our case,
-		// 		// zero is facing straight forward)
-		// 		FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_swerveModules[0] = new SwerveModule(
-			new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-			new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER, FRONT_LEFT_MODULE_STEER_OFFSET)
-		);	
+				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
+						FRONT_LEFT_MODULE_STEER_OFFSET));
 
 		m_swerveModules[1] = new frc.robot.swerve.SwerveModule(
-			new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-			new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR, FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET)
-		);	
-	
+				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
+						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+
 		m_swerveModules[2] = new frc.robot.swerve.SwerveModule(
-			new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-			new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER, BACK_LEFT_MODULE_STEER_OFFSET)
-		);	
-	
+				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
+						BACK_LEFT_MODULE_STEER_OFFSET));
+
 		m_swerveModules[3] = new frc.robot.swerve.SwerveModule(
-			new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-			new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER, BACK_RIGHT_MODULE_STEER_OFFSET)
-		);	
+				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
+						BACK_RIGHT_MODULE_STEER_OFFSET));
+
+		// initialize the odometry class
+		// needs to be done after the Modules are created and initialized
+		// TODO add in the uncertainty matrices for encoders vs vision measurements
+		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
+				new Pose2d());
+
+		m_vision = new Vision();
 	}
 
 	/**
@@ -155,11 +151,25 @@ public class DriveTrain extends SubsystemBase {
 	// }
 
 	public Pose2d getPose() {
-		return new Pose2d();
-		// return m_odometry.getEstimatedPosition();
+		return m_odometry.getEstimatedPosition();
 	}
 
-	public Rotation2d getGyroscopeRotation() {
+	/**
+	 * Resets the odometry to the specified pose.
+	 *
+	 * @param pose The pose to which to set the odometry.
+	 */
+	public void setPose(Pose2d pose) {
+		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
+	}
+
+	public Rotation2d getHeading() {
+		return m_odometry.getEstimatedPosition().getRotation();
+	}
+
+	// the gyro reading should be private.
+	// Everyone else who wants the robot angle should call getHeading()
+	private Rotation2d getGyroscopeRotation() {
 		if (m_navx.isMagnetometerCalibrated()) {
 			// We will only get valid fused headings if the magnetometer is calibrated
 			return Rotation2d.fromDegrees(m_navx.getFusedHeading());
@@ -170,98 +180,119 @@ public class DriveTrain extends SubsystemBase {
 		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
 	}
 
+	public void joystickDrive(double inputX, double inputY, double inputRotation) {
+		ChassisSpeeds chassisSpeeds;
+		// when in field-relative mode
+		if (m_fieldCentric) {
+			chassisSpeeds = 
+					ChassisSpeeds.fromFieldRelativeSpeeds(
+							inputX * m_maxVelocity,
+							inputY * m_maxVelocity,
+							inputRotation * m_maxAngularVelocity,
+							getHeading());
+		}
+		// when in robot-centric mode
+		else {
+			chassisSpeeds = new ChassisSpeeds(inputX * m_maxVelocity,
+					inputY * m_maxVelocity,
+					inputRotation * m_maxAngularVelocity);
+		}
+		drive(chassisSpeeds);		
+	}
+
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		for (int i = 0; i < 4; i++) {
-			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * m_maxVoltage,
+			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 					states[i].angle.getRadians());
 		}
 	}
 
-	// get the trajectory following autonomous command in PathPlanner using the name
-	public Command getTrajectoryFollowingCommand(String trajectoryName){
-		
-		var traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
-
-		var autonomousCommand = new FollowTrajectory(
-			this,
-			traj,
-			() -> this.getPose(),
-			this.getKinematics(),
-			m_xController,
-			m_yController,
-			m_thetaController,
-			(states) -> {
-				this.drive(this.getKinematics().toChassisSpeeds(states));
-			},
-			this
-		).andThen(() -> stop());
-
-		return autonomousCommand;
-	}
-
-	/**
-	 * Resets the odometry to the specified pose.
-	 *
-	 * @param pose The pose to which to set the odometry.
-	 */
-	public void setPose(Pose2d pose) {
-		// zeroGyroscope(); resetPosition says not to reset gyro
-		// m_odometry.resetPosition(pose, getGyroscopeRotation());
-	}
-
-	public Rotation2d getHeading() {
-		return new Rotation2d();
-		// return m_odometry.getEstimatedPosition().getRotation();
-	}
-
-	public SwerveDriveKinematics getKinematics() {
-		return m_kinematics;
-	}
-
-	// future changes: maybe leave the modules in the angles remain the same instead
-	// of pointint at 0
+	// future changes: maybe leave the modules so the angles remain the same instead
+	// of pointing at 0
 	public void stop() {
 		drive(new ChassisSpeeds(0, 0, 0));
 	}
 
-	public boolean getFieldRelative() { // gets if in field relative mode
-		return m_fieldRelative;
+	// for the beginning of auto rountines
+	public void resetDrivingModes(){
+		m_fieldCentric = true;
+		m_precisionMode = false;
 	}
 
-	public void toggleFieldRelative() { // flips mode of robot
-		m_fieldRelative = !m_fieldRelative;
-	}
-	  
-	public void togglePrecisionMode() { //toggles precision mode of robot
-		m_precisionMode = !m_precisionMode;
-		m_maxVoltage = m_precisionMode ? Constants.PRECISION_MAX_VOLTAGE : Constants.MAX_VOLTAGE;
+	// toggle whether driving is field-centric
+	public void toggleFieldCentric() {
+		m_fieldCentric = !m_fieldCentric;
 	}
 
-    public Rotation2d getPitch() {
+	public Rotation2d getPitch() {
 		//gets pitch of robot
 		return Rotation2d.fromDegrees(m_navx.getPitch());
     }
 
+	// toggle precision mode for driving
+	public void togglePrecisionMode() {
+		m_precisionMode = !m_precisionMode;
+		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+	}
+
+	public PIDController getXController(){ //gets the controller for x position of robot
+		return m_xController;
+	}
+
+	public PIDController getYController(){ //gets controller for y position of bot
+		return m_yController;
+	}
+
+	public ProfiledPIDController getThetaController(){ //gets controller for angle
+		return m_thetaController;
+	}
 	// get the swerveModuleState manually
-	public SwerveModuleState[] getModuleState() {
-		SwerveModuleState[] state = new SwerveModuleState[4];
+	public SwerveModulePosition[] getModulePositions() {
+		SwerveModulePosition[] state = new SwerveModulePosition[4];
 		for (int i = 0; i < 4; i++) {
-			state[i] = new SwerveModuleState(m_swerveModules[i].getDriveVelocity(),
-					Rotation2d.fromDegrees(m_swerveModules[i].getSteerAngle()));
+			state[i] = m_swerveModules[i].getSwerveModulePosition();
 		}
 		return state;
 	}
-
+	    
 	@Override
 	public void periodic() {
-		// Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModuleState());
+		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		m_vision.updateOdometry(m_odometry);
 
-		// SmartDashboard.putNumber("drivetrain/xposition", pose.getX());
-		// SmartDashboard.putNumber("drivetrain/yposition", pose.getY());
-		// SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
+		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
+		SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
 
-		SmartDashboard.putString("drivetrain/driveMode", m_fieldRelative ? "field-centric" : "robot-centric");
+		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
+
+		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
+	}
+
+	// get the trajectory following autonomous command in PathPlanner using the name
+	public Command getTrajectoryFollowingCommand(String trajectoryName) {
+
+		PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+
+		Command command = new FollowTrajectory(
+				this,
+				traj,
+				() -> this.getPose(),
+				m_kinematics,
+				m_xController,
+				m_yController,
+				m_thetaController,
+				(states) -> {
+					this.drive(m_kinematics.toChassisSpeeds(states));
+				},
+				this).andThen(() -> stop());
+
+		return command;
 	}
 }

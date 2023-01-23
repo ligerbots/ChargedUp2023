@@ -63,7 +63,7 @@ public class ChargeStationBalance extends CommandBase {
       driveMPS = Math.copySign(Constants.CHARGESTATION_MAX_METERSPERSECOND, driveMPS);
     }
     
-    m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getGyroscopeRotation()));
+    m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getHeading()));
     
     //if balanced, records time when state of being balanced started, if not balanced, sets time to 0
     if (error <= Constants.CHARGESTATION_BALANCE_ERROR.getDegrees() && m_stage == m_stages.CHARGESTATION){
