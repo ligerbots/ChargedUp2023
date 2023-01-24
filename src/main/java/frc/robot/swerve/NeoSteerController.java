@@ -25,7 +25,7 @@ public class NeoSteerController {
     private final CANSparkMax m_motor;
     private final SparkMaxPIDController m_controller;
     private final RelativeEncoder m_motorEncoder;
-    private final CanCoder m_absoluteEncoder;
+    private final CanCoderWrapper m_absoluteEncoder;
 
     private double m_referenceAngleRadians = 0;
     private double m_resetIteration = 0;
@@ -38,7 +38,7 @@ public class NeoSteerController {
 
     public NeoSteerController(int canId, int canCoderCanId, double angleOffset) {
         // absolute angle encoder CANcoder
-        m_absoluteEncoder = new CanCoder(canCoderCanId, angleOffset);
+        m_absoluteEncoder = new CanCoderWrapper(canCoderCanId, angleOffset);
 
         // the turn motor
         m_motor = new CANSparkMax(canId, CANSparkMaxLowLevel.MotorType.kBrushless);
