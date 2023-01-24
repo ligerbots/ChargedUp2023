@@ -50,16 +50,15 @@ public class DriveTrain extends SubsystemBase {
 
 	public double m_maxAcceleration = MAX_ACCELERATION;
 
-
 	// if true, then robot is in field centric mode
 	private boolean m_fieldCentric = true;
 
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
 
-	//pose for testing, can switch to whatever
-	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); 
-	
+	// pose for testing, can switch to whatever
+	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
 	// <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
@@ -93,9 +92,8 @@ public class DriveTrain extends SubsystemBase {
 	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
 			Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-
-	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
-			MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+			/ 6.0;
 
 	private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
 			// Front left
@@ -202,12 +200,11 @@ public class DriveTrain extends SubsystemBase {
 		ChassisSpeeds chassisSpeeds;
 		// when in field-relative mode
 		if (m_fieldCentric) {
-			chassisSpeeds = 
-					ChassisSpeeds.fromFieldRelativeSpeeds(
-							inputX * m_maxVelocity,
-							inputY * m_maxVelocity,
-							inputRotation * m_maxAngularVelocity,
-							getHeading());
+			chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+					inputX * m_maxVelocity,
+					inputY * m_maxVelocity,
+					inputRotation * m_maxAngularVelocity,
+					getHeading());
 		}
 		// when in robot-centric mode
 		else {
@@ -215,7 +212,7 @@ public class DriveTrain extends SubsystemBase {
 					inputY * m_maxVelocity,
 					inputRotation * m_maxAngularVelocity);
 		}
-		drive(chassisSpeeds);		
+		drive(chassisSpeeds);
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
@@ -227,20 +224,20 @@ public class DriveTrain extends SubsystemBase {
 		}
 	}
 
-	public Trajectory trajectoryToPose(){
-		//get updated current pose
-		Pose2d robotPose = m_odometry.update(getGyroscopeRotation(), getModulePositions()); 
+	public Trajectory trajectoryToPose() {
+		// get updated current pose
+		Pose2d robotPose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
 		m_vision.updateOdometry(m_odometry);
-		//change these later
-        TrajectoryConfig config =
-            new TrajectoryConfig(m_maxVelocity, m_maxAcceleration)
-                .setKinematics(m_kinematics);
+		// change these later
+		TrajectoryConfig config = new TrajectoryConfig(m_maxVelocity, m_maxAcceleration)
+				.setKinematics(m_kinematics);
 
-		//make a trajectory from the current robot pose to the testing pose constnat
+		// make a trajectory from the current robot pose to the testing pose constnat
 		var trajectory = TrajectoryGenerator.generateTrajectory(robotPose, List.of(), m_poseTest, config);
 		return trajectory;
 
 	}
+
 	// future changes: maybe leave the modules so the angles remain the same instead
 	// of pointing at 0
 	public void stop() {
@@ -248,7 +245,7 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	// for the beginning of auto rountines
-	public void resetDrivingModes(){
+	public void resetDrivingModes() {
 		m_fieldCentric = true;
 		m_precisionMode = false;
 	}
@@ -262,20 +259,22 @@ public class DriveTrain extends SubsystemBase {
 	public void togglePrecisionMode() {
 		m_precisionMode = !m_precisionMode;
 		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+				: MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 	}
 
-	public PIDController getXController(){ //gets the controller for x position of robot
+	public PIDController getXController() { // gets the controller for x position of robot
 		return m_xController;
 	}
 
-	public PIDController getYController(){ //gets controller for y position of bot
+	public PIDController getYController() { // gets controller for y position of bot
 		return m_yController;
 	}
 
-	public ProfiledPIDController getThetaController(){ //gets controller for angle
+	public ProfiledPIDController getThetaController() { // gets controller for angle
 		return m_thetaController;
 	}
+
 	// get the swerveModuleState manually
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] state = new SwerveModulePosition[4];
@@ -284,7 +283,7 @@ public class DriveTrain extends SubsystemBase {
 		}
 		return state;
 	}
-	    
+
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
@@ -323,23 +322,23 @@ public class DriveTrain extends SubsystemBase {
 		return command;
 	}
 
-	//run pose trajectory
-	public Command followPoseTrajectory(){
+	// run pose trajectory
+	public Command followPoseTrajectory() {
 
 		Trajectory traj = trajectoryToPose();
-		
+
 		Command command = new FollowPoseTrajectory(
-			this,
-			traj,
-			() -> this.getPose(),
-			m_kinematics,
-			m_xController,
-			m_yController,
-			m_thetaController,
-			(states) -> {
-				this.drive(m_kinematics.toChassisSpeeds(states));
-			},
-			this).andThen(() -> stop());
+				this,
+				traj,
+				() -> this.getPose(),
+				m_kinematics,
+				m_xController,
+				m_yController,
+				m_thetaController,
+				(states) -> {
+					this.drive(m_kinematics.toChassisSpeeds(states));
+				},
+				this).andThen(() -> stop());
 
 		return command;
 	}
