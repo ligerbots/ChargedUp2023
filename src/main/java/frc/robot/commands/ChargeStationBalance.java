@@ -7,10 +7,17 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ChargeStationBalance extends CommandBase {
+
+  //private final Rotation2d m_rampAngle = Rotation2d.fromDegrees(-10); //useful if we are going to automate going on the ramp
+  private final Rotation2d m_balancedError = Rotation2d.fromDegrees(2.5); //error for what counts as balanced
+  private final double m_balancedDegrees = 0;
+  private final double m_balanceKP = 0.02; //change to control how fast robot drives during balancing
+  private final double m_maxMPS = 0.75;
+  private final double m_balanceSeconds = 1; //how many seconds the robot has to be balanced before stopping
 
   private DriveTrain m_driveTrain;
   private enum m_stages {
@@ -45,28 +52,28 @@ public class ChargeStationBalance extends CommandBase {
     // Automated way to drive robot onto charge station from ground as well as balance on charge station
     // switch (m_stage) {
     // case GROUND: 
-    //   error = Constants.CHARGESTATION_RAMP_ANGLE_DEGREES.getDegrees() - currentAngle;
-    //   driveMPS = error * Constants.CHARGESTATION_BALANCED_KP;
+    //   error = m_rampAngle.getDegrees() - currentAngle;
+    //   driveMPS = error * CHARGESTATION_BALANCED_KP;
     //
     // set stage to CHARGESTATION once robot is on ramp
-    // if (error < Constants.CHARGESTATION_BALANCE_ERROR.getDegrees()){
+    // if (error < CHARGESTATION_BALANCE_ERROR.getDegrees()){
     //   m_stage = m_stages.CHARGESTATION;
     // }
     // case CHARGESTATION: 
 
     // uses difference in current angle and 0 to get speed, balancing while on charge station 
-    error = Constants.CHARGESTATION_BALANCED_GOAL_DEGREES - currentAngle;
-    driveMPS = error * Constants.CHARGESTATION_BALANCED_KP;
+    error = m_balancedDegrees - currentAngle;
+    driveMPS = error * m_balanceKP;
 
     // cap max speed at 0.75 meters per second
-    if (Math.abs(driveMPS) > Constants.CHARGESTATION_MAX_METERSPERSECOND) {
-      driveMPS = Math.copySign(Constants.CHARGESTATION_MAX_METERSPERSECOND, driveMPS);
+    if (Math.abs(driveMPS) > m_maxMPS) {
+      driveMPS = Math.copySign(m_maxMPS, driveMPS);
     }
     
     m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getHeading()));
     
     //if balanced, records time when state of being balanced started, if not balanced, sets time to 0
-    if (error <= Constants.CHARGESTATION_BALANCE_ERROR.getDegrees() && m_stage == m_stages.CHARGESTATION){
+    if (error <= m_balancedError.getDegrees() && m_stage == m_stages.CHARGESTATION){
       m_balanced = true;
       if (m_curTime == 0){
       m_curTime = m_timer.get();
@@ -88,7 +95,7 @@ public class ChargeStationBalance extends CommandBase {
   @Override
   public boolean isFinished() {
     //if robot is balanced and it has been for one second, robot ends
-    if (m_balanced = true && m_timer.get() == m_curTime + Constants.CHARGESTATION_BALANCE_SECONDS){
+    if (m_balanced = true && m_timer.get() == m_curTime + m_balanceSeconds){
       return true;
     } else {
       return false;
