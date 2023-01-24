@@ -1,8 +1,25 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "SPARK MAX [1]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Chosen Trajectory": "String Chooser"
+    }
+  },
   "NetworkTables": {
-    "Retained Values": {
-      "open": false
-    },
     "transitory": {
       "LiveWindow": {
         ".status": {
@@ -12,16 +29,14 @@
       "SmartDashboard": {
         "Chosen Trajectory": {
           "open": false
+        },
+        "drivetrain": {
+          "open": false
         }
       }
     }
   },
-  "NetworkTables Info": {
-    "Clients": {
-      "open": false
-    },
-    "Server": {
-      "open": false
-    }
+  "NetworkTables View": {
+    "visible": false
   }
 }

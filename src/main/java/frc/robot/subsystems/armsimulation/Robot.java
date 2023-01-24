@@ -120,6 +120,7 @@ public class Robot extends TimedRobot {
 
     // Update the Mechanism Arm angle based on the simulated arm angle
     m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
+
   }
 
   @Override
