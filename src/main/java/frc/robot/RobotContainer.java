@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
-import frc.robot.commands.ResetHeading;
 import frc.robot.subsystems.DriveTrain;
 
 /**
@@ -59,7 +58,7 @@ public class RobotContainer {
 		// button Y
 		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
 		// when button Y is pressed reset the robot heading
-		xboxYButton.onTrue(new ResetHeading(m_driveTrain));
+		xboxYButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
 	}
 
