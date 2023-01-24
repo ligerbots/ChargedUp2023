@@ -256,6 +256,8 @@ public class DriveTrain extends SubsystemBase {
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+
+		// Have the vision system update based on the Apriltags, if seen
 		m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
