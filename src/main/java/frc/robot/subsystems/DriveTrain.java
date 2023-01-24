@@ -256,7 +256,10 @@ public class DriveTrain extends SubsystemBase {
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
-		m_vision.updateOdometry(m_odometry);
+
+		// Have the vision system update based on the Apriltags, if seen
+		// Comment out for now so we don't get exceptions
+		// m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
@@ -264,10 +267,10 @@ public class DriveTrain extends SubsystemBase {
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
+		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
+		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
+		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
+		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name

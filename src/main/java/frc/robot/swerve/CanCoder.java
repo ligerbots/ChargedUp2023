@@ -33,8 +33,7 @@ public class CanCoder {
         // set the update period and report any errors
         checkCtreError(m_encoder.configAllSettings(config, 250), "Failed to configure CANCoder");
 
-        checkCtreError(
-                m_encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, PERIOD_MILLISECONDS, 250),
+        checkCtreError(m_encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, PERIOD_MILLISECONDS, 250),
                 "Failed to configure CANCoder update rate");
     };
 

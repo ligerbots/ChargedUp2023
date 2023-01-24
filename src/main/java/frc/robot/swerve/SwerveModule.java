@@ -68,4 +68,7 @@ public class SwerveModule {
         return m_driveController.getWheelDistance();
     }
 
+    public void updateSmartDashboard(String prefix) {
+        m_steerController.updateSmartDashboard(prefix + "_steer");
+    }
 }
