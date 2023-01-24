@@ -252,6 +252,14 @@ public class DriveTrain extends SubsystemBase {
 		}
 		return state;
 	}
+
+	public void lockWheels() {
+		m_swerveModules[0].set(, 0.25 * Math.PI);
+	}
+
+	public void unlockWheels() {
+
+	}
 	    
 	@Override
 	public void periodic() {
