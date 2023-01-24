@@ -25,6 +25,7 @@ public class CanCoderWrapper {
 
     public CanCoderWrapper(int canId, double offset) {
         m_encoder = new CANCoder(canId);
+        System.out.println("CanCoder reading before config " + m_encoder.getAbsolutePosition());
 
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
