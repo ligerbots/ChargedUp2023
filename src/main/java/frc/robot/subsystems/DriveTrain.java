@@ -21,16 +21,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import frc.robot.Constants;
+import frc.robot.commands.FollowPoseTrajectory;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DriveTrain extends SubsystemBase {
+	RamseteController m_ramseteController = new RamseteController();
 
 	// the max velocity for drivetrain
 	// adjusted when in precision driving mode
@@ -38,12 +48,18 @@ public class DriveTrain extends SubsystemBase {
 
 	private double m_maxAngularVelocity = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
+	public double m_maxAcceleration = MAX_ACCELERATION;
+
+
 	// if true, then robot is in field centric mode
 	private boolean m_fieldCentric = true;
 
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
 
+	//pose for testing, can switch to whatever
+	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); 
+	
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
 	// <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
@@ -64,6 +80,8 @@ public class DriveTrain extends SubsystemBase {
 
 	// TODO: tune and check this
 	private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6.0;
+
+	private static final double MAX_ACCELERATION = 3.0;
 
 	/**
 	 * The maximum angular velocity of the robot in radians per second.
@@ -209,6 +227,20 @@ public class DriveTrain extends SubsystemBase {
 		}
 	}
 
+	public Trajectory trajectoryToPose(){
+		//get updated current pose
+		Pose2d robotPose = m_odometry.update(getGyroscopeRotation(), getModulePositions()); 
+		m_vision.updateOdometry(m_odometry);
+		//change these later
+        TrajectoryConfig config =
+            new TrajectoryConfig(m_maxVelocity, m_maxAcceleration)
+                .setKinematics(m_kinematics);
+
+		//make a trajectory from the current robot pose to the testing pose constnat
+		var trajectory = TrajectoryGenerator.generateTrajectory(robotPose, List.of(), m_poseTest, config);
+		return trajectory;
+
+	}
 	// future changes: maybe leave the modules so the angles remain the same instead
 	// of pointing at 0
 	public void stop() {
@@ -287,6 +319,27 @@ public class DriveTrain extends SubsystemBase {
 					this.drive(m_kinematics.toChassisSpeeds(states));
 				},
 				this).andThen(() -> stop());
+
+		return command;
+	}
+
+	//run pose trajectory
+	public Command followPoseTrajectory(){
+
+		Trajectory traj = trajectoryToPose();
+		
+		Command command = new FollowPoseTrajectory(
+			this,
+			traj,
+			() -> this.getPose(),
+			m_kinematics,
+			m_xController,
+			m_yController,
+			m_thetaController,
+			(states) -> {
+				this.drive(m_kinematics.toChassisSpeeds(states));
+			},
+			this).andThen(() -> stop());
 
 		return command;
 	}
