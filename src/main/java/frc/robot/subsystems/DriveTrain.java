@@ -8,6 +8,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -207,6 +208,10 @@ public class DriveTrain extends SubsystemBase {
 			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 					states[i].angle.getRadians());
 		}
+
+		SmartDashboard.putNumber("drivetrain/swerve0_speed", states[0].speedMetersPerSecond);
+		SmartDashboard.putNumber("drivetrain/swerve0_volts", states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE);
+		SmartDashboard.putNumber("drivetrain/battery_volts", RobotController.getBatteryVoltage());
 	}
 
 	// future changes: maybe leave the modules so the angles remain the same instead
@@ -258,7 +263,7 @@ public class DriveTrain extends SubsystemBase {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
 		// Have the vision system update based on the Apriltags, if seen
-		m_vision.updateOdometry(m_odometry);
+		// m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
@@ -266,10 +271,10 @@ public class DriveTrain extends SubsystemBase {
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
+		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
+		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
+		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
+		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
