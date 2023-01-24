@@ -10,32 +10,32 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
-import frc.robot.subsystems.armsimulation.Constants.ArmConstants;
+import frc.robot.Constants;
 
 /** A robot arm subsystem that moves with a motion profile. */
 public class ArmSubsystem extends ProfiledPIDSubsystem {
-  private final PWMSparkMax m_motor = new PWMSparkMax(ArmConstants.kMotorPort);
+  private final PWMSparkMax m_motor = new PWMSparkMax(Constants.kMotorPort);
   private final Encoder m_encoder =
-      new Encoder(ArmConstants.kEncoderPorts[0], ArmConstants.kEncoderPorts[1]);
+      new Encoder(Constants.kEncoderPorts[0], Constants.kEncoderPorts[1]);
   private final ArmFeedforward m_feedforward =
       new ArmFeedforward(
-          ArmConstants.kSVolts, ArmConstants.kGVolts,
-          ArmConstants.kVVoltSecondPerRad, ArmConstants.kAVoltSecondSquaredPerRad);
+          Constants.kSVolts, Constants.kGVolts,
+          Constants.kVVoltSecondPerRad, Constants.kAVoltSecondSquaredPerRad);
 
   /** Create a new ArmSubsystem. */
   public ArmSubsystem() {
     super(
         new ProfiledPIDController(
-            ArmConstants.kP,
+            Constants.kP,
             0,
             0,
             new TrapezoidProfile.Constraints(
-                ArmConstants.kMaxVelocityRadPerSecond,
-                ArmConstants.kMaxAccelerationRadPerSecSquared)),
+                Constants.kMaxVelocityRadPerSecond,
+                Constants.kMaxAccelerationRadPerSecSquared)),
         0);
-    m_encoder.setDistancePerPulse(ArmConstants.kEncoderDistancePerPulse);
+    m_encoder.setDistancePerPulse(Constants.kEncoderDistancePerPulse);
     // Start arm at rest in neutral position
-    setGoal(ArmConstants.kArmOffsetRads);
+    setGoal(Constants.kArmOffsetRads);
   }
 
   @Override
@@ -48,6 +48,6 @@ public class ArmSubsystem extends ProfiledPIDSubsystem {
 
   @Override
   public double getMeasurement() {
-    return m_encoder.getDistance() + ArmConstants.kArmOffsetRads;
+    return m_encoder.getDistance() + Constants.kArmOffsetRads;
   }
 }

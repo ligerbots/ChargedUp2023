@@ -63,8 +63,8 @@ public final class Constants {
     // public static final double ARMLENGTH = 28;
     // public static final Radians ARMMINANGLE = 20.0 ;
     // public static final Radians ARMMAXANGLE = 108.5 ;
-    public static final float ARMMASS = 20 ;
-   
+    public static final float ARMMASS = 20;
+
     /**
      * The maximum voltage that will be delivered to the drive motors.
      * <p>
@@ -90,4 +90,31 @@ public final class Constants {
     // joy stick button
     public static final int XBOX_JL = 9;
     public static final int XBOX_JR = 10;
+
+    // for arm simulation
+
+ // These are fake gains; in actuality these must be determined individually for
+    // each robot
+    public static final double kP = 1;
+    public static final double kSVolts = 12;
+    public static final int kMotorPort = 4;
+    public static final double kGVolts = 12;
+    public static final double kVVoltSecondPerRad = 0.5;
+    public static final double kAVoltSecondSquaredPerRad = 0.1;
+
+    public static final double kMaxVelocityRadPerSecond = 5;
+    public static final double kMaxAccelerationRadPerSecSquared = 10;
+
+    public static final int[] kEncoderPorts = new int[] { 4, 5 };
+    public static final int kEncoderPPR = 256;
+    public static final double kEncoderDistancePerPulse = 2.0 * Math.PI / kEncoderPPR;
+
+// The offset of the arm from the horizontal in its neutral position,
+// measured from the horizontal
+    public static final double kArmOffsetRads = 0.5;
+
+    public static final double kAutoTimeoutSeconds = 12;
+    static final double kAutoShootTimeSeconds = 7;
+
+    static final int kDriverControllerPort = 0;
 }
