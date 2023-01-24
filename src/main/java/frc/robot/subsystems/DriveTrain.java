@@ -8,7 +8,6 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -208,10 +207,6 @@ public class DriveTrain extends SubsystemBase {
 			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 					states[i].angle.getRadians());
 		}
-
-		SmartDashboard.putNumber("drivetrain/swerve0_speed", states[0].speedMetersPerSecond);
-		SmartDashboard.putNumber("drivetrain/swerve0_volts", states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE);
-		SmartDashboard.putNumber("drivetrain/battery_volts", RobotController.getBatteryVoltage());
 	}
 
 	// future changes: maybe leave the modules so the angles remain the same instead
@@ -263,6 +258,7 @@ public class DriveTrain extends SubsystemBase {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
 		// Have the vision system update based on the Apriltags, if seen
+		// Comment out for now so we don't get exceptions
 		// m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
