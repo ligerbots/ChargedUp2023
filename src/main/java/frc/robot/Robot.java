@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
@@ -26,9 +25,9 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.RobotContainer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -64,7 +63,7 @@ public class Robot extends TimedRobot {
   private final DCMotor m_armGearbox = DCMotor.getVex775Pro(2);
 
   // Standard classes for controlling our arm
-  private final PIDController m_controller = new PIDController(kArmKp, 0, 0);
+  private final PIDController m_controller = new PIDController(kArmKp, 3, 6);
   private final Encoder m_encoder = new Encoder(kEncoderAChannel, kEncoderBChannel);
   private final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
   private final Joystick m_joystick = new Joystick(kJoystickPort);
@@ -72,7 +71,7 @@ public class Robot extends TimedRobot {
   // Simulation classes help us simulate what's going on, including gravity.
   private static final double m_armReduction = 5;
   private static final double m_armMass = 5; // Kilograms
-  private static final double m_armLength = Units.inchesToMeters(28.0);
+  private static final double m_armLength = Units.inchesToMeters(12);
   // This arm sim represents an arm that can travel from -75 degrees (rotated down
   // front)
   // to 255 degrees (rotated down in the back).
@@ -153,7 +152,7 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our arm is doing
     // First, we set our "inputs" (voltages)
-    m_armSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
+    m_armSim.getArmCommand * RobotController.getBatteryVoltage());
 
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);

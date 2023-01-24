@@ -10,10 +10,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
+import frc.robot.commands.RotateArm;
 import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.armsimulation.ArmSubsystem;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-
+import frc.robot.subsystems.armsimulation.*;
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -26,14 +28,15 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
 	private final DriveTrain m_driveTrain = new DriveTrain();
-
+	private final ArmSubsystem m_armSimulation = new ArmSubsystem();
+	
 	private final XboxController m_controller = new XboxController(0);
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
-
+    
 		// Configure the button bindings
 		configureButtonBindings();
 	}
@@ -89,6 +92,12 @@ public class RobotContainer {
 		}
 	}
 
+public Command getArmCommand() {
+  
+	return new RotateArm(
+	() -> -modifyAxis(m_controller.getRightY()));
+
+}
 	private static double modifyAxis(double value) {
 		// Deadband
 		value = deadband(value, 0.05);

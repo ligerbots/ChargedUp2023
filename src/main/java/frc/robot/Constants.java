@@ -95,9 +95,9 @@ public final class Constants {
 
  // These are fake gains; in actuality these must be determined individually for
     // each robot
-    public static final double kP = 1;
+    public static final double kP = 10;
     public static final double kSVolts = 12;
-    public static final int kMotorPort = 4;
+    public static final int kMotorPort = 1;
     public static final double kGVolts = 12;
     public static final double kVVoltSecondPerRad = 0.5;
     public static final double kAVoltSecondSquaredPerRad = 0.1;
