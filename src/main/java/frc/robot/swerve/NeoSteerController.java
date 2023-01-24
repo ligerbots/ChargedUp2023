@@ -33,6 +33,7 @@ public class NeoSteerController {
     static void checkNeoError(REVLibError error, String message) {
         if (error != REVLibError.kOk) {
             DriverStation.reportError(String.format("%s: %s", message, error.toString()), false);
+            System.out.println(String.format("%s: %s", message, error.toString()));
         }
     }
 
@@ -71,6 +72,7 @@ public class NeoSteerController {
                 "Failed to set NEO encoder conversion factor");
 
         // set the built in encoder to match the CANcoder
+        System.out.println("*** Setting steer encoder to " + m_absoluteEncoder.getAbsoluteAngle());
         checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle()),
                 "Failed to set NEO encoder position");
 
@@ -89,7 +91,6 @@ public class NeoSteerController {
 
     // set the angle we want for the wheel (radians)
     public void setReferenceAngle(double referenceAngleRadians) {
-        double currentAngleRadians = m_motorEncoder.getPosition();
 
         // Reset the NEO's encoder periodically when the module is not rotating.
         // Sometimes (~5% of the time) when we initialize, the absolute encoder isn't
@@ -100,12 +101,14 @@ public class NeoSteerController {
             if (++m_resetIteration >= ENCODER_RESET_ITERATIONS) {
                 m_resetIteration = 0;
                 double absoluteAngle = m_absoluteEncoder.getAbsoluteAngle();
+                System.out.println("*** Resetting steer encoder to " + absoluteAngle);
                 m_motorEncoder.setPosition(absoluteAngle);
-                currentAngleRadians = absoluteAngle;
             }
         } else {
             m_resetIteration = 0;
         }
+
+        double currentAngleRadians = m_motorEncoder.getPosition();
 
         // force into 0 -> 2*PI
         double currentAngleRadiansMod = currentAngleRadians % (2.0 * Math.PI);

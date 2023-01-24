@@ -19,6 +19,7 @@ public class CanCoderWrapper {
     public static void checkCtreError(ErrorCode errorCode, String message) {
         if (errorCode != ErrorCode.OK) {
             DriverStation.reportError(String.format("%s: %s", message, errorCode.toString()), false);
+            System.out.println("** ERROR in config of CANCoder: " + errorCode.toString());
         }
     }
 
@@ -35,6 +36,8 @@ public class CanCoderWrapper {
 
         checkCtreError(m_encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, PERIOD_MILLISECONDS, 250),
                 "Failed to configure CANCoder update rate");
+
+        System.out.println("Initial CanCoder reading " + m_encoder.getAbsolutePosition());
     };
 
     // get the absolute angle, in radians
