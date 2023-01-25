@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
-import frc.robot.commands.RotateArm;
 import frc.robot.commands.ToggleFieldRelative;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.armsimulation.ArmSubsystem;
@@ -92,12 +91,9 @@ public class RobotContainer {
 		}
 	}
 
-public Command getArmCommand() {
-  
-	return new RotateArm(
-	() -> -modifyAxis(m_controller.getRightY()));
 
-}
+  
+	
 	private static double modifyAxis(double value) {
 		// Deadband
 		value = deadband(value, 0.05);
