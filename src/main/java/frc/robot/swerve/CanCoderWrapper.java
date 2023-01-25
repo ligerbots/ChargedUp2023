@@ -25,7 +25,6 @@ public class CanCoderWrapper {
 
     public CanCoderWrapper(int canId, double offset) {
         m_encoder = new CANCoder(canId);
-        System.out.println("CanCoder reading before config " + m_encoder.getAbsolutePosition());
 
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
@@ -37,8 +36,6 @@ public class CanCoderWrapper {
 
         checkCtreError(m_encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, PERIOD_MILLISECONDS, 250),
                 "Failed to configure CANCoder update rate");
-
-        System.out.println("Initial CanCoder reading " + m_encoder.getAbsolutePosition());
     };
 
     // get the absolute angle, in radians

@@ -71,4 +71,8 @@ public class SwerveModule {
     public void updateSmartDashboard(String prefix) {
         m_steerController.updateSmartDashboard(prefix + "_steer");
     }
+
+    public void syncAngleEncoders(boolean dontCheckTimer) {
+        m_steerController.syncAngleEncoders(dontCheckTimer);
+    }
 }

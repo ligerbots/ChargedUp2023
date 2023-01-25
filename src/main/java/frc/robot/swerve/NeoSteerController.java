@@ -72,7 +72,6 @@ public class NeoSteerController {
                 "Failed to set NEO encoder conversion factor");
 
         // set the built in encoder to match the CANcoder
-        System.out.println("*** Setting steer encoder to " + m_absoluteEncoder.getAbsoluteAngle());
         checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle()),
                 "Failed to set NEO encoder position");
 
@@ -89,25 +88,34 @@ public class NeoSteerController {
         return m_referenceAngleRadians;
     }
 
-    // set the angle we want for the wheel (radians)
-    public void setReferenceAngle(double referenceAngleRadians) {
-
+    // synchronize the angle encoder offsets
+    public void syncAngleEncoders(boolean dontCheckTimer) {
         // Reset the NEO's encoder periodically when the module is not rotating.
         // Sometimes (~5% of the time) when we initialize, the absolute encoder isn't
         // fully set up, and we don't
         // end up getting a good reading. If we reset periodically this won't matter
         // anymore.
+
+        if (dontCheckTimer) {
+            // System.out.println("** Synchronizing swerve angle encoders");
+            m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle());
+            m_resetIteration = 0;
+            return;
+        }
+
         if (m_motorEncoder.getVelocity() < ENCODER_RESET_MAX_ANGULAR_VELOCITY) {
             if (++m_resetIteration >= ENCODER_RESET_ITERATIONS) {
+                // System.out.println("** Synchronizing swerve angle encoders");
+                m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle());
                 m_resetIteration = 0;
-                double absoluteAngle = m_absoluteEncoder.getAbsoluteAngle();
-                System.out.println("*** Resetting steer encoder to " + absoluteAngle);
-                m_motorEncoder.setPosition(absoluteAngle);
             }
         } else {
             m_resetIteration = 0;
         }
+    }
 
+    // set the angle we want for the wheel (radians)
+    public void setReferenceAngle(double referenceAngleRadians) {
         double currentAngleRadians = m_motorEncoder.getPosition();
 
         // force into 0 -> 2*PI

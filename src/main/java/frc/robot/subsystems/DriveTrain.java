@@ -138,6 +138,11 @@ public class DriveTrain extends SubsystemBase {
 				new Pose2d());
 
 		m_vision = new Vision();
+
+		// as late as possible, re-sync the swerve angle encoders
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(true);
+		}
 	}
 
 	/**
@@ -260,6 +265,12 @@ public class DriveTrain extends SubsystemBase {
 		// Have the vision system update based on the Apriltags, if seen
 		// Comment out for now so we don't get exceptions
 		// m_vision.updateOdometry(m_odometry);
+
+		// check if we can sync the swerve angle encoders
+		// this will only trigger if the chassis is idle for 10 seconds
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(false);
+		}
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
