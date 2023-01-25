@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -25,7 +26,10 @@ import frc.robot.subsystems.DriveTrain;
  */
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
-	private final DriveTrain m_driveTrain = new DriveTrain();
+
+	private final Vision m_vision = new Vision();
+
+	private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
 
 	private final XboxController m_controller = new XboxController(0);
 

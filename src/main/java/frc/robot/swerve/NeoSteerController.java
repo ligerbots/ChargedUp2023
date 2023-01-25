@@ -4,7 +4,7 @@ import com.revrobotics.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 // LigerBots SteerController for Swerve
@@ -42,6 +42,7 @@ public class NeoSteerController {
 
         // the turn motor
         m_motor = new CANSparkMax(canId, CANSparkMaxLowLevel.MotorType.kBrushless);
+        m_motor.restoreFactoryDefaults();
 
         // adjust the CANbus update periods and alert on any errors
         checkNeoError(m_motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 100),
@@ -64,11 +65,9 @@ public class NeoSteerController {
         m_motorEncoder = m_motor.getEncoder();
 
         // set the builtin encoder scaling for distance and speed
-        checkNeoError(
-                m_motorEncoder.setPositionConversionFactor(2.0 * Math.PI * STEER_REDUCTION),
+        checkNeoError(m_motorEncoder.setPositionConversionFactor(2.0 * Math.PI * STEER_REDUCTION),
                 "Failed to set NEO encoder conversion factor");
-        checkNeoError(
-                m_motorEncoder.setVelocityConversionFactor(2.0 * Math.PI * STEER_REDUCTION / 60.0),
+        checkNeoError(m_motorEncoder.setVelocityConversionFactor(2.0 * Math.PI * STEER_REDUCTION / 60.0),
                 "Failed to set NEO encoder conversion factor");
 
         // set the built in encoder to match the CANcoder
@@ -136,5 +135,13 @@ public class NeoSteerController {
         }
 
         return Rotation2d.fromRadians(motorAngleRadians);
+    }
+
+    public void updateSmartDashboard(String prefix) {
+        // SmartDashboard.putNumber(prefix + "_angle", getStateAngle().getDegrees());
+        double offset = Math.toDegrees(getStateAngle().getRadians() - m_absoluteEncoder.getAbsoluteAngle());
+        if (offset > 180.0) offset -= 360.0;
+        if (offset < -180.0) offset += 360.0;
+        SmartDashboard.putNumber(prefix + "_cancoder_offset", offset);
     }
 }
