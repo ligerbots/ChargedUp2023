@@ -109,7 +109,7 @@ public class DriveTrain extends SubsystemBase {
 			0, 0,
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
-	public DriveTrain() {
+	public DriveTrain(Vision vision) {
 
 		m_swerveModules[0] = new SwerveModule(
 				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
@@ -137,7 +137,7 @@ public class DriveTrain extends SubsystemBase {
 		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
 				new Pose2d());
 
-		m_vision = new Vision();
+		m_vision = vision;
 	}
 
 	/**
