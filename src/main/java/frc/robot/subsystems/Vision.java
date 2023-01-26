@@ -45,9 +45,8 @@ public class Vision {
 	final AprilTag tag01 = new AprilTag(
 			01,
 			new Pose3d(new Pose2d(0.0, CUSTOM_FIELD_WIDTH / 2.0, Rotation2d.fromDegrees(0.0)))); 
-	
-	private AprilTagFieldLayout m_customFieldLayout;
 
+	
 	private final PhotonCamera m_camera = new PhotonCamera("ApriltagCamera");
 	private AprilTagFieldLayout m_aprilTagFieldLayout;
 	
@@ -70,10 +69,11 @@ public class Vision {
 		m_camera.setDriverMode(false);
 
 
-		m_customFieldLayout = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+		m_aprilTagFieldLayout = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
 			{
 				add(tag01);
 				add(tag18);
+				addAll(m_aprilTagFieldLayout.getTags());
 			}
 		}, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 	}
@@ -126,4 +126,8 @@ public class Vision {
         m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return m_photonPoseEstimator.update();
     }
+
+	public Optional<Pose3d> getTagPose(int tagID){
+		return m_aprilTagFieldLayout.getTagPose(tagID);
+	}
 }
