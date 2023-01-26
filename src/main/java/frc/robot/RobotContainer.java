@@ -63,10 +63,22 @@ public class RobotContainer {
 		//inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
+
+		//trajectory to AprilTag vision commands
+		//B button
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B); 
+		//inline command to create trajectory from robot pose to center of a pose(testing for now) on the field
+		//not shifting right or left
+		xboxBButton.whenPressed(m_driveTrain.findTrajectoryFollowingCommand(false, false));
+				
+		//LB button
+		JoystickButton xboxLBButton = new JoystickButton(m_controller, Constants.XBOX_LB); 
+		//inline command to create trajectory from robot pose to left of a pose(testing for now) on the field
+		xboxLBButton.whenPressed(m_driveTrain.findTrajectoryFollowingCommand(true, false));
 		
-		//inline command to create trajectory from robot pose to a pose(testing for now) on the field
-    	xboxBButton.whenPressed(new InstantCommand(m_driveTrain::followPoseTrajectory));
+		//RB button
+		JoystickButton xboxRBButton = new JoystickButton(m_controller, Constants.XBOX_RB); 
+		xboxRBButton.whenPressed(m_driveTrain.findTrajectoryFollowingCommand(false, true));
 	}
 
 	public Command getDriveCommand() {

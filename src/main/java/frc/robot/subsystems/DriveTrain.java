@@ -5,8 +5,10 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -29,7 +31,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.commands.FollowPoseTrajectory;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -50,6 +51,9 @@ public class DriveTrain extends SubsystemBase {
 
 	public double m_maxAcceleration = MAX_ACCELERATION;
 
+	//the amount the robot needs to shift to be on the left or right side of a tag
+	private double m_tagShiftAmount = 5; 
+
 	// if true, then robot is in field centric mode
 	private boolean m_fieldCentric = true;
 
@@ -57,7 +61,7 @@ public class DriveTrain extends SubsystemBase {
 	private boolean m_precisionMode = false;
 
 	// pose for testing, can switch to whatever
-	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+	private Pose2d m_poseTest = new Pose2d(5, 5, Rotation2d.fromDegrees(0));
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
@@ -224,19 +228,52 @@ public class DriveTrain extends SubsystemBase {
 		}
 	}
 
-	public Trajectory trajectoryToPose() {
+	//creates a pathplanner trajectory to a position
+	public PathPlannerTrajectory trajectoryToPosition(boolean shiftLeft, boolean shiftRight) {
 		// get updated current pose
-		Pose2d robotPose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		m_odometry.update(getGyroscopeRotation(), getModulePositions());
 		m_vision.updateOdometry(m_odometry);
-		// change these later
+
+		/* old Code(ignore):
 		TrajectoryConfig config = new TrajectoryConfig(m_maxVelocity, m_maxAcceleration)
 				.setKinematics(m_kinematics);
-
-		// make a trajectory from the current robot pose to the testing pose constnat
 		var trajectory = TrajectoryGenerator.generateTrajectory(robotPose, List.of(), m_poseTest, config);
-		return trajectory;
+		return trajectory;*/
 
+		//poseTest is a substitute for the target AprilTag's pose
+		Translation2d translation = m_poseTest.getTranslation();
+
+		Translation2d shiftAmount = new Translation2d(0, m_tagShiftAmount);
+		//want to change y position of translation to shift robot
+
+		//if aiming for positions left of AprilTag
+		if(shiftLeft){
+			Translation2d tagLeft = translation.minus(shiftAmount);
+			PathPlannerTrajectory traj = PathPlanner.generatePath(
+				new PathConstraints(4, 3), //velocity, acceleration
+				(List<PathPoint>) new PathPoint(tagLeft, Rotation2d.fromDegrees(0)) // position, heading
+				//always look at same direction
+			);
+			return traj;
+		}else if (shiftRight){ //if aiming for positions right of AprilTag
+			Translation2d tagRight = translation.plus(shiftAmount);
+			PathPlannerTrajectory traj = PathPlanner.generatePath(
+				new PathConstraints(4, 3), //velocity, acceleration
+				(List<PathPoint>) new PathPoint(tagRight, Rotation2d.fromDegrees(0)) // position, heading
+				//always look at same direction
+			);
+			return traj;
+
+		}else{ //aiming for middle of AprilTag
+			PathPlannerTrajectory traj = PathPlanner.generatePath(
+				new PathConstraints(4, 3), //velocity, acceleration
+				(List<PathPoint>) new PathPoint(translation, Rotation2d.fromDegrees(0)) // position, heading
+				//always look at same direction
+			);
+			return traj;
+		}
 	}
+
 
 	// future changes: maybe leave the modules so the angles remain the same instead
 	// of pointing at 0
@@ -322,12 +359,12 @@ public class DriveTrain extends SubsystemBase {
 		return command;
 	}
 
-	// run pose trajectory
-	public Command followPoseTrajectory() {
+	//find a trajectory from robot pose to a pose relative to AprilTag
+	public Command findTrajectoryFollowingCommand(boolean shiftLeft, boolean shiftRight) {
+		//input if aiming at left, middle, or right of Apriltag to find a trajectory
+		PathPlannerTrajectory traj = trajectoryToPosition(shiftLeft, shiftRight);
 
-		Trajectory traj = trajectoryToPose();
-
-		Command command = new FollowPoseTrajectory(
+		Command command = new FollowTrajectory(
 				this,
 				traj,
 				() -> this.getPose(),
