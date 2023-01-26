@@ -5,6 +5,10 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -13,10 +17,13 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -24,6 +31,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class Vision {
+	private final double CUSTOM_FIELD_LENGTH = 10;
+	private final double CUSTOM_FIELD_WIDTH = 10;
+
+	final AprilTag tag18 = new AprilTag(
+			18,
+			new Pose3d(
+					new Pose2d(
+							CUSTOM_FIELD_LENGTH,
+							CUSTOM_FIELD_WIDTH / 2.0,
+							Rotation2d.fromDegrees(180))));
+
+	final AprilTag tag01 = new AprilTag(
+			01,
+			new Pose3d(new Pose2d(0.0, CUSTOM_FIELD_WIDTH / 2.0, Rotation2d.fromDegrees(0.0)))); 
+	
+	private AprilTagFieldLayout m_customFieldLayout;
 
 	private final PhotonCamera m_camera = new PhotonCamera("ApriltagCamera");
 	private AprilTagFieldLayout m_aprilTagFieldLayout;
@@ -45,6 +68,14 @@ public class Vision {
 		m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
 		// set the driver mode to false
 		m_camera.setDriverMode(false);
+
+
+		m_customFieldLayout = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+			{
+				add(tag01);
+				add(tag18);
+			}
+		}, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 	}
 
 	public void updateOdometry(SwerveDrivePoseEstimator odometry) {
