@@ -19,9 +19,7 @@ public class ChargeStationBalance extends CommandBase {
   private final double BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
 
   private DriveTrain m_driveTrain;
-  private Boolean m_balanced;
   private final Timer m_timer = new Timer();
-  private double m_curTime;
 
   /** Creates a new ChargeStationBalance. */
   public ChargeStationBalance() {
@@ -34,9 +32,6 @@ public class ChargeStationBalance extends CommandBase {
   public void initialize() {
     m_timer.reset();
     m_timer.start();
-
-    m_balanced = false;
-    m_curTime = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -47,22 +42,16 @@ public class ChargeStationBalance extends CommandBase {
     Rotation2d error = Rotation2d.fromDegrees(BALANCED_DEGREES - currentAngle.getDegrees());
     double driveMPS = error.getDegrees() * BALANCE_KP;
 
-    // cap max speed at 0.75 meters per second
+    // cap max speed
     if (Math.abs(driveMPS) > MAX_MPS) {
       driveMPS = Math.copySign(MAX_MPS, driveMPS);
     }
     
     m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getHeading()));
     
-    //if balanced, records time when state of being balanced started, if not balanced, sets curtime to 0
-    if (error.getDegrees() <= BALANCED_ERROR.getDegrees()){
-      m_balanced = true;
-      if (m_curTime == 0){
-      m_curTime = m_timer.get();
-      }
-    } else {
-      m_balanced = false;
-      m_curTime = 0;
+    //if not balanced, resets timer
+    if (Math.abs(error.getDegrees()) >= BALANCED_ERROR.getDegrees()){
+      m_timer.reset();
     }
   }
 
@@ -77,7 +66,7 @@ public class ChargeStationBalance extends CommandBase {
   @Override
   public boolean isFinished() {
     //if robot is balanced and it has been for at least one second, robot ends
-    return (m_balanced && m_timer.get() >= m_curTime + BALANCE_SECONDS);
+    return m_timer.hasElapsed(BALANCE_SECONDS);
   }
 }
 
