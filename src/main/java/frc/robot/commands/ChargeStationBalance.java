@@ -12,11 +12,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ChargeStationBalance extends CommandBase {
 
-  private final Rotation2d BALANCED_ERROR = Rotation2d.fromDegrees(2.5); //error for what counts as balanced
-  private final double BALANCED_DEGREES = 0;
-  private final double BALANCE_KP = 0.02; //change to control how fast robot drives during balancing
-  private final double MAX_MPS = 0.75;
-  private final double BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
+  private static final Rotation2d BALANCED_ERROR = Rotation2d.fromDegrees(2.5); //error for what counts as balanced
+  private static final double BALANCED_DEGREES = 0;
+  private static final double BALANCE_KP = 0.02; //change to control how fast robot drives during balancing
+  private static final double MAX_MPS = 0.75;
+  private static final double BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
 
   private DriveTrain m_driveTrain;
   private final Timer m_timer = new Timer();

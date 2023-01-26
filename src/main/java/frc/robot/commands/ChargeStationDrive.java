@@ -10,8 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class ChargeStationDrive extends CommandBase {
-  private final Rotation2d RAMP_ANGLE = Rotation2d.fromDegrees(-10); 
-  private final double DRIVE_MPS = 0.75;
+  private static final Rotation2d RAMP_ANGLE = Rotation2d.fromDegrees(-10); 
+  private static final double DRIVE_MPS = 0.75;
 
   private DriveTrain m_driveTrain;
   private Rotation2d currentAngle;
