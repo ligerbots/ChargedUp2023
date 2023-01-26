@@ -51,8 +51,8 @@ public class DriveTrain extends SubsystemBase {
 
 	public double m_maxAcceleration = MAX_ACCELERATION;
 
-	//the amount the robot needs to shift to be on the left or right side of a tag
-	private double m_tagShiftAmount = 5; 
+	// the amount the robot needs to shift to be on the left or right side of a tag
+	private double m_tagShiftAmount = 5;
 
 	// if true, then robot is in field centric mode
 	private boolean m_fieldCentric = true;
@@ -228,52 +228,55 @@ public class DriveTrain extends SubsystemBase {
 		}
 	}
 
-	//creates a pathplanner trajectory to a position
+	// creates a pathplanner trajectory to a position
 	public PathPlannerTrajectory trajectoryToPosition(boolean shiftLeft, boolean shiftRight) {
 		// get updated current pose
 		m_odometry.update(getGyroscopeRotation(), getModulePositions());
 		m_vision.updateOdometry(m_odometry);
 
-		/* old Code(ignore):
-		TrajectoryConfig config = new TrajectoryConfig(m_maxVelocity, m_maxAcceleration)
-				.setKinematics(m_kinematics);
-		var trajectory = TrajectoryGenerator.generateTrajectory(robotPose, List.of(), m_poseTest, config);
-		return trajectory;*/
+		/*
+		 * old Code(ignore):
+		 * TrajectoryConfig config = new TrajectoryConfig(m_maxVelocity,
+		 * m_maxAcceleration)
+		 * .setKinematics(m_kinematics);
+		 * var trajectory = TrajectoryGenerator.generateTrajectory(robotPose, List.of(),
+		 * m_poseTest, config);
+		 * return trajectory;
+		 */
 
-		//poseTest is a substitute for the target AprilTag's pose
+		// poseTest is a substitute for the target AprilTag's pose
 		Translation2d translation = m_poseTest.getTranslation();
 
 		Translation2d shiftAmount = new Translation2d(0, m_tagShiftAmount);
-		//want to change y position of translation to shift robot
+		// want to change y position of translation to shift robot
 
-		//if aiming for positions left of AprilTag
-		if(shiftLeft){
+		// if aiming for positions left of AprilTag
+		if (shiftLeft) {
 			Translation2d tagLeft = translation.minus(shiftAmount);
 			PathPlannerTrajectory traj = PathPlanner.generatePath(
-				new PathConstraints(4, 3), //velocity, acceleration
-				(List<PathPoint>) new PathPoint(tagLeft, Rotation2d.fromDegrees(0)) // position, heading
-				//always look at same direction
+					new PathConstraints(4, 3), // velocity, acceleration
+					(List<PathPoint>) new PathPoint(tagLeft, Rotation2d.fromDegrees(0)) // position, heading
+			// always look at same direction
 			);
 			return traj;
-		}else if (shiftRight){ //if aiming for positions right of AprilTag
+		} else if (shiftRight) { // if aiming for positions right of AprilTag
 			Translation2d tagRight = translation.plus(shiftAmount);
 			PathPlannerTrajectory traj = PathPlanner.generatePath(
-				new PathConstraints(4, 3), //velocity, acceleration
-				(List<PathPoint>) new PathPoint(tagRight, Rotation2d.fromDegrees(0)) // position, heading
-				//always look at same direction
+					new PathConstraints(4, 3), // velocity, acceleration
+					(List<PathPoint>) new PathPoint(tagRight, Rotation2d.fromDegrees(0)) // position, heading
+			// always look at same direction
 			);
 			return traj;
 
-		}else{ //aiming for middle of AprilTag
+		} else { // aiming for middle of AprilTag
 			PathPlannerTrajectory traj = PathPlanner.generatePath(
-				new PathConstraints(4, 3), //velocity, acceleration
-				(List<PathPoint>) new PathPoint(translation, Rotation2d.fromDegrees(0)) // position, heading
-				//always look at same direction
+					new PathConstraints(4, 3), // velocity, acceleration
+					(List<PathPoint>) new PathPoint(translation, Rotation2d.fromDegrees(0)) // position, heading
+			// always look at same direction
 			);
 			return traj;
 		}
 	}
-
 
 	// future changes: maybe leave the modules so the angles remain the same instead
 	// of pointing at 0
@@ -359,9 +362,9 @@ public class DriveTrain extends SubsystemBase {
 		return command;
 	}
 
-	//find a trajectory from robot pose to a pose relative to AprilTag
+	// find a trajectory from robot pose to a pose relative to AprilTag
 	public Command findTrajectoryFollowingCommand(boolean shiftLeft, boolean shiftRight) {
-		//input if aiming at left, middle, or right of Apriltag to find a trajectory
+		// input if aiming at left, middle, or right of Apriltag to find a trajectory
 		PathPlannerTrajectory traj = trajectoryToPosition(shiftLeft, shiftRight);
 
 		Command command = new FollowTrajectory(
