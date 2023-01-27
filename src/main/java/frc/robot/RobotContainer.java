@@ -66,22 +66,9 @@ public class RobotContainer {
 		// trajectory to AprilTag vision commands
 		// B button
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
-		// inline command to create trajectory from robot pose to center of a
-		// pose(testing for now) on the field
-		// not shifting right or left
-		xboxBButton.whenPressed(m_driveTrain.findTrajectoryFollowingCommand(false, false));
+		// inline command to create trajectory from robot pose to a target pose
+		xboxBButton.whenPressed(m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose()));
 
-		// LB button
-		JoystickButton xboxLBButton = new JoystickButton(m_controller, Constants.XBOX_LB);
-		// inline command to create trajectory from robot pose to left of a pose(testing
-		// for now) on the field
-		xboxLBButton.whenPressed(m_driveTrain.findTrajectoryFollowingCommand(true, false));
-
-		// RB button
-		JoystickButton xboxRBButton = new JoystickButton(m_controller, Constants.XBOX_RB);
-		// inline command to create trajectory from robot pose to right of a
-		// pose(testing for now) on the field
-		xboxRBButton.whenPressed(m_driveTrain.findTrajectoryFollowingCommand(false, true));
 	}
 
 	public Command getDriveCommand() {
