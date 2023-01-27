@@ -29,6 +29,8 @@ public class NeoDriveController {
 
     public NeoDriveController(int motorCanId) {
         m_motor = new CANSparkMax(motorCanId, CANSparkMaxLowLevel.MotorType.kBrushless);
+        m_motor.restoreFactoryDefaults();
+
         m_motor.setInverted(MOTOR_INVERTED);
 
         // Setup voltage compensation

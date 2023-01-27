@@ -109,7 +109,7 @@ public class DriveTrain extends SubsystemBase {
 			0, 0,
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
-	public DriveTrain() {
+	public DriveTrain(Vision vision) {
 
 		m_swerveModules[0] = new SwerveModule(
 				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
@@ -137,28 +137,28 @@ public class DriveTrain extends SubsystemBase {
 		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
 				new Pose2d());
 
-		m_vision = new Vision();
+		m_vision = vision;
+
+		// as late as possible, re-sync the swerve angle encoders
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(true);
+		}
 	}
 
-	/**
-	 * Sets the gyroscope angle to zero. This can be used to set the direction the
-	 * robot is currently facing to the
-	 * 'forwards' direction.
-	 */
-	// This is wrong. You need to reset the odometry if you really need to do this
-	// public void zeroGyroscope() {
-	// m_navx.zeroYaw();
-	// }
+	// sets the heading to zero with the existing pose
+	public void resetHeading() {
+		Pose2d pose = getPose();
+
+		Pose2d newPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(0));
+
+		setPose(newPose);
+	}
 
 	public Pose2d getPose() {
 		return m_odometry.getEstimatedPosition();
 	}
 
-	/**
-	 * Resets the odometry to the specified pose.
-	 *
-	 * @param pose The pose to which to set the odometry.
-	 */
+	// sets the odometry to the specified pose
 	public void setPose(Pose2d pose) {
 		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
 	}
@@ -258,10 +258,21 @@ public class DriveTrain extends SubsystemBase {
 		return state;
 	}
 	    
+	public void syncSwerveAngleEncoders() {
+		// check if we can sync the swerve angle encoders
+		// this will only trigger if the chassis is idle for 10 seconds
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(false);
+		}
+	}
+
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
-		m_vision.updateOdometry(m_odometry);
+
+		// Have the vision system update based on the Apriltags, if seen
+		// Comment out for now so we don't get exceptions
+		// m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
@@ -269,10 +280,10 @@ public class DriveTrain extends SubsystemBase {
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
+		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
+		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
+		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
+		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name

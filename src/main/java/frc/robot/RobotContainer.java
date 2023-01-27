@@ -9,11 +9,14 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+import frc.robot.commands.Drive;
 import frc.robot.commands.ChargeStationBalance;
 import frc.robot.commands.ChargeStationDrive;
-import frc.robot.commands.Drive;
+
 import frc.robot.subsystems.DriveTrain;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -26,7 +29,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
  */
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
-	private final DriveTrain m_driveTrain = new DriveTrain();
+
+	private final Vision m_vision = new Vision();
+
+	private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
 
 	private final XboxController m_controller = new XboxController(0);
 
@@ -34,8 +40,6 @@ public class RobotContainer {
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
-
-		// Configure the button bindings
 		configureButtonBindings();
 	}
 
@@ -48,32 +52,27 @@ public class RobotContainer {
 	 * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings() {
-		// Back button zeros the gyroscope
-		/*
-		 * new Button(m_controller::getBackButton)
-		 * // No requirements because we don't need to interrupt anything
-		 * .whenPressed(m_drivetrainSubsystem::zeroGyroscope);
-		 */
+		// when button A is pressed, toggle field-centric drive mode
+		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
+		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-		// button A
-		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A); 
-		// when button A is pressed make a new toggle command to toggle mode
-		xboxAButton.whenPressed(new InstantCommand(m_driveTrain::toggleFieldCentric));
+		// when button X is pressed, toggle precision (slow) drive mode 
+		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
+		xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
-		// button X
-    	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
-		//inline command to toggle precision mode when button X is pressed
-    	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
+		// when button B is pressed, attempt to balance on the Charging Station
+		// assumes that the robot is already mostly up on the Station
+		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
+		xboxBButton.onTrue(new ChargeStationBalance());
 
-		// button RB 
-		JoystickButton xboxRBButton = new JoystickButton(m_controller, Constants.XBOX_RB);
-		// command to balance on charge station when right bumper is pressed
-		xboxRBButton.onTrue(new ChargeStationBalance());
+		// when button Y is pressed, attempt to drive up onto the Charging Station
+		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
+		xboxYButton.onTrue(new ChargeStationDrive());
 
-		// button LB 
-		JoystickButton xboxLBButton = new JoystickButton(m_controller, Constants.XBOX_LB);
-		// command to drive up charge station when left bumper is pressed
-		xboxLBButton.onTrue(new ChargeStationDrive());
+		// when button START is pressed, reset the robot heading
+		// whichever way the robot is facing becomes the forward direction
+		JoystickButton xboxStartButton = new JoystickButton(m_controller, Constants.XBOX_START);
+		xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 	}
 
 	public Command getDriveCommand() {
