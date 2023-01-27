@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.ChargeStationBalance;
+import frc.robot.commands.ChargeStationDrive;
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -62,6 +64,16 @@ public class RobotContainer {
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
 		//inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
+
+		// button RB 
+		JoystickButton xboxRBButton = new JoystickButton(m_controller, Constants.XBOX_RB);
+		// command to balance on charge station when right bumper is pressed
+		xboxRBButton.onTrue(new ChargeStationBalance());
+
+		// button LB 
+		JoystickButton xboxLBButton = new JoystickButton(m_controller, Constants.XBOX_LB);
+		// command to drive up charge station when left bumper is pressed
+		xboxLBButton.onTrue(new ChargeStationDrive());
 	}
 
 	public Command getDriveCommand() {
