@@ -138,6 +138,11 @@ public class DriveTrain extends SubsystemBase {
 				new Pose2d());
 
 		m_vision = vision;
+
+		// as late as possible, re-sync the swerve angle encoders
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(true);
+		}
 	}
 
 	// sets the heading to zero with the existing pose
@@ -248,6 +253,14 @@ public class DriveTrain extends SubsystemBase {
 		return state;
 	}
 	    
+	public void syncSwerveAngleEncoders() {
+		// check if we can sync the swerve angle encoders
+		// this will only trigger if the chassis is idle for 10 seconds
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(false);
+		}
+	}
+
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
