@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Shoulder;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
@@ -25,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
 	private final DriveTrain m_driveTrain = new DriveTrain();
-
 	private final XboxController m_controller = new XboxController(0);
 
 	/**
@@ -54,14 +55,14 @@ public class RobotContainer {
 		 */
 
 		// button A
-		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A); 
+		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
 		// when button A is pressed make a new toggle command to toggle mode
 		xboxAButton.whenPressed(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
 		// button X
-    	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
-		//inline command to toggle precision mode when button X is pressed
-    	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
+		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
+		// inline command to toggle precision mode when button X is pressed
+		xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
 	}
 
 	public Command getDriveCommand() {
@@ -75,6 +76,8 @@ public class RobotContainer {
 				() -> -modifyAxis(m_controller.getLeftX()),
 				() -> -modifyAxis(m_controller.getRightX()));
 	}
+
+	
 
 	private static double deadband(double value, double deadband) {
 		if (Math.abs(value) > deadband) {

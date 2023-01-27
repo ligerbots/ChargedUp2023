@@ -50,6 +50,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   public static final String kArmPKey = "ArmP";
 
   // The P gain for the PID controller that drives this arm.
+ 
   public static double kArmKp = 50.0;
 
   public static double armPositionDeg = 75.0;
@@ -82,41 +83,53 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   private boolean m_resetArmPos = false;
 
-  /** Creates a new ShoulderArm
-   *. */
-  public Shoulder() {
+  
+  final SingleJointedArmSim m_armSim = (
 
-
-    public final SingleJointedArmSim m_armSim =
-    super(
-      // The constraints for the generated profiles
-      new TrapezoidProfile.Constraints(Constants.ARM_MAX_VEL_RAD_PER_SEC, Constants.ARM_MAX_ACC_RAD_PER_SEC_SQ),
-      // The initial position of the mechanism
-      Constants.ARM_OFFSET_RAD);
-    
-    
-      new SingleJointedArmSim(
+    new SingleJointedArmSim(
         m_armGearbox,
         m_armReduction,
         SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
         m_armLength,
         Units.degreesToRadians(-75),
         Units.degreesToRadians(255),
-        m_armMass, 
+        m_armMass,
         false,
         VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1 tick
-        );
-public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);    
-   
+    ));
+    final EncoderSim m_EncoderSim = new EncoderSim(m_simEncoder);
+ 
+   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
+    final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
+  
+    final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+    final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
 
-    
+    final MechanismLigament2d m_arm = m_armPivot.append(
+        new MechanismLigament2d(
+            "Arm",
+            30,
+            Units.radiansToDegrees(0),
+            6,
+            new Color8Bit(Color.kYellow)));
+ 
+  
+  /**
+   * Creates a new ShoulderArm with attached simulation
+   * .
+   * @return 
+   */
+  public Shoulder() {
+    super(new TrapezoidProfile.Constraints(Constants.ARM_MAX_VEL_RAD_PER_SEC, Constants.ARM_MAX_ACC_RAD_PER_SEC_SQ));
+    TrapezoidProfile.State previousProfiledReference = new TrapezoidProfile.State(Constants.ARM_OFFSET_RAD, 0.0);
+
     // Create the motor, PID Controller and encoder.
     m_motorLeader = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
     m_motorFollower = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
     m_motorLeader.restoreFactoryDefaults();
     // Set follower and invert
     m_motorFollower.follow(m_motorLeader, true);
-    
+
     m_PIDController = m_motorLeader.getPIDController();
     m_PIDController.setP(m_kPArm);
     m_PIDController.setI(Constants.ARM_K_I);
@@ -130,22 +143,14 @@ public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
     m_encoder.setPositionConversionFactor((1.0 / (25.0 * 60.0 / 16.0)) * 2.0 * Math.PI);
     m_encoder.setPosition(Constants.ARM_OFFSET_RAD);
     SmartDashboard.putNumber("arm" + m_index + "/P Gain", m_kPArm);
+
+    
   }
-
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
-  public final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-  public final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-  public final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
-  private SingleJointedArmSim m_armSim;
-  public final MechanismLigament2d m_arm = m_armPivot.append(
-      new MechanismLigament2d(
-          "Arm",
-          30,
-          Units.radiansToDegrees(m_armSim.getAngleRads()),
-          6,
-          new Color8Bit(Color.kYellow)));
+  
 
-  public void simulationPeriodic() {
+  
+          public void simulationPeriodic() {
     // In this method, we update our simulation of what our arm is doing
     // First, we set our "inputs" (voltages)
     m_armSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
@@ -155,13 +160,13 @@ public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
 
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
-    m_encoderSim.setDistance(m_armSim.getArmAngle());
+    m_EncoderSim.setDistance(m_armSim.getAngleRads());
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
 
     // Update the Mechanism Arm angle based on the simulated arm angle
-    m_arm.setAngle(Units.radiansToDegrees(m_armSim.getArmAngle()));
+    m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
   }
 
   @Override
