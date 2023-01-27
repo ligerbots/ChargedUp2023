@@ -254,7 +254,7 @@ public class DriveTrain extends SubsystemBase {
 		if (shiftLeft) {
 			Translation2d tagLeft = translation.minus(shiftAmount);
 			PathPlannerTrajectory traj = PathPlanner.generatePath(
-					new PathConstraints(4, 3), // velocity, acceleration
+					new PathConstraints(m_maxVelocity, m_maxAcceleration), // velocity, acceleration
 					(List<PathPoint>) new PathPoint(tagLeft, Rotation2d.fromDegrees(0)) // position, heading
 			// always look at same direction
 			);
@@ -262,7 +262,7 @@ public class DriveTrain extends SubsystemBase {
 		} else if (shiftRight) { // if aiming for positions right of AprilTag
 			Translation2d tagRight = translation.plus(shiftAmount);
 			PathPlannerTrajectory traj = PathPlanner.generatePath(
-					new PathConstraints(4, 3), // velocity, acceleration
+					new PathConstraints(m_maxVelocity, m_maxAcceleration), // velocity, acceleration
 					(List<PathPoint>) new PathPoint(tagRight, Rotation2d.fromDegrees(0)) // position, heading
 			// always look at same direction
 			);
@@ -270,7 +270,7 @@ public class DriveTrain extends SubsystemBase {
 
 		} else { // aiming for middle of AprilTag
 			PathPlannerTrajectory traj = PathPlanner.generatePath(
-					new PathConstraints(4, 3), // velocity, acceleration
+					new PathConstraints(m_maxVelocity, m_maxAcceleration), // velocity, acceleration
 					(List<PathPoint>) new PathPoint(translation, Rotation2d.fromDegrees(0)) // position, heading
 			// always look at same direction
 			);
