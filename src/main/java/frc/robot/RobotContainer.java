@@ -60,18 +60,14 @@ public class RobotContainer {
 
 		// button X
     	JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X); 
-		//inline command to toggle precision mode when button X is pressed
+		// inline command to toggle precision mode when button X is pressed
     	xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
-		// left bumper 
-		JoystickButton xboxLBButton = new JoystickButton(m_controller, Constants.XBOX_LB);
-		//inline command to set wheels into x position when RB is pressed
-		xboxLBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels));
+		// button B
+		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_LB);
+		// inline command to toggle lock mode when button B is pressed
+		xboxBButton.onTrue(new InstantCommand(m_driveTrain::toggleLockMode));
 
-		// right bumper 
-		JoystickButton xboxRBButton = new JoystickButton(m_controller, Constants.XBOX_RB);
-		//inline command to set wheels back into normal position when RB is pressed
-		xboxRBButton.onTrue(new InstantCommand(m_driveTrain::unlockWheels));
 	}
 
 	public Command getDriveCommand() {

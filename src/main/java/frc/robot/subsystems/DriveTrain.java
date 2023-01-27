@@ -44,6 +44,9 @@ public class DriveTrain extends SubsystemBase {
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
 
+	// if true, then robot is in lock mode 
+	private boolean m_lockMode = false;
+
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
 	// <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
@@ -202,10 +205,21 @@ public class DriveTrain extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+		if (m_lockMode) {
+			states[0].speedMetersPerSecond = -0.01;
+			states[1].speedMetersPerSecond = -0.01;
+			states[2].speedMetersPerSecond = 0.01;
+			states[3].speedMetersPerSecond = 0.01;
+
+			states[0].angle = Rotation2d.fromDegrees(45);
+			states[1].angle = Rotation2d.fromDegrees(-45);
+			states[2].angle = Rotation2d.fromDegrees(-45);
+			states[3].angle = Rotation2d.fromDegrees(45);
+		}
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		for (int i = 0; i < 4; i++) {
-			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-					states[i].angle.getRadians());
+				m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+				states[i].angle.getRadians());
 		}
 	}
 
@@ -219,6 +233,7 @@ public class DriveTrain extends SubsystemBase {
 	public void resetDrivingModes(){
 		m_fieldCentric = true;
 		m_precisionMode = false;
+		m_lockMode = false;
 	}
 
 	// toggle whether driving is field-centric
@@ -253,12 +268,8 @@ public class DriveTrain extends SubsystemBase {
 		return state;
 	}
 
-	public void lockWheels() {
-		m_swerveModules[0].set(, 0.25 * Math.PI);
-	}
-
-	public void unlockWheels() {
-
+	public void toggleLockMode() {
+		m_lockMode = !m_lockMode;
 	}
 	    
 	@Override
@@ -273,8 +284,8 @@ public class DriveTrain extends SubsystemBase {
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
 		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance());
+		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance()); 
+		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance()); 
 		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
 	}
 
