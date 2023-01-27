@@ -109,7 +109,7 @@ public class DriveTrain extends SubsystemBase {
 			0, 0,
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
-	public DriveTrain() {
+	public DriveTrain(Vision vision) {
 
 		m_swerveModules[0] = new SwerveModule(
 				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
@@ -137,7 +137,7 @@ public class DriveTrain extends SubsystemBase {
 		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
 				new Pose2d());
 
-		m_vision = new Vision();
+		m_vision = vision;
 
 		// as late as possible, re-sync the swerve angle encoders
 		for (SwerveModule module : m_swerveModules) {
@@ -145,25 +145,20 @@ public class DriveTrain extends SubsystemBase {
 		}
 	}
 
-	/**
-	 * Sets the gyroscope angle to zero. This can be used to set the direction the
-	 * robot is currently facing to the
-	 * 'forwards' direction.
-	 */
-	// This is wrong. You need to reset the odometry if you really need to do this
-	// public void zeroGyroscope() {
-	// m_navx.zeroYaw();
-	// }
+	// sets the heading to zero with the existing pose
+	public void resetHeading() {
+		Pose2d pose = getPose();
+
+		Pose2d newPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(0));
+
+		setPose(newPose);
+	}
 
 	public Pose2d getPose() {
 		return m_odometry.getEstimatedPosition();
 	}
 
-	/**
-	 * Resets the odometry to the specified pose.
-	 *
-	 * @param pose The pose to which to set the odometry.
-	 */
+	// sets the odometry to the specified pose
 	public void setPose(Pose2d pose) {
 		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
 	}
