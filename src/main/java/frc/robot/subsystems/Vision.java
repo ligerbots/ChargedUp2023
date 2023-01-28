@@ -6,9 +6,6 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -23,25 +20,26 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.Constants;
 
 public class Vision {
-	private final double CUSTOM_FIELD_LENGTH = 10;
-	private final double CUSTOM_FIELD_WIDTH = 10;
-	private final AprilTagFieldLayout m_customTagFieldLayout = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+	// Values for the Shed in late January
+	private static final double CUSTOM_FIELD_LENGTH = 8.54;
+	private static final double CUSTOM_FIELD_WIDTH = 6.0;
+	private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
 		{
-			add(constructTag(26, 0, 164.3, 0));
-			add(constructTag(25, 0, 324, 0));
-			add(constructTag(24, 161.5, 0, 90));
-			add(constructTag(23, 465.0, 0, 90));
-			add(constructTag(22, 746.0, 0, 90));
-			add(constructTag(21, 854.0, 148.7, 180));
-			add(constructTag(20, 854.0, 251, 180));
+			add(constructTag(26, 0, 1.643, 0.865, 0));
+			add(constructTag(25, 0, 3.24, 0.895, 0));
+			add(constructTag(24, 1.615, 0, 0.857, 90));
+			add(constructTag(23, 4.65, 0, 0.845, 90));
+			add(constructTag(22, 7.46, 0, 0.896, 90));
+			add(constructTag(21, 8.54, 1.487, 0.895, 180));
+			add(constructTag(20, 8.54, 2.51, 0.946, 180));
 		}
 	}, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 
@@ -56,12 +54,13 @@ public class Vision {
 	PhotonPoseEstimator m_photonPoseEstimator;
 
 	public Vision() {
-		try{
-			m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-		} catch(IOException e){
-			System.out.println("Unable to load AprilTag layout" + e.getMessage());
-			m_aprilTagFieldLayout = null;
-		}
+		// try{
+		// 	m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+		// } catch(IOException e){
+		// 	System.out.println("Unable to load AprilTag layout" + e.getMessage());
+		// 	m_aprilTagFieldLayout = null;
+		// }
+		m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
 
 		m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
 		// set the driver mode to false
@@ -121,11 +120,7 @@ public class Vision {
 		return m_aprilTagFieldLayout.getTagPose(tagID);
 	}
 
-	public Optional<Pose3d> getCustomTagPose(int tagID){
-		return m_customTagFieldLayout.getTagPose(tagID);
-	}
-
-	public AprilTag constructTag(int id, double x, double y, double angle){
-		return new AprilTag(id, new Pose3d(new Pose2d(x, y, Rotation2d.fromDegrees(angle))));
+	public static AprilTag constructTag(int id, double x, double y, double z, double angle){
+		return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
 	}
 }
