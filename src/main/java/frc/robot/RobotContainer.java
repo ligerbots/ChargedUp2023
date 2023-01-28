@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DriveTrain;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -24,7 +26,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
  */
 public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
-	private final DriveTrain m_driveTrain = new DriveTrain();
+
+	private final Vision m_vision = new Vision();
+
+	private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
 
 	private final XboxController m_controller = new XboxController(0);
 
@@ -32,8 +37,6 @@ public class RobotContainer {
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
-
-		// Configure the button bindings
 		configureButtonBindings();
 	}
 
@@ -46,17 +49,10 @@ public class RobotContainer {
 	 * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings() {
-		// Back button zeros the gyroscope
-		/*
-		 * new Button(m_controller::getBackButton)
-		 * // No requirements because we don't need to interrupt anything
-		 * .whenPressed(m_drivetrainSubsystem::zeroGyroscope);
-		 */
-
 		// button A
 		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
 		// when button A is pressed make a new toggle command to toggle mode
-		xboxAButton.whenPressed(new InstantCommand(m_driveTrain::toggleFieldCentric));
+		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
 		// button X
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
@@ -68,6 +64,11 @@ public class RobotContainer {
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
 		// inline command to create trajectory from robot pose to a target pose
 		xboxBButton.whenPressed(m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose()));
+
+		// button Y
+		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
+		// when button Y is pressed reset the robot heading
+		xboxYButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
 	}
 
