@@ -33,20 +33,19 @@ import frc.robot.Constants;
 public class Vision {
 	private final double CUSTOM_FIELD_LENGTH = 10;
 	private final double CUSTOM_FIELD_WIDTH = 10;
+	private final AprilTagFieldLayout m_customTagFieldLayout = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+		{
+			add(constructTag(26, 0, 164.3, 0));
+			add(constructTag(25, 0, 324, 0));
+			add(constructTag(24, 161.5, 0, 90));
+			add(constructTag(23, 465.0, 0, 90));
+			add(constructTag(22, 746.0, 0, 90));
+			add(constructTag(21, 854.0, 148.7, 180));
+			add(constructTag(20, 854.0, 251, 180));
+		}
+	}, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 
-	final AprilTag tag18 = new AprilTag(
-			18,
-			new Pose3d(
-					new Pose2d(
-							CUSTOM_FIELD_LENGTH,
-							CUSTOM_FIELD_WIDTH / 2.0,
-							Rotation2d.fromDegrees(180))));
 
-	final AprilTag tag01 = new AprilTag(
-			01,
-			new Pose3d(new Pose2d(0.0, CUSTOM_FIELD_WIDTH / 2.0, Rotation2d.fromDegrees(0.0)))); 
-
-	
 	private final PhotonCamera m_camera = new PhotonCamera("ApriltagCamera");
 	private AprilTagFieldLayout m_aprilTagFieldLayout;
 	
@@ -67,15 +66,6 @@ public class Vision {
 		m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
 		// set the driver mode to false
 		m_camera.setDriverMode(false);
-
-
-		m_aprilTagFieldLayout = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
-			{
-				add(tag01);
-				add(tag18);
-				addAll(m_aprilTagFieldLayout.getTags());
-			}
-		}, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 	}
 
 	public void updateOdometry(SwerveDrivePoseEstimator odometry) {
@@ -129,5 +119,13 @@ public class Vision {
 
 	public Optional<Pose3d> getTagPose(int tagID){
 		return m_aprilTagFieldLayout.getTagPose(tagID);
+	}
+
+	public Optional<Pose3d> getCustomTagPose(int tagID){
+		return m_customTagFieldLayout.getTagPose(tagID);
+	}
+
+	public AprilTag constructTag(int id, double x, double y, double angle){
+		return new AprilTag(id, new Pose3d(new Pose2d(x, y, Rotation2d.fromDegrees(angle))));
 	}
 }
