@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 // A wrapper around the CANCoder absolute angle sensor
 
-public class CanCoder {
+public class CanCoderWrapper {
     private static final int PERIOD_MILLISECONDS = 100;
     private static final boolean ROTATION_CLOCKWISE = false;
 
@@ -19,10 +19,11 @@ public class CanCoder {
     public static void checkCtreError(ErrorCode errorCode, String message) {
         if (errorCode != ErrorCode.OK) {
             DriverStation.reportError(String.format("%s: %s", message, errorCode.toString()), false);
+            System.out.println("** ERROR in config of CANCoder: " + errorCode.toString());
         }
     }
 
-    public CanCoder(int canId, double offset) {
+    public CanCoderWrapper(int canId, double offset) {
         m_encoder = new CANCoder(canId);
 
         CANCoderConfiguration config = new CANCoderConfiguration();
