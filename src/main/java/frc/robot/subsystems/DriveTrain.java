@@ -231,6 +231,16 @@ public class DriveTrain extends SubsystemBase {
 		return Rotation2d.fromDegrees(m_navx.getPitch());
     }
 
+	public Rotation2d getYaw() {
+		//gets pitch of robot
+		return Rotation2d.fromDegrees(m_navx.getYaw());
+    }
+
+	public Rotation2d getRoll() {
+		//gets pitch of robot
+		return Rotation2d.fromDegrees(m_navx.getRoll());
+    }
+
 	// toggle precision mode for driving
 	public void togglePrecisionMode() {
 		m_precisionMode = !m_precisionMode;
@@ -277,6 +287,10 @@ public class DriveTrain extends SubsystemBase {
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
 		SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+
+		SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+		SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
+		SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 

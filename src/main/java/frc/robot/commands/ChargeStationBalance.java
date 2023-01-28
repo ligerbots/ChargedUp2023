@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -15,16 +16,19 @@ public class ChargeStationBalance extends CommandBase {
   private static final Rotation2d BALANCED_ERROR = Rotation2d.fromDegrees(2.5); //error for what counts as balanced
   private static final double BALANCED_DEGREES = 0;
   private static final double BALANCE_KP = 0.02; //change to control how fast robot drives during balancing
-  private static final double MAX_MPS = 0.75;
+  private static final double MAX_MPS = 1.0;
   private static final double BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
 
   private DriveTrain m_driveTrain;
   private final Timer m_timer = new Timer();
 
   /** Creates a new ChargeStationBalance. */
-  public ChargeStationBalance() {
+  public ChargeStationBalance(DriveTrain driveTrain) {
+    m_driveTrain = driveTrain;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
+    SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
+    SmartDashboard.putNumber("balanceCommand/error", 0.0);
   }
 
   // Called when the command is initially scheduled.
@@ -38,15 +42,18 @@ public class ChargeStationBalance extends CommandBase {
   @Override
   public void execute() {
     //uses angle of robot to set its speed
-    Rotation2d currentAngle = m_driveTrain.getPitch();
+    // *current robot has Roll
+    Rotation2d currentAngle = m_driveTrain.getRoll();
     Rotation2d error = Rotation2d.fromDegrees(BALANCED_DEGREES - currentAngle.getDegrees());
-    double driveMPS = error.getDegrees() * BALANCE_KP;
+    double driveMPS = -error.getDegrees() * BALANCE_KP;
 
     // cap max speed
     if (Math.abs(driveMPS) > MAX_MPS) {
       driveMPS = Math.copySign(MAX_MPS, driveMPS);
     }
-    
+    SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
+    SmartDashboard.putNumber("balanceCommand/error", error.getDegrees());
+
     m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getHeading()));
     
     //if not balanced, resets timer

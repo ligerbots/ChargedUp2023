@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
@@ -41,6 +42,7 @@ public class RobotContainer {
 	 */
 	public RobotContainer() {
 		configureButtonBindings();
+		m_driveTrain.setDefaultCommand(getDriveCommand());
 	}
 
 	/**
@@ -63,11 +65,11 @@ public class RobotContainer {
 		// when button B is pressed, attempt to balance on the Charging Station
 		// assumes that the robot is already mostly up on the Station
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
-		xboxBButton.onTrue(new ChargeStationBalance());
+		xboxBButton.onTrue(new ChargeStationBalance(m_driveTrain));
 
 		// when button Y is pressed, attempt to drive up onto the Charging Station
-		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
-		xboxYButton.onTrue(new ChargeStationDrive());
+		// JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
+		// xboxYButton.onTrue(new ChargeStationDrive());
 
 		// when button START is pressed, reset the robot heading
 		// whichever way the robot is facing becomes the forward direction
