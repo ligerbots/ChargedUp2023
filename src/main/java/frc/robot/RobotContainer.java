@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
@@ -63,8 +63,10 @@ public class RobotContainer {
 		// B button
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
 		// inline command to create trajectory from robot pose to a target pose
-		xboxBButton.onTrue(m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose()));
-
+		//xboxBButton.onTrue(m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose()));
+		xboxBButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose())));
+		//need a proxy so command is not created before button pressed
+		
 		// button Y
 		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
 		// when button Y is pressed reset the robot heading
