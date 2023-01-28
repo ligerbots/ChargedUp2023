@@ -68,6 +68,8 @@ public class Vision {
 	}
 
 	public void updateOdometry(SwerveDrivePoseEstimator odometry) {
+		if (!m_camera.isConnected())
+			return;
 
 		var targetResult = m_camera.getLatestResult();
 
