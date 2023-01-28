@@ -58,7 +58,7 @@ public class DriveTrain extends SubsystemBase {
 	private boolean m_precisionMode = false;
 
 	// pose for testing, can switch to whatever
-	private Pose2d m_poseTest = new Pose2d(5, 5, Rotation2d.fromDegrees(0));
+	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
