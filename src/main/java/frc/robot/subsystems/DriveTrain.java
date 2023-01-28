@@ -330,9 +330,9 @@ public class DriveTrain extends SubsystemBase {
 	public Command trajectoryToPose(Pose2d targetPose) {
 		Pose2d currentPose = getPose(); //get robot current pose
 		PathPlannerTrajectory traj = PathPlanner.generatePath(
-				new PathConstraints(MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION), // velocity, acceleration
+				new PathConstraints(2.0, 1.0), // velocity, acceleration
 				new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), //starting pose
-				new PathPoint(targetPose.getTranslation(), Rotation2d.fromDegrees(0)) // position, heading
+				new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
 		// always look at same direction
 		);
 
