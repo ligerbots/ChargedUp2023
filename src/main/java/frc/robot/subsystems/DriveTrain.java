@@ -44,10 +44,10 @@ public class DriveTrain extends SubsystemBase {
 
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
-	// limit the acceleration from 0 to full power takes more than one second.
-	private SlewRateLimiter m_xLimiter = new SlewRateLimiter(1);
-	private SlewRateLimiter m_yLimiter = new SlewRateLimiter(1);
-	private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(1);
+	// limit the acceleration from 0 to full power to take 1/3 second.
+	private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
+	private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
+	private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
