@@ -51,7 +51,9 @@ public class Vision {
 	//relative position of the camera on the robot ot the robot center
 	private final Transform3d m_robotToCam = new Transform3d(new Translation3d(Constants.CAMERA_X_OFFSET, Constants.CAMERA_Y_OFFSET, Constants.CAMERA_Z_OFFSET), new Rotation3d(Constants.CAMERA_ROLL_OFFSET,Constants.CAMERA_PITCH_OFFSET,Constants.CAMERA_YAW_OFFSET)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
-	PhotonPoseEstimator m_photonPoseEstimator;
+	private PhotonPoseEstimator m_photonPoseEstimator;
+
+	private double m_lastImageTimeStamp = -1.0;
 
 	public Vision() {
 		// try{
@@ -73,18 +75,24 @@ public class Vision {
 
 		var targetResult = m_camera.getLatestResult();
 
+		if(targetResult.getTimestampSeconds() == m_lastImageTimeStamp) 
+			return;
+		else
+			m_lastImageTimeStamp = targetResult.getTimestampSeconds();
+
 		SmartDashboard.putBoolean("hasTargets?", targetResult.hasTargets());
 		int targetID = -1;
+		SmartDashboard.putNumber("targetID", targetID);
 		if (targetResult.hasTargets()) {
 			// Get the current best target.
 			PhotonTrackedTarget target = targetResult.getBestTarget();
 			targetID = target.getFiducialId();
-			SmartDashboard.putNumber("vision/tagOffsetX", target.getBestCameraToTarget().getX());
-			SmartDashboard.putNumber("vision/tagOffsetY", target.getBestCameraToTarget().getY());
-			SmartDashboard.putNumber("vision/tagOffsetAngle", target.getBestCameraToTarget().getRotation().getAngle());
-
-		}
-		SmartDashboard.putNumber("targetID", targetID);
+			Transform3d cameraToTarget = target.getBestCameraToTarget();
+			SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
+			SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
+			SmartDashboard.putNumber("vision/tagOffsetAngle", cameraToTarget.getRotation().getAngle());
+		}else
+			return ;
 
         // Also apply vision measurements. We use 0.3 seconds in the past as an example
         // -- on
