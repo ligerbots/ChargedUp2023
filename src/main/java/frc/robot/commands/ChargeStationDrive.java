@@ -10,41 +10,41 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class ChargeStationDrive extends CommandBase {
-  private static final Rotation2d RAMP_ANGLE = Rotation2d.fromDegrees(-10); 
-  private static final double DRIVE_MPS = 0.75;
+    private static final Rotation2d RAMP_ANGLE = Rotation2d.fromDegrees(-10); 
+    private static final double DRIVE_MPS = 0.75;
 
-  private DriveTrain m_driveTrain;
-  private Rotation2d currentAngle;
+    private DriveTrain m_driveTrain;
+    private Rotation2d currentAngle;
 
-  /** Creates a new ChargeStationDrive. */
-  public ChargeStationDrive() {
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_driveTrain);
-  }
+    /** Creates a new ChargeStationDrive. */
+    public ChargeStationDrive() {
+        // Use addRequirements() here to declare subsystem dependencies.
+        addRequirements(m_driveTrain);
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    currentAngle = m_driveTrain.getPitch();
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        currentAngle = m_driveTrain.getPitch();
 
-    //robot drives at set speed in mps
-    m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_MPS, 0.0, 0.0, m_driveTrain.getHeading()));
-  }
+        //robot drives at set speed in mps
+        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_MPS, 0.0, 0.0, m_driveTrain.getHeading()));
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    m_driveTrain.stop();
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        m_driveTrain.stop();
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    //stops when robot is on ramp of charge station 
-    return (currentAngle.getDegrees() <= RAMP_ANGLE.getDegrees());
-  }
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        //stops when robot is on ramp of charge station 
+        return (currentAngle.getDegrees() <= RAMP_ANGLE.getDegrees());
+    }
 }
