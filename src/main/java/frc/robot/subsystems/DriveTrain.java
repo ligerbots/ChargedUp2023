@@ -23,6 +23,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
@@ -44,8 +45,13 @@ public class DriveTrain extends SubsystemBase {
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
 
-	// if true, then robot is in lock mode 
+    // if true, then robot is in lock mode 
 	private boolean m_lockMode = false;
+
+	// limit the acceleration from 0 to full power to take 1/3 second.
+	private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
+	private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
+	private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
@@ -78,9 +84,8 @@ public class DriveTrain extends SubsystemBase {
 	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
 			Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-
-	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
-			MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
+	private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+			/ 6.0;
 
 	private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
 			// Front left
@@ -112,7 +117,7 @@ public class DriveTrain extends SubsystemBase {
 			0, 0,
 			new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
-	public DriveTrain() {
+	public DriveTrain(Vision vision) {
 
 		m_swerveModules[0] = new SwerveModule(
 				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
@@ -140,28 +145,28 @@ public class DriveTrain extends SubsystemBase {
 		m_odometry = new SwerveDrivePoseEstimator(m_kinematics, getGyroscopeRotation(), getModulePositions(),
 				new Pose2d());
 
-		m_vision = new Vision();
+		m_vision = vision;
+
+		// as late as possible, re-sync the swerve angle encoders
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(true);
+		}
 	}
 
-	/**
-	 * Sets the gyroscope angle to zero. This can be used to set the direction the
-	 * robot is currently facing to the
-	 * 'forwards' direction.
-	 */
-	// This is wrong. You need to reset the odometry if you really need to do this
-	// public void zeroGyroscope() {
-	// m_navx.zeroYaw();
-	// }
+	// sets the heading to zero with the existing pose
+	public void resetHeading() {
+		Pose2d pose = getPose();
+
+		Pose2d newPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(0));
+
+		setPose(newPose);
+	}
 
 	public Pose2d getPose() {
 		return m_odometry.getEstimatedPosition();
 	}
 
-	/**
-	 * Resets the odometry to the specified pose.
-	 *
-	 * @param pose The pose to which to set the odometry.
-	 */
+	// sets the odometry to the specified pose
 	public void setPose(Pose2d pose) {
 		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
 	}
@@ -184,23 +189,26 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	public void joystickDrive(double inputX, double inputY, double inputRotation) {
+
+		double newInputX = m_xLimiter.calculate(inputX);
+		double newInputY = m_yLimiter.calculate(inputY);
+		double newInputRotation = m_rotationLimiter.calculate(inputRotation);
 		ChassisSpeeds chassisSpeeds;
 		// when in field-relative mode
 		if (m_fieldCentric) {
-			chassisSpeeds = 
-					ChassisSpeeds.fromFieldRelativeSpeeds(
-							inputX * m_maxVelocity,
-							inputY * m_maxVelocity,
-							inputRotation * m_maxAngularVelocity,
-							getHeading());
+			chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+					newInputX * m_maxVelocity,
+					newInputY * m_maxVelocity,
+					newInputRotation * m_maxAngularVelocity,
+					getHeading());
 		}
 		// when in robot-centric mode
 		else {
-			chassisSpeeds = new ChassisSpeeds(inputX * m_maxVelocity,
-					inputY * m_maxVelocity,
-					inputRotation * m_maxAngularVelocity);
+			chassisSpeeds = new ChassisSpeeds(newInputX * m_maxVelocity,
+					newInputY * m_maxVelocity,
+					newInputRotation * m_maxAngularVelocity);
 		}
-		drive(chassisSpeeds);		
+		drive(chassisSpeeds);
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
@@ -241,7 +249,7 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	// for the beginning of auto rountines
-	public void resetDrivingModes(){
+	public void resetDrivingModes() {
 		m_fieldCentric = true;
 		m_precisionMode = false;
 		m_lockMode = false;
@@ -256,20 +264,27 @@ public class DriveTrain extends SubsystemBase {
 	public void togglePrecisionMode() {
 		m_precisionMode = !m_precisionMode;
 		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+				: MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 	}
 
-	public PIDController getXController(){ //gets the controller for x position of robot
+    //toggles lock mode for driving
+	public void toggleLockMode() {
+		m_lockMode = !m_lockMode;
+	}
+
+	public PIDController getXController() { // gets the controller for x position of robot
 		return m_xController;
 	}
 
-	public PIDController getYController(){ //gets controller for y position of bot
+	public PIDController getYController() { // gets controller for y position of bot
 		return m_yController;
 	}
 
-	public ProfiledPIDController getThetaController(){ //gets controller for angle
+	public ProfiledPIDController getThetaController() { // gets controller for angle
 		return m_thetaController;
 	}
+
 	// get the swerveModuleState manually
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] state = new SwerveModulePosition[4];
@@ -278,16 +293,22 @@ public class DriveTrain extends SubsystemBase {
 		}
 		return state;
 	}
-
-    //toggles lock mode for driving
-	public void toggleLockMode() {
-		m_lockMode = !m_lockMode;
-	}
 	    
+	public void syncSwerveAngleEncoders() {
+		// check if we can sync the swerve angle encoders
+		// this will only trigger if the chassis is idle for 10 seconds
+		for (SwerveModule module : m_swerveModules) {
+			module.syncAngleEncoders(false);
+		}
+	}
+
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
-		m_vision.updateOdometry(m_odometry);
+
+		// Have the vision system update based on the Apriltags, if seen
+		// Comment out for now so we don't get exceptions
+		// m_vision.updateOdometry(m_odometry);
 
 		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
 		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
@@ -295,10 +316,10 @@ public class DriveTrain extends SubsystemBase {
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		SmartDashboard.putNumber("drivetrain/frontleftwheel", m_swerveModules[0].getWheelDistance());
-		SmartDashboard.putNumber("drivetrain/frontrightwheel", m_swerveModules[1].getWheelDistance()); 
-		SmartDashboard.putNumber("drivetrain/backleftwheel", m_swerveModules[2].getWheelDistance()); 
-		SmartDashboard.putNumber("drivetrain/backrightwheel", m_swerveModules[3].getWheelDistance());
+		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
+		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
+		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
+		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
