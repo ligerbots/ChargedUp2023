@@ -37,9 +37,9 @@ public class NeoSteerController {
         }
     }
 
-    public NeoSteerController(int canId, int canCoderCanId, double angleOffset) {
+    public NeoSteerController(int canId, int canCoderCanId, double angleOffsetRadians) {
         // absolute angle encoder CANcoder
-        m_absoluteEncoder = new CanCoderWrapper(canCoderCanId, angleOffset);
+        m_absoluteEncoder = new CanCoderWrapper(canCoderCanId, angleOffsetRadians);
 
         // the turn motor
         m_motor = new CANSparkMax(canId, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -72,7 +72,7 @@ public class NeoSteerController {
                 "Failed to set NEO encoder conversion factor");
 
         // set the built in encoder to match the CANcoder
-        checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle()),
+        checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngleRadians()),
                 "Failed to set NEO encoder position");
 
         // PID controller to maintain the turn angle
@@ -98,7 +98,7 @@ public class NeoSteerController {
 
         if (dontCheckTimer) {
             // System.out.println("** Synchronizing swerve angle encoders");
-            m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle());
+            m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngleRadians());
             m_resetIteration = 0;
             return;
         }
@@ -106,7 +106,7 @@ public class NeoSteerController {
         if (m_motorEncoder.getVelocity() < ENCODER_RESET_MAX_ANGULAR_VELOCITY) {
             if (++m_resetIteration >= ENCODER_RESET_ITERATIONS) {
                 // System.out.println("** Synchronizing swerve angle encoders");
-                m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle());
+                m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngleRadians());
                 m_resetIteration = 0;
             }
         } else {
@@ -148,11 +148,16 @@ public class NeoSteerController {
         return Rotation2d.fromRadians(motorAngleRadians);
     }
 
-    public void updateSmartDashboard(String prefix) {
-        // SmartDashboard.putNumber(prefix + "_angle", getStateAngle().getDegrees());
-        double offset = Math.toDegrees(getStateAngle().getRadians() - m_absoluteEncoder.getAbsoluteAngle());
+    public void updateSmartDashboard(String sdPrefix) {
+        // SmartDashboard.putNumber(sdPrefix + "_angle", getStateAngle().getDegrees());
+
+        // THIS IS NOT TESTED. Not sure about plus vs minus and the overall sign
+        SmartDashboard.putNumber(sdPrefix + "/calibrationAngle", 
+                Math.toDegrees(m_absoluteEncoder.getOffsetAngleRadians() - m_absoluteEncoder.getAbsoluteAngleRadians()));
+
+        double offset = Math.toDegrees(getStateAngle().getRadians() - m_absoluteEncoder.getAbsoluteAngleRadians());
         if (offset > 180.0) offset -= 360.0;
         if (offset < -180.0) offset += 360.0;
-        SmartDashboard.putNumber(prefix + "_cancoder_offset", offset);
+        SmartDashboard.putNumber(sdPrefix + "/cancoder_offset", offset);
     }
 }

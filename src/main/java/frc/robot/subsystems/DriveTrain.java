@@ -115,22 +115,22 @@ public class DriveTrain extends SubsystemBase {
 
 	public DriveTrain(Vision vision) {
 
-		m_swerveModules[0] = new SwerveModule(
+		m_swerveModules[0] = new SwerveModule("frontLeft",
 				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
 				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
 						FRONT_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[1] = new frc.robot.swerve.SwerveModule(
+		m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
 				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
 				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
 						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[2] = new frc.robot.swerve.SwerveModule(
+		m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
 				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
 				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
 						BACK_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[3] = new frc.robot.swerve.SwerveModule(
+		m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
 				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
 				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
 						BACK_RIGHT_MODULE_STEER_OFFSET));
@@ -284,10 +284,9 @@ public class DriveTrain extends SubsystemBase {
 
 		SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
-		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
-		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
-		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
+		for (SwerveModule mod : m_swerveModules) {
+			mod.updateSmartDashboard();
+		}
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
