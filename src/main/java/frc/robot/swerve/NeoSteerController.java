@@ -149,7 +149,7 @@ public class NeoSteerController {
     }
 
     public void updateSmartDashboard(String sdPrefix) {
-        // SmartDashboard.putNumber(sdPrefix + "_angle", getStateAngle().getDegrees());
+        SmartDashboard.putNumber(sdPrefix + "/angle", getStateAngle().getDegrees());
 
         // THIS IS NOT TESTED. Not sure about plus vs minus and the overall sign
         SmartDashboard.putNumber(sdPrefix + "/calibrationAngle", 
