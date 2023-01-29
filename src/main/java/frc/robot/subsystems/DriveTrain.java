@@ -205,6 +205,7 @@ public class DriveTrain extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+        //if in lock mode, manually sets speed and angles of swerve modules
 		if (m_lockMode) {
 			states[0].speedMetersPerSecond = -0.01;
 			states[1].speedMetersPerSecond = -0.01;
@@ -221,6 +222,16 @@ public class DriveTrain extends SubsystemBase {
 				m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 				states[i].angle.getRadians());
 		}
+
+        // test print statements
+        double[] m_swerveMPS = {states[0].speedMetersPerSecond, states[1].speedMetersPerSecond, 
+        states[2].speedMetersPerSecond, states[3].speedMetersPerSecond};
+        double[] m_swerveAngleDegrees = {states[0].angle.getDegrees(), states[1].angle.getDegrees(),
+        states[2].angle.getDegrees(), states[3].angle.getDegrees()};
+        SmartDashboard.putBoolean("swerveModules/lockMode", m_lockMode);
+        SmartDashboard.putNumberArray("swerveModules/speedMetersPerSecond", m_swerveMPS);
+        SmartDashboard.putNumberArray("swerveModules/angleDegrees", m_swerveAngleDegrees);
+
 	}
 
 	// future changes: maybe leave the modules so the angles remain the same instead
@@ -268,6 +279,7 @@ public class DriveTrain extends SubsystemBase {
 		return state;
 	}
 
+    //toggles lock mode for driving
 	public void toggleLockMode() {
 		m_lockMode = !m_lockMode;
 	}
