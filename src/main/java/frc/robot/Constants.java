@@ -55,16 +55,6 @@ public final class Constants {
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
 
-    // TODO: check this again when we mounted the camera
-    // Camera offset to robot
-    public static final double CAMERA_X_OFFSET = Units.inchesToMeters(31.25 / 2.0); 
-    public static final double CAMERA_Y_OFFSET = 0.0; 
-    public static final double CAMERA_Z_OFFSET = Units.inchesToMeters(21.0); 
-
-    public static final double CAMERA_ROLL_OFFSET = 0.0; 
-    public static final double CAMERA_YAW_OFFSET = 0.0; 
-    public static final double CAMERA_PITCH_OFFSET = 0.0; 
-
     // max voltages
     /**
 	 * The maximum voltage that will be delivered to the drive motors.
