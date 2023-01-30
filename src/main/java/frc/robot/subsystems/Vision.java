@@ -63,6 +63,7 @@ public class Vision {
 		// 	m_aprilTagFieldLayout = null;
 		// }
 		m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
+		System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
 		m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, m_camera, m_robotToCam);
 		// set the driver mode to false
@@ -75,15 +76,19 @@ public class Vision {
 
 		var targetResult = m_camera.getLatestResult();
 
-		if(targetResult.getTimestampSeconds() == m_lastImageTimeStamp) 
+		double curImageTimeStamp = targetResult.getTimestampSeconds();
+
+		if(curImageTimeStamp <= m_lastImageTimeStamp) 
 			return;
 		else
-			m_lastImageTimeStamp = targetResult.getTimestampSeconds();
+			m_lastImageTimeStamp = curImageTimeStamp;
 
 		SmartDashboard.putBoolean("hasTargets?", targetResult.hasTargets());
 		int targetID = -1;
 		SmartDashboard.putNumber("targetID", targetID);
-		if (targetResult.hasTargets()) {
+		if (!targetResult.hasTargets()) 
+			return;
+		else{
 			// Get the current best target.
 			PhotonTrackedTarget target = targetResult.getBestTarget();
 			targetID = target.getFiducialId();
@@ -91,8 +96,7 @@ public class Vision {
 			SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
 			SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
 			SmartDashboard.putNumber("vision/tagOffsetAngle", cameraToTarget.getRotation().getAngle());
-		}else
-			return ;
+		}
 
         // Also apply vision measurements. We use 0.3 seconds in the past as an example
         // -- on
@@ -126,8 +130,8 @@ public class Vision {
         return m_photonPoseEstimator.update();
     }
 
-	public Optional<Pose3d> getTagPose(int tagID){
-		return m_aprilTagFieldLayout.getTagPose(tagID);
+	private Optional<Pose2d> getTagPose(int tagID){
+		return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
 	}
 
 	public static AprilTag constructTag(int id, double x, double y, double z, double angle){
