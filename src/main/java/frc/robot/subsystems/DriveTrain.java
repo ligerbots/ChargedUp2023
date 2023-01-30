@@ -110,6 +110,7 @@ public class DriveTrain extends SubsystemBase {
 	private double m_simX = 0.0;
 	private double m_simY = 0.0;
 	private double m_yaw = 0.0;
+	private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
 
 	// PID controller for swerve
 	private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
@@ -215,6 +216,7 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
+		m_chassisSpeeds = chassisSpeeds;
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		for (int i = 0; i < 4; i++) {
@@ -318,17 +320,11 @@ public class DriveTrain extends SubsystemBase {
 
 	@Override
 	public void simulationPeriodic(){
-		var chassisSpeed = m_kinematics.toChassisSpeeds(m_swerveModuleStates);
-		double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
-	
-		m_yawValue += chassisRotationSpeed * 0.02;
-		m_gyroSim.setAngle(-Units.radiansToDegrees(m_yawValue));
+		m_simX += m_chassisSpeeds.vxMetersPerSecond * 0.02;
+		m_simY += m_chassisSpeeds.vyMetersPerSecond * 0.02;
+		m_yaw += m_chassisSpeeds.omegaRadiansPerSecond * 0.02;
 
-
-
-
-
-		m_fieldSim.setRobotPose(chassisRotationSpeed, chassisRotationSpeed, getGyroscopeRotation());
+		m_fieldSim.setRobotPose(m_simX, m_simY, Rotation2d.fromRadians(-m_yaw));
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
