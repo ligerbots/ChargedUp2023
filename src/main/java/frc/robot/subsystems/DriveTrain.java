@@ -45,9 +45,6 @@ public class DriveTrain extends SubsystemBase {
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
 
-    // if true, then robot is in lock mode 
-	private boolean m_lockMode = false;
-
 	// limit the acceleration from 0 to full power to take 1/3 second.
 	private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
 	private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
@@ -213,32 +210,11 @@ public class DriveTrain extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-        //if in lock mode, manually sets speed and angles of swerve modules
-		if (m_lockMode) {
-			states[0].speedMetersPerSecond = -0.01;
-			states[1].speedMetersPerSecond = -0.01;
-			states[2].speedMetersPerSecond = 0.01;
-			states[3].speedMetersPerSecond = 0.01;
-
-			states[0].angle = Rotation2d.fromDegrees(45);
-			states[1].angle = Rotation2d.fromDegrees(-45);
-			states[2].angle = Rotation2d.fromDegrees(-45);
-			states[3].angle = Rotation2d.fromDegrees(45);
-		}
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		for (int i = 0; i < 4; i++) {
 				m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 				states[i].angle.getRadians());
 		}
-
-        // test print statements
-        double[] m_swerveMPS = {states[0].speedMetersPerSecond, states[1].speedMetersPerSecond, 
-        states[2].speedMetersPerSecond, states[3].speedMetersPerSecond};
-        double[] m_swerveAngleDegrees = {states[0].angle.getDegrees(), states[1].angle.getDegrees(),
-        states[2].angle.getDegrees(), states[3].angle.getDegrees()};
-        SmartDashboard.putBoolean("swerveModules/lockMode", m_lockMode);
-        SmartDashboard.putNumberArray("swerveModules/speedMetersPerSecond", m_swerveMPS);
-        SmartDashboard.putNumberArray("swerveModules/angleDegrees", m_swerveAngleDegrees);
 
 	}
 
@@ -252,12 +228,27 @@ public class DriveTrain extends SubsystemBase {
 	public void resetDrivingModes() {
 		m_fieldCentric = true;
 		m_precisionMode = false;
-		m_lockMode = false;
 	}
 
 	// toggle whether driving is field-centric
 	public void toggleFieldCentric() {
 		m_fieldCentric = !m_fieldCentric;
+	}
+
+    // toggle precision mode for driving
+	public void togglePrecisionMode() {
+		m_precisionMode = !m_precisionMode;
+		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+				: MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+	}
+
+    // lock wheels in x position to resist pushing
+	public void lockWheels() {
+        m_swerveModules[0].set(0.0, Rotation2d.fromDegrees(45).getRadians());
+        m_swerveModules[1].set(0.0, Rotation2d.fromDegrees(-45).getRadians());
+        m_swerveModules[2].set(0.0, Rotation2d.fromDegrees(-45).getRadians());
+        m_swerveModules[3].set(0.0, Rotation2d.fromDegrees(45).getRadians());
 	}
 
 	public Rotation2d getPitch() {
@@ -274,19 +265,6 @@ public class DriveTrain extends SubsystemBase {
 		//gets pitch of robot
 		return Rotation2d.fromDegrees(m_navx.getRoll());
     }
-
-	// toggle precision mode for driving
-	public void togglePrecisionMode() {
-		m_precisionMode = !m_precisionMode;
-		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
-				: MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-	}
-
-    //toggles lock mode for driving
-	public void toggleLockMode() {
-		m_lockMode = !m_lockMode;
-	}
 
 	public PIDController getXController() { // gets the controller for x position of robot
 		return m_xController;
