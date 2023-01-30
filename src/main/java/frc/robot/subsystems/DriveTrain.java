@@ -233,13 +233,28 @@ public class DriveTrain extends SubsystemBase {
         m_fieldCentric = !m_fieldCentric;
     }
 
-    // toggle precision mode for driving
-    public void togglePrecisionMode() {
-        m_precisionMode = !m_precisionMode;
-        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
-                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+	public Rotation2d getPitch() {
+		//gets pitch of robot
+		return Rotation2d.fromDegrees(m_navx.getPitch());
     }
+
+	public Rotation2d getYaw() {
+		//gets pitch of robot
+		return Rotation2d.fromDegrees(m_navx.getYaw());
+    }
+
+	public Rotation2d getRoll() {
+		//gets pitch of robot
+		return Rotation2d.fromDegrees(m_navx.getRoll());
+    }
+
+	// toggle precision mode for driving
+	public void togglePrecisionMode() {
+		m_precisionMode = !m_precisionMode;
+		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+				: MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+	}
 
     public PIDController getXController() { // gets the controller for x position of robot
         return m_xController;
@@ -278,9 +293,13 @@ public class DriveTrain extends SubsystemBase {
         // Comment out for now so we don't get exceptions
         m_vision.updateOdometry(m_odometry);
 
-        SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
-        SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
-        SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+		SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
+		SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
+		SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+
+		SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+		SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
+		SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
