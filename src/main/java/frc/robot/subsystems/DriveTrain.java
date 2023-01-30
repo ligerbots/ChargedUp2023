@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
@@ -104,7 +105,11 @@ public class DriveTrain extends SubsystemBase {
 
 	private final Vision m_vision;
 
-	// private final Field2d m_fieldSim;
+	private final Field2d m_fieldSim = new Field2d();
+
+	private double m_simX = 0.0;
+	private double m_simY = 0.0;
+	private double m_yaw = 0.0;
 
 	// PID controller for swerve
 	private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
@@ -147,6 +152,8 @@ public class DriveTrain extends SubsystemBase {
 		for (SwerveModule module : m_swerveModules) {
 			module.syncAngleEncoders(true);
 		}
+
+		SmartDashboard.putData("Field", m_fieldSim);
 	}
 
 	// sets the heading to zero with the existing pose
@@ -307,6 +314,21 @@ public class DriveTrain extends SubsystemBase {
 		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
 		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
 		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
+	}
+
+	@Override
+	public void simulationPeriodic(){
+		var chassisSpeed = m_kinematics.toChassisSpeeds(m_swerveModuleStates);
+		double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
+	
+		m_yawValue += chassisRotationSpeed * 0.02;
+		m_gyroSim.setAngle(-Units.radiansToDegrees(m_yawValue));
+
+
+
+
+
+		m_fieldSim.setRobotPose(chassisRotationSpeed, chassisRotationSpeed, getGyroscopeRotation());
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
