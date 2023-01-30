@@ -29,21 +29,21 @@ import frc.robot.subsystems.Vision;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-	// The robot's subsystems and commands are defined here...
+    // The robot's subsystems and commands are defined here...
 
-	private final Vision m_vision = new Vision();
+    private final Vision m_vision = new Vision();
 
-	private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
+    private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
 
-	private final XboxController m_controller = new XboxController(0);
+    private final XboxController m_controller = new XboxController(0);
 
-	/**
-	 * The container for the robot. Contains subsystems, OI devices, and commands.
-	 */
-	public RobotContainer() {
-		configureButtonBindings();
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        configureButtonBindings();
 		m_driveTrain.setDefaultCommand(getDriveCommand());
-	}
+    }
 
 	/**
 	 * Use this method to define your button->command mappings. Buttons can be
@@ -77,41 +77,41 @@ public class RobotContainer {
 		xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 	}
 
-	public Command getDriveCommand() {
-		// The controls are for field-oriented driving:
-		// Left stick Y axis -> forward and backwards movement
-		// Left stick X axis -> left and right movement
-		// Right stick X axis -> rotation
-		return new Drive(
-				m_driveTrain,
-				() -> -modifyAxis(m_controller.getLeftY()),
-				() -> -modifyAxis(m_controller.getLeftX()),
-				() -> -modifyAxis(m_controller.getRightX()));
-	}
+    public Command getDriveCommand() {
+        // The controls are for field-oriented driving:
+        // Left stick Y axis -> forward and backwards movement
+        // Left stick X axis -> left and right movement
+        // Right stick X axis -> rotation
+        return new Drive(
+                m_driveTrain,
+                () -> -modifyAxis(m_controller.getLeftY()),
+                () -> -modifyAxis(m_controller.getLeftX()),
+                () -> -modifyAxis(m_controller.getRightX()));
+    }
 
-	private static double deadband(double value, double deadband) {
-		if (Math.abs(value) > deadband) {
-			if (value > 0.0) {
-				return (value - deadband) / (1.0 - deadband);
-			} else {
-				return (value + deadband) / (1.0 - deadband);
-			}
-		} else {
-			return 0.0;
-		}
-	}
+    private static double deadband(double value, double deadband) {
+        if (Math.abs(value) > deadband) {
+            if (value > 0.0) {
+                return (value - deadband) / (1.0 - deadband);
+            } else {
+                return (value + deadband) / (1.0 - deadband);
+            }
+        } else {
+            return 0.0;
+        }
+    }
 
-	private static double modifyAxis(double value) {
-		// Deadband
-		value = deadband(value, 0.05);
+    private static double modifyAxis(double value) {
+        // Deadband
+        value = deadband(value, 0.05);
 
-		// Square the axis
-		value = Math.copySign(value * value, value);
+        // Square the axis
+        value = Math.copySign(value * value, value);
 
-		return value;
-	}
+        return value;
+    }
 
-	public DriveTrain getDriveTrain() {
-		return m_driveTrain;
-	}
+    public DriveTrain getDriveTrain() {
+        return m_driveTrain;
+    }
 }
