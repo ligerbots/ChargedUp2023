@@ -149,7 +149,7 @@ public class NeoSteerController {
     }
 
     public void updateSmartDashboard(String prefix) {
-        // SmartDashboard.putNumber(prefix + "_angle", getStateAngle().getDegrees());
+        SmartDashboard.putNumber(prefix + "_angle", getStateAngle().getDegrees());
         double offset = Math.toDegrees(getStateAngle().getRadians() - m_absoluteEncoder.getAbsoluteAngle());
         if (offset > 180.0) offset -= 360.0;
         if (offset < -180.0) offset += 360.0;

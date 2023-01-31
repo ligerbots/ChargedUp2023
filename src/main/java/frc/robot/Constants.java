@@ -34,12 +34,12 @@ public final class Constants {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 9;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(169.1);
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(168.1);
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 3;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 4;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 10;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(22.4);
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(20.7);
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 5;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
@@ -49,21 +49,11 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(91.8);
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(91.4);
 
     public static final double X_PID_CONTROLLER_P = 0.2;
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
-
-    // TODO: check this again when we mounted the camera
-    // Camera offset to robot
-    public static final double CAMERA_X_OFFSET = Units.inchesToMeters(31.25 / 2.0); 
-    public static final double CAMERA_Y_OFFSET = 0.0; 
-    public static final double CAMERA_Z_OFFSET = Units.inchesToMeters(21.0); 
-
-    public static final double CAMERA_ROLL_OFFSET = 0.0; 
-    public static final double CAMERA_YAW_OFFSET = 0.0; 
-    public static final double CAMERA_PITCH_OFFSET = 0.0; 
 
     // max voltages
     /**
@@ -92,6 +82,5 @@ public final class Constants {
     // joy stick button
     public static final int XBOX_JL = 9;
     public static final int XBOX_JR = 10;
-
 
 }
