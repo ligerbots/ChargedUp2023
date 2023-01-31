@@ -25,7 +25,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
+import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -109,7 +109,7 @@ public class DriveTrain extends SubsystemBase {
 
 	private double m_simX = 0.0;
 	private double m_simY = 0.0;
-	private double m_yaw = 0.0;
+	private Rotation2d m_yaw = new Rotation2d(0.0);
 	private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
 
 	// PID controller for swerve
@@ -167,12 +167,22 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	public Pose2d getPose() {
+		if(Robot.isSimulation()){
+			return new Pose2d(m_simX, m_simY, m_yaw);
+		}
 		return m_odometry.getEstimatedPosition();
 	}
 
 	// sets the odometry to the specified pose
 	public void setPose(Pose2d pose) {
 		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
+
+		if(Robot.isSimulation()){
+			m_simX = pose.getX();
+			m_simY = pose.getY();
+			m_yaw = pose.getRotation();
+			m_chassisSpeeds = new ChassisSpeeds();
+		}
 	}
 
 	public Rotation2d getHeading() {
@@ -322,9 +332,9 @@ public class DriveTrain extends SubsystemBase {
 	public void simulationPeriodic(){
 		m_simX += m_chassisSpeeds.vxMetersPerSecond * 0.02;
 		m_simY += m_chassisSpeeds.vyMetersPerSecond * 0.02;
-		m_yaw += m_chassisSpeeds.omegaRadiansPerSecond * 0.02;
+		m_yaw = m_yaw.plus(Rotation2d.fromRadians(-m_chassisSpeeds.omegaRadiansPerSecond * 0.02));
 
-		m_fieldSim.setRobotPose(m_simX, m_simY, Rotation2d.fromRadians(-m_yaw));
+		m_fieldSim.setRobotPose(new Pose2d(m_simX, m_simY, m_yaw));
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
