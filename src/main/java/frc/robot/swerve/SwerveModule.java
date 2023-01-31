@@ -29,34 +29,36 @@ public class SwerveModule {
             steerAngle += 2.0 * Math.PI;
         }
 
-        double currAngle = getSteerAngle().getRadians();
-        double difference = steerAngle - currAngle;
-        // Change the target angle so the difference is in the range [-pi, pi) instead of [0, 2pi)
-        if (difference >= Math.PI) {
-            steerAngle -= 2.0 * Math.PI;
-        } else if (difference < -Math.PI) {
-            steerAngle += 2.0 * Math.PI;
-        }
-        difference = steerAngle - currAngle; // Recalculate difference
+        if (driveVoltage >= 0.01){
+            double currAngle = getSteerAngle().getRadians();
+            double difference = steerAngle - currAngle;
+            // Change the target angle so the difference is in the range [-pi, pi) instead of [0, 2pi)
+            if (difference >= Math.PI) {
+                steerAngle -= 2.0 * Math.PI;
+            } else if (difference < -Math.PI) {
+                steerAngle += 2.0 * Math.PI;
+            }
+            difference = steerAngle - currAngle; // Recalculate difference
 
-        // If the difference is greater than 90 deg or less than -90 deg the drive can
-        // be inverted so the total
-        // movement of the module is less than 90 deg
-        if (difference > Math.PI / 2.0 || difference < -Math.PI / 2.0) {
-            // Only need to add 180 deg here because the target angle will be put back into
-            // the range [0, 2pi)
-            steerAngle += Math.PI;
-            driveVoltage *= -1.0;
-        }
+            // If the difference is greater than 90 deg or less than -90 deg the drive can
+            // be inverted so the total
+            // movement of the module is less than 90 deg
+            if (difference > Math.PI / 2.0 || difference < -Math.PI / 2.0) {
+                // Only need to add 180 deg here because the target angle will be put back into
+                // the range [0, 2pi)
+                steerAngle += Math.PI;
+                driveVoltage *= -1.0;
+            }
 
-        // Put the target angle back into the range [0, 2pi)
-        steerAngle %= (2.0 * Math.PI);
-        if (steerAngle < 0.0) {
-            steerAngle += 2.0 * Math.PI;
+            // Put the target angle back into the range [0, 2pi)
+            steerAngle %= (2.0 * Math.PI);
+            if (steerAngle < 0.0) {
+                steerAngle += 2.0 * Math.PI;
+            }
+            m_steerController.setReferenceAngle(steerAngle);
         }
 
         m_driveController.setReferenceVoltage(driveVoltage);
-        m_steerController.setReferenceAngle(steerAngle);
     }
 
     // get the swerve module position 
