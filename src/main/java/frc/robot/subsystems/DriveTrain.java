@@ -243,10 +243,11 @@ public class DriveTrain extends SubsystemBase {
 
     // lock wheels in x position to resist pushing
 	public void lockWheels() {
-        m_swerveModules[0].set(0.0, Rotation2d.fromDegrees(45).getRadians());
-        m_swerveModules[1].set(0.0, Rotation2d.fromDegrees(-45).getRadians());
-        m_swerveModules[2].set(0.0, Rotation2d.fromDegrees(-45).getRadians());
-        m_swerveModules[3].set(0.0, Rotation2d.fromDegrees(45).getRadians());
+        double lockDegrees = Math.toRadians(45);
+        m_swerveModules[0].set(0.0, lockDegrees);
+        m_swerveModules[1].set(0.0, -lockDegrees);
+        m_swerveModules[2].set(0.0, -lockDegrees);
+        m_swerveModules[3].set(0.0, lockDegrees);
 	}
 
     public Rotation2d getPitch() {
