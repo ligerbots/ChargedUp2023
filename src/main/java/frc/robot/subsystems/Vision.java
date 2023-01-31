@@ -17,6 +17,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -33,6 +35,7 @@ public class Vision {
 	private final Transform3d m_robotToCam = new Transform3d(new Translation3d(Constants.CAMERA_X_OFFSET, Constants.CAMERA_Y_OFFSET, Constants.CAMERA_Z_OFFSET), new Rotation3d(Constants.CAMERA_ROLL_OFFSET,Constants.CAMERA_PITCH_OFFSET,Constants.CAMERA_YAW_OFFSET)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
 	PhotonPoseEstimator m_photonPoseEstimator;
+	Pose2d m_returnPose = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0));
 
 	public Vision() {
 		try{
@@ -95,4 +98,17 @@ public class Vision {
         m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return m_photonPoseEstimator.update();
     }
+
+	public Pose2d getTagPose() {
+		var targetResult = m_camera.getLatestResult();
+		
+		int targetID = -1;
+		if (targetResult.hasTargets()) {
+			// Get the current best target.
+			PhotonTrackedTarget target = targetResult.getBestTarget();
+			targetID = target.getFiducialId();
+		}
+		return m_aprilTagFieldLayout.getTagPose(targetID).get().toPose2d();
+
+	}
 }

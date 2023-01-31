@@ -51,9 +51,10 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(91.8);
 
-    public static final double X_PID_CONTROLLER_P = 0.2;
-    public static final double Y_PID_CONTROLLER_P = 0.2;
-    public static final double THETA_PID_CONTROLLER_P = 8.0;
+    //changed these all to 2.0 (the correct speed)
+    public static final double X_PID_CONTROLLER_P = 2.0;
+    public static final double Y_PID_CONTROLLER_P = 2.0;
+    public static final double THETA_PID_CONTROLLER_P = 2.0;
 
     // TODO: check this again when we mounted the camera
     // Camera offset to robot

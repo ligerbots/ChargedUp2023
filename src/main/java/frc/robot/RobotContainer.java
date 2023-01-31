@@ -54,24 +54,25 @@ public class RobotContainer {
 		// when button A is pressed make a new toggle command to toggle mode
 		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
+		// trajectory to AprilTag vision buttons (3 of them, left, middle, right)
+
 		// button X
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
-		// inline command to toggle precision mode when button X is pressed
-		xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
-
-		// trajectory to AprilTag vision commands
-		// B button
+		// inline command to create trajectory from robot pose to left of the best apriltag
+		xboxXButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(true, false))));
+		
+		// button B
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
-		// inline command to create trajectory from robot pose to a target pose
-		//xboxBButton.onTrue(m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose()));
-		xboxBButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTargetPose())));
+		// inline command to create trajectory from robot pose to middle of the best apriltag
+		xboxBButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, false))));
 		//need a proxy so command is not created before button pressed
 		
 		// button Y
 		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
-		// when button Y is pressed reset the robot heading
-		xboxYButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
+		// inline command to create trajectory from robot pose to right of the best apriltag
+		xboxYButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, true))));
 
+		
 	}
 
 	public Command getDriveCommand() {

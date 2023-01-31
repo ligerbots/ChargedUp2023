@@ -57,8 +57,7 @@ public class DriveTrain extends SubsystemBase {
 	// if true, then robot is in precision mode
 	private boolean m_precisionMode = false;
 
-	// pose for testing, can switch to whatever
-	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+
 
 	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
 	// The formula for calculating the theoretical maximum velocity is:
@@ -75,6 +74,11 @@ public class DriveTrain extends SubsystemBase {
 	 * This is a measure of how fast the robot should be able to drive in a straight
 	 * line.
 	 */
+	//constants for shifting the robot left or right, change later
+	private static final Translation2d CONE_LEFT_TRANSLATION = new Translation2d(-4.5, 3); //but you can also shoot a cube at left/right
+	private static final Translation2d CONE_RIGHT_TRANSLATION = new Translation2d(4.5, 3); 
+	private static final Translation2d CUBE_TRANSLATION = new Translation2d(0, 3);
+
 	private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
 			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
 
@@ -321,9 +325,26 @@ public class DriveTrain extends SubsystemBase {
 		return command;
 	}
 
-	//get target pose
-	public Pose2d getTargetPose(){
-		return m_poseTest;
+	//get best pose to shoot based on Apriltag pose, the pose you want to go to
+	public Pose2d getTagRobotPose(boolean shiftLeft, boolean shiftRight){
+		Pose2d tagPose = m_vision.getTagPose(); //get AprilTag pose
+		if(shiftLeft){ //if aiming for left
+			//make new translation to go to left of tag
+			Translation2d translated = tagPose.getTranslation().plus(CONE_LEFT_TRANSLATION);
+			Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
+			return targetPose;
+		}else if(shiftRight){
+			//make new translation
+			Translation2d translated = tagPose.getTranslation().plus(CONE_RIGHT_TRANSLATION);
+			Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
+			return targetPose;
+		}else{
+			//make new translation
+			Translation2d translated = tagPose.getTranslation().plus(CUBE_TRANSLATION);
+			Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
+			return targetPose;
+		}
+
 	}
 
 	// find a trajectory from robot pose to a target pose
