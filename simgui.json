@@ -7,7 +7,20 @@
       "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Arm Sim": "Mechanism2d",
       "/SmartDashboard/Chosen Trajectory": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/Arm Sim": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Chosen Trajectory": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {

@@ -25,13 +25,14 @@
 // import edu.wpi.first.wpilibj.util.Color8Bit;
 // import edu.wpi.first.wpilibj2.command.SubsystemBase;
 // import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
+// import frc.robot.subsystems.Shoulder;
 
 // /** This is a sample program to demonstrate the use of arm simulation with existing code. */
 // public class ShoulderSim extends TrapezoidProfileSubsystem {
   
 //   public final SingleJointedArmSim m_armSim =
 //       new SingleJointedArmSim(
-//           m_armGearbox,
+//           Shoulder.m_armGearbox,
 //           m_armReduction,
 //           SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
 //           m_armLength,
@@ -63,21 +64,7 @@
 //   }
 //               @Override
 //   public void simulationPeriodic() {
-//     // In this method, we update our simulation of what our arm is doing
-//     // First, we set our "inputs" (voltages)
-//     m_armSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
-
-//     // Next, we update it. The standard loop time is 20ms.
-//     m_armSim.update(0.020);
-
-//     // Finally, we set our simulated encoder's readings and simulated battery voltage
-//     m_encoderSim.setDistance(m_armSim.getArmAngle());
-//     // SimBattery estimates loaded battery voltages
-//     RoboRioSim.setVInVoltage(
-//         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
-
-//     // Update the Mechanism Arm angle based on the simulated arm angle
-//     m_arm.setAngle(Units.radiansToDegrees(m_armSim.getArmAngle()));
+//     
 //   }
 //             @Override
 //             protected void useState(State state) {

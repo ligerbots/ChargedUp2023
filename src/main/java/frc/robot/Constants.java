@@ -95,9 +95,9 @@ public final class Constants {
     // These need to be set for this robot.  
 
 
-    // Following three CAN IDs are for the Arm subsystem
-    public static final int ELEVATOR_CAN_ID = 1; // TODO: Set CanID
-    public static final int[] SHOULDER_CAN_IDS = new int[] {7,10}; // TODO: Set CANIDs
+    // Following CAN IDs are for the Arm subsystem
+    public static final int ELEVATOR_CAN_ID = 13; // TODO: Set CanID
+    public static final int[] SHOULDER_CAN_ID = {14, 15}; // TODO: Set CANIDs
     // Feedforward constants for the each Climber Arm
     public static final double ELEVATOR_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm
@@ -150,10 +150,10 @@ public final class Constants {
 
        // Constants for reaching the top level, middle level, bottom level, and feeder station. Currently just have placeholder values
 
-    public static final double ARM_TOP_ROW = 0.0;
-    public static final double ARM_MIDDLE_ROW = 0.0;
-    public static final double ARM_BOTTOM_ROW = 0.0;
-    public static final double FEEDER_STATION = 0.0;
+    public static final double ARM_TOP_ROW = Math.toRadians(0.0);
+    public static final double ARM_MIDDLE_ROW = Math.toRadians(0.0);
+    public static final double ARM_BOTTOM_ROW = Math.toRadians(0.0);
+    public static final double FEEDER_STATION = Math.toRadians(0.0);
 
         
 

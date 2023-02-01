@@ -4,21 +4,33 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 
@@ -53,8 +65,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // Standard classes for controlling our arm
   public final PIDController m_controller = new PIDController(kArmKp, 0, 0);
-  public final Encoder m_simEncoder = new Encoder(kEncoderAChannel, kEncoderBChannel);
-  public final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
+  public final DutyCycleEncoder m_encoderSim = new DutyCycleEncoder(0);
+
+
+  // public final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
   public final Joystick m_joystick = new Joystick(kJoystickPort);
 
   // Simulation classes help us simulate what's going on, including gravity.
@@ -71,11 +85,38 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   private boolean m_coastMode = false;
 
   private boolean m_resetArmPos = false;
-
-  
+  final SingleJointedArmSim m_armSim =
+  new SingleJointedArmSim(
+      m_armGearbox,
+      m_armReduction,
+      SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
+      m_armLength,
+      Units.degreesToRadians(-75),
+      Units.degreesToRadians(255),
+      m_armMass, 
+      true,
+      VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1 tick
+      );
+// Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
+//   public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
+final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
+final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+final MechanismLigament2d m_armTower =
+  m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+final MechanismLigament2d m_arm =
+  m_armPivot.append(
+      new MechanismLigament2d(
+          "Arm",
+          30,
+          Units.radiansToDegrees(m_armSim.getAngleRads()),
+          6,
+          new Color8Bit(Color.kYellow)));
+ 
+ 
+m_encoder = m_motorLeader.getEncoder();
   
   /**
-   * Creates a new ShoulderArm with attached simulation
+   * Creates a new ShoulderArm 
    * .
    * @return 
    */
@@ -84,8 +125,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     TrapezoidProfile.State previousProfiledReference = new TrapezoidProfile.State(Constants.ARM_OFFSET_RAD, 0.0);
 
     // Create the motor, PID Controller and encoder.
-    m_motorLeader = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
-    m_motorFollower = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
+    m_motorLeader = new CANSparkMax(Constants.SHOULDER_CAN_ID[0], MotorType.kBrushless);
+    m_motorFollower = new CANSparkMax(Constants.SHOULDER_CAN_ID[1], MotorType.kBrushless);
     m_motorLeader.restoreFactoryDefaults();
     // Set follower and invert
     m_motorFollower.follow(m_motorLeader, true);
@@ -95,24 +136,40 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     m_PIDController.setI(Constants.ARM_K_I);
     m_PIDController.setD(Constants.ARM_K_D);
     m_PIDController.setFF(Constants.ARM_K_FF);
+    
 
-    m_encoder = m_motorLeader.getEncoder();
     // Set the position conversion factor. Note that the Trapezoidal control
     // expects angles in radians.
     // TODO: Set this based on shoulder gearbox gear ratio
     m_encoder.setPositionConversionFactor((1.0 / (25.0 * 60.0 / 16.0)) * 2.0 * Math.PI);
     m_encoder.setPosition(Constants.ARM_OFFSET_RAD);
     SmartDashboard.putNumber("arm" + m_index + "/P Gain", m_kPArm);
-
     
+    SmartDashboard.putData("Arm Sim", m_mech2d);
+  
   }
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   
-
+  
   
           public void simulationPeriodic() {
 
-  }
+    // First, we set our "inputs" (voltages)
+    m_armSim.setInput(m_motorLeader.get() * RobotController.getBatteryVoltage());
+
+    // Next, we update it. The standard loop time is 20ms.
+    m_armSim.update(0.020);
+
+    // Finally, we set our simulated encoder's readings and simulated battery voltage
+    m_encoderSim.setDistance(m_armSim.getAngleRads());
+    // SimBattery estimates loaded battery voltages
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
+
+    // Update the Mechanism Arm angle based on the simulated arm angle
+    m_arm.setAngle(Units.radiansToDegrees(m_armSim.getArmAngle()));
+  
+          }
 
   @Override
   public void periodic() {

@@ -6,10 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Drive;
+import frc.robot.commands.SetArmAngle;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Shoulder;
@@ -28,6 +29,7 @@ public class RobotContainer {
 	// The robot's subsystems and commands are defined here...
 	private final DriveTrain m_driveTrain = new DriveTrain();
 	private final XboxController m_controller = new XboxController(0);
+	private final Arm m_arm = new Arm();
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -53,16 +55,22 @@ public class RobotContainer {
 		 * // No requirements because we don't need to interrupt anything
 		 * .whenPressed(m_drivetrainSubsystem::zeroGyroscope);
 		 */
+		
+		//  JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
+		//  //The angle needs to be calibrated to get the right hight 
+		//  xboxYButton.onTrue(new SetArmAngle(m_arm,0.0));
+			
+		
 
 		// button A
 		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
 		// when button A is pressed make a new toggle command to toggle mode
-		xboxAButton.whenPressed(new InstantCommand(m_driveTrain::toggleFieldCentric));
+		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
 		// button X
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
 		// inline command to toggle precision mode when button X is pressed
-		xboxXButton.whenPressed(new InstantCommand(m_driveTrain::togglePrecisionMode));
+		xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 	}
 
 	public Command getDriveCommand() {
@@ -76,8 +84,6 @@ public class RobotContainer {
 				() -> -modifyAxis(m_controller.getLeftX()),
 				() -> -modifyAxis(m_controller.getRightX()));
 	}
-
-	
 
 	private static double deadband(double value, double deadband) {
 		if (Math.abs(value) > deadband) {
