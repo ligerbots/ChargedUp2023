@@ -32,13 +32,13 @@ public class Vision {
     private static final double CUSTOM_FIELD_WIDTH = 6.0;
     private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
         {
-            add(constructTag(26, 0, 1.643, 0.865, 0));
+            add(constructTag(26, 0, 1.636, 0.865, 0));
             add(constructTag(25, 0, 3.24, 0.895, 0));
-            add(constructTag(24, 1.615, 0, 0.857, 90));
-            add(constructTag(23, 4.65, 0, 0.845, 90));
-            add(constructTag(22, 7.46, 0, 0.896, 90));
-            add(constructTag(21, 8.54, 1.487, 0.895, 180));
-            add(constructTag(20, 8.54, 2.51, 0.946, 180));
+            add(constructTag(24, 1.915, 0, 0.857, 90));
+            add(constructTag(23, 4.958, 0, 0.845, 90));
+            add(constructTag(22, 7.763, 0, 0.896, 90));
+            add(constructTag(21, 8.780, 1.373, 0.895, 180));
+            add(constructTag(20, 8.780, 2.392, 0.946, 180));
         }
     }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 
