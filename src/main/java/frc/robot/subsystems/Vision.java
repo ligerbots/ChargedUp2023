@@ -28,23 +28,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision {
     // Values for the Shed in late January
-    private static final double CUSTOM_FIELD_LENGTH = 8.54;
-    private static final double CUSTOM_FIELD_WIDTH = 6.0;
-    private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
-        {
-            add(constructTag(26, 0, 1.636, 0.865, 0));
-            add(constructTag(25, 0, 3.24, 0.895, 0));
-            add(constructTag(24, 1.915, 0, 0.857, 90));
-            add(constructTag(23, 4.958, 0, 0.845, 90));
-            add(constructTag(22, 7.763, 0, 0.896, 90));
-            add(constructTag(21, 8.780, 1.373, 0.895, 180));
-            add(constructTag(20, 8.780, 2.392, 0.946, 180));
-        }
-    }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
-
+    private static final double CUSTOM_FIELD_LENGTH = 8.780;    // meters
+    private static final double CUSTOM_FIELD_WIDTH = 6.0;       // meters
+    private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = 
+            new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+                {
+                    add(constructTag(26, 0, 1.636, 0.865, 0));
+                    add(constructTag(25, 0, 3.24, 0.895, 0));
+                    add(constructTag(24, 1.915, 0, 0.857, 90));
+                    add(constructTag(23, 4.958, 0, 0.845, 90));
+                    add(constructTag(22, 7.763, 0, 0.896, 90));
+                    add(constructTag(21, 8.780, 1.373, 0.895, 180));
+                    add(constructTag(20, 8.780, 2.392, 0.946, 180));
+                }
+            }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 
     private final PhotonCamera m_aprilTagCamera = new PhotonCamera("ApriltagCamera");
-    private AprilTagFieldLayout m_aprilTagFieldLayout;
+    private final AprilTagFieldLayout m_aprilTagFieldLayout;
     
     // Forward B&W camera for Apriltags
     // relative position of the camera on the robot ot the robot center
@@ -52,7 +52,7 @@ public class Vision {
         new Translation3d(Units.inchesToMeters(31.25 / 2.0), 0.0, Units.inchesToMeters(21.0)),
         new Rotation3d(0.0, 0.0, 0.0)); 
 
-    private PhotonPoseEstimator m_photonPoseEstimator;
+    private final PhotonPoseEstimator m_photonPoseEstimator;
 
     private double m_lastImageTimeStamp = -1.0;
 
@@ -78,7 +78,6 @@ public class Vision {
             return;
 
         var targetResult = m_aprilTagCamera.getLatestResult();
-
         double curImageTimeStamp = targetResult.getTimestampSeconds();
 
         if (curImageTimeStamp <= m_lastImageTimeStamp) 
@@ -86,25 +85,23 @@ public class Vision {
 
         m_lastImageTimeStamp = curImageTimeStamp;
 
-        SmartDashboard.putBoolean("hasTargets?", targetResult.hasTargets());
-        int targetID = -1;
-        SmartDashboard.putNumber("targetID", targetID);
+        SmartDashboard.putBoolean("vision/hasTargets", targetResult.hasTargets());
         if (!targetResult.hasTargets()) 
             return;
 
         // Get the current best target.
         PhotonTrackedTarget target = targetResult.getBestTarget();
-        targetID = target.getFiducialId();
+        SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
         Transform3d cameraToTarget = target.getBestCameraToTarget();
         SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
         SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
-        SmartDashboard.putNumber("vision/tagOffsetAngle", cameraToTarget.getRotation().getAngle());
+        SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
 
         if (m_aprilTagFieldLayout == null)
             return;
         
         // Estimate the robot pose.
-        // If successful, update the odometry with the timestamp of the measurement
+        // If successful, update the odometry using the timestamp of the measurement
         Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
         if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
@@ -126,11 +123,13 @@ public class Vision {
         return m_photonPoseEstimator.update();
     }
 
-    private Optional<Pose2d> getTagPose(int tagID){
-        return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
-    }
+    // private Optional<Pose2d> getTagPose(int tagID){
+    //     // This can fail if the tagID is not part of the map. 
+    //     // Need to check before converting to Pose2d
+    //     return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
+    // }
 
-    public static AprilTag constructTag(int id, double x, double y, double z, double angle){
+    private static AprilTag constructTag(int id, double x, double y, double z, double angle){
         return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
     }
 }
