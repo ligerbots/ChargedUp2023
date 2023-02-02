@@ -24,33 +24,33 @@ public class Robot extends TimedRobot {
     private SendableChooser<Command> m_chosenTrajectory = new SendableChooser<>();
     private RobotContainer m_robotContainer;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
+    /**
+     * This function is run when the robot is first started up and should be used for any
+     * initialization code.
+     */
+    @Override
+    public void robotInit() {
 
-    // If you are trying to work with a running PV and simulation, enable this code.
-    // Otherwise it is not needed, even when running a simulation
-    // if (isSimulation()) {
-    //   // At-Home Network Debug Only - host the NT server on photonvision and connect to it.
-    //   var ntinst = edu.wpi.first.networktables.NetworkTableInstance.getDefault();
-    //   ntinst.stopServer();
-    //   // ntinst.setServer("photonvision.local");
-    //   ntinst.setServer("127.0.0.1");
-    //   ntinst.startClient4("MainRobotProgram");
-    // }
-    
-    // Instantiate our RobotContainer.  This will perform all our button bindings.
-    m_robotContainer = new RobotContainer();
+        // If you are trying to work with a running PV and simulation, enable this code.
+        // Otherwise it is not needed, even when running a simulation
+        // if (isSimulation()) {
+        //   // At-Home Network Debug Only - host the NT server on photonvision and connect to it.
+        //   var ntinst = edu.wpi.first.networktables.NetworkTableInstance.getDefault();
+        //   ntinst.stopServer();
+        //   // ntinst.setServer("photonvision.local");
+        //   ntinst.setServer("127.0.0.1");
+        //   ntinst.startClient4("MainRobotProgram");
+        // }
+        
+        // Instantiate our RobotContainer.  This will perform all our button bindings.
+        m_robotContainer = new RobotContainer();
 
-    // Initialize the list of available Autonomous routines
-    m_chosenTrajectory.setDefaultOption("drive_1m", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_1m"));
-    m_chosenTrajectory.addOption("drive_and_slide", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_slide"));
-    m_chosenTrajectory.addOption("drive_and_turn", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
-    SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
-  }
+        // Initialize the list of available Autonomous routines
+        m_chosenTrajectory.setDefaultOption("drive_1m", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_1m"));
+        m_chosenTrajectory.addOption("drive_and_slide", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_slide"));
+        m_chosenTrajectory.addOption("drive_and_turn", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
+        SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
+    }
 
     /**
      * This function is called every robot packet, no matter the mode. Use this for
