@@ -221,11 +221,9 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void stop() {
-        //sets drive voltage to 0 but keeps angle
-        m_swerveModules[0].set(0.0, m_swerveModules[0].getSteerAngle().getRadians());
-        m_swerveModules[1].set(0.0, m_swerveModules[1].getSteerAngle().getRadians());
-        m_swerveModules[2].set(0.0, m_swerveModules[2].getSteerAngle().getRadians());
-        m_swerveModules[3].set(0.0, m_swerveModules[3].getSteerAngle().getRadians());
+        for (int i = 0; i < 4; i++){
+            m_swerveModules[i].setDrive(0.0);
+        }
     }
 
     // for the beginning of auto rountines
@@ -249,11 +247,11 @@ public class DriveTrain extends SubsystemBase {
 
     // lock wheels in x position to resist pushing
 	public void lockWheels() {
-        double lockDegrees = Math.toRadians(45);
-        m_swerveModules[0].set(0.0, lockDegrees);
-        m_swerveModules[1].set(0.0, -lockDegrees);
-        m_swerveModules[2].set(0.0, -lockDegrees);
-        m_swerveModules[3].set(0.0, lockDegrees);
+        double lockRadians = Math.toRadians(45);
+        m_swerveModules[0].set(0.0, lockRadians);
+        m_swerveModules[1].set(0.0, -lockRadians);
+        m_swerveModules[2].set(0.0, -lockRadians);
+        m_swerveModules[3].set(0.0, lockRadians);
 	}
 
     public Rotation2d getPitch() {
