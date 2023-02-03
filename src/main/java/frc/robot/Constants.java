@@ -150,7 +150,7 @@ public final class Constants {
 
        // Constants for reaching the top level, middle level, bottom level, and feeder station. Currently just have placeholder values
 
-    public static final double ARM_TOP_ROW = Math.toRadians(0.0);
+    public static final double ARM_TOP_ROW = Math.toRadians(90);
     public static final double ARM_MIDDLE_ROW = Math.toRadians(0.0);
     public static final double ARM_BOTTOM_ROW = Math.toRadians(0.0);
     public static final double FEEDER_STATION = Math.toRadians(0.0);

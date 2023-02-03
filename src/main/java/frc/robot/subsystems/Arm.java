@@ -11,14 +11,20 @@ import com.revrobotics.SparkMaxLimitSwitch.Type;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.commands.SetArmAngle;
 
 public class Arm extends SubsystemBase {
 
   public Shoulder m_shoulder;
 
   public Elevator m_elevator;
+
+  public Double m_currentGoal = Math.toRadians(90.0);
+
+  public Double goal = Math.toRadians(90.0);
 
   public CANSparkMax m_elevatorMotor;
   
@@ -32,11 +38,19 @@ public class Arm extends SubsystemBase {
     m_elevatorMotor = new CANSparkMax(Constants.ELEVATOR_CAN_ID, MotorType.kBrushless);
 
     m_elevator = new Elevator(m_elevatorMotor);
-   
+    
+    
+    
   }
 
   public void periodic() {
-    
+   
+    SmartDashboard.getNumber("Arm Goal", goal);
+    if (m_currentGoal != goal) {
+      m_currentGoal = goal;
+      setShoulderAngle(Math.toRadians(m_currentGoal));
+
+    }
   }
 
   public void setElevatorExtent(TrapezoidProfile.State extent){
@@ -46,6 +60,7 @@ public class Arm extends SubsystemBase {
   // rotates the arms to a certain angle
   public void setShoulderAngle(double degree) {
       m_shoulder.setGoal(degree);
+    
   }
 
   // returns the currrent height of the elevator
@@ -55,8 +70,12 @@ public class Arm extends SubsystemBase {
 
   // returns the current angle of the arm
   public double[] getArmAngle() {
-    return new double[] {m_shoulder.getEncoder().getPosition()};
+    return new double[] {m_shoulder.getEncoder().getDistance()};
   }
+  public double[] getSimArmAngle() {
+    return new double[] {m_shoulder.getEncoder().getDistance()};
+  }
+
 
   // Set idle mode of all motors
   public void setBrakeMode(boolean brake) {

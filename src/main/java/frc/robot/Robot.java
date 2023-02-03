@@ -21,7 +21,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private SendableChooser<Command> m_chosenTrajectory = new SendableChooser<>();
   private RobotContainer m_robotContainer;
-
+  double m_goal = Math.toRadians(90.0);
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -45,7 +45,8 @@ public class Robot extends TimedRobot {
     m_chosenTrajectory.addOption("drive_and_turn", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
     m_chosenTrajectory.addOption("Test", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("Test"));
     SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
-   
+    SmartDashboard.putNumber("Arm Goal", Math.toDegrees(m_goal));
+    
   
   }
   /**
