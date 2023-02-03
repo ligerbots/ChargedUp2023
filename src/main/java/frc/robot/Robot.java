@@ -97,6 +97,9 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        // this is under the assumption that by now we're connected to the FMS
+        m_robotContainer.getVision().detectAllianceAndSetFieldLayout();
     }
 
     /** This function is called periodically during autonomous. */
