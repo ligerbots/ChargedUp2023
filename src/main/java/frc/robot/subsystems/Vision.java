@@ -17,6 +17,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -24,6 +25,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision {
@@ -132,5 +135,18 @@ public class Vision {
 
     public static AprilTag constructTag(int id, double x, double y, double z, double angle){
         return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
+    }
+
+    public void detectAllianceAndSetFieldLayout() {
+        Alliance alliance = DriverStation.getAlliance();
+
+        switch (alliance) {
+            case Red:
+                m_aprilTagFieldLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+                break;
+            case Blue:
+                m_aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+                break;
+        }
     }
 }

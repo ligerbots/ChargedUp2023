@@ -16,13 +16,14 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.subsystems.DriveTrain;
 
 public class FollowTrajectory extends CommandBase {
-
+    private PathPlannerTrajectory m_actualTrajectory = null;
 	private final Timer m_timer = new Timer();
 	private final PathPlannerTrajectory m_trajectory;
 	private final Supplier<Pose2d> m_pose;
@@ -90,9 +91,13 @@ public class FollowTrajectory extends CommandBase {
 	// Called when the command is initially scheduled.
 	@Override
 	public void initialize() {
+        if (m_actualTrajectory == null) {
+            m_actualTrajectory = PathPlannerTrajectory.transformTrajectoryForAlliance(m_trajectory, DriverStation.getAlliance());
+        }
+
 		m_timer.reset();
 		m_timer.start();
-        m_driveTrain.setPose(m_trajectory.getInitialPose());
+        m_driveTrain.setPose(m_actualTrajectory.getInitialPose());
 
         // clear all robot mode and drive in field-centric at normal speeds
         m_driveTrain.resetDrivingModes();
@@ -102,7 +107,7 @@ public class FollowTrajectory extends CommandBase {
 	@Override
 	public void execute() {
 		double curTime = m_timer.get();
-		var desiredState = (PathPlannerState) m_trajectory.sample(curTime);
+		var desiredState = (PathPlannerState) m_actualTrajectory.sample(curTime);
 
 		var targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.holonomicRotation);
 		var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
@@ -119,6 +124,6 @@ public class FollowTrajectory extends CommandBase {
 	// Returns true when the command should end.
 	@Override
 	public boolean isFinished() {
-		return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
+		return m_timer.hasElapsed(m_actualTrajectory.getTotalTimeSeconds());
 	}
 }

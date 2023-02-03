@@ -112,4 +112,8 @@ public class RobotContainer {
     public DriveTrain getDriveTrain() {
         return m_driveTrain;
     }
+
+    public Vision getVision() {
+        return m_vision;
+    }
 }
