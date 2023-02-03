@@ -204,7 +204,11 @@ public class DriveTrain extends SubsystemBase {
                     newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
+        if (Math.abs(newInputX) < 0.01 && Math.abs(newInputY) < 0.01 && Math.abs(newInputRotation) < 0.01){
+        stop();
+        } else {
         drive(chassisSpeeds);
+        }
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
@@ -216,10 +220,12 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    // future changes: maybe leave the modules so the angles remain the same instead
-    // of pointing at 0
     public void stop() {
-        drive(new ChassisSpeeds(0, 0, 0));
+        //sets drive voltage to 0 but keeps angle
+        m_swerveModules[0].set(0.0, m_swerveModules[0].getSteerAngle().getRadians());
+        m_swerveModules[1].set(0.0, m_swerveModules[1].getSteerAngle().getRadians());
+        m_swerveModules[2].set(0.0, m_swerveModules[2].getSteerAngle().getRadians());
+        m_swerveModules[3].set(0.0, m_swerveModules[3].getSteerAngle().getRadians());
     }
 
     // for the beginning of auto rountines
