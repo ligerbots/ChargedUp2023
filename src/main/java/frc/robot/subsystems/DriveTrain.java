@@ -181,7 +181,6 @@ public class DriveTrain extends SubsystemBase {
 			m_simX = pose.getX();
 			m_simY = pose.getY();
 			m_yaw = pose.getRotation();
-			m_chassisSpeeds = new ChassisSpeeds();
 		}
 	}
 
@@ -332,15 +331,20 @@ public class DriveTrain extends SubsystemBase {
 	public void simulationPeriodic(){
 		m_simX += m_chassisSpeeds.vxMetersPerSecond * 0.02;
 		m_simY += m_chassisSpeeds.vyMetersPerSecond * 0.02;
-		m_yaw = m_yaw.plus(Rotation2d.fromRadians(-m_chassisSpeeds.omegaRadiansPerSecond * 0.02));
+		m_yaw = m_yaw.plus(Rotation2d.fromRadians(m_chassisSpeeds.omegaRadiansPerSecond * 0.02));
 
 		m_fieldSim.setRobotPose(new Pose2d(m_simX, m_simY, m_yaw));
+		SmartDashboard.putNumber("simX", m_simX);
+		SmartDashboard.putNumber("simY", m_simY);
+		SmartDashboard.putNumber("m_yaw", m_yaw.getDegrees());
+
+		SmartDashboard.putNumber("rotationSpeed", m_chassisSpeeds.omegaRadiansPerSecond);
 	}
 
 	// get the trajectory following autonomous command in PathPlanner using the name
 	public Command getTrajectoryFollowingCommand(String trajectoryName) {
 
-		PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+		PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 3.0, 1.0);
 
 		Command command = new FollowTrajectory(
 				this,
