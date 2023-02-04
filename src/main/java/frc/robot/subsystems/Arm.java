@@ -77,10 +77,4 @@ public class Arm extends SubsystemBase {
     return new double[] {m_shoulder.getEncoder().getDistance()};
   }
 
-
-  // Set idle mode of all motors
-  public void setBrakeMode(boolean brake) {
-    m_shoulder.setBrakeMode(brake);
-    m_elevator.setBrakeMode(brake);
-  }
 }

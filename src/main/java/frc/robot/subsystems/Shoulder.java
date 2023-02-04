@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -40,9 +43,10 @@ import frc.robot.RobotContainer;
 public class Shoulder extends TrapezoidProfileSubsystem {
 
   // Define the motor and encoders
-  private final CANSparkMax m_motorLeader;
-  private final CANSparkMax m_motorFollower;
+  private final WPI_TalonFX m_motorLeader;
+  private final WPI_TalonFX m_motorFollower;
   private final DutyCycleEncoder m_encoder = new DutyCycleEncoder(0);
+
   private final SparkMaxPIDController m_PIDController;
  
   public static final int kMotorPort = 0;
@@ -67,13 +71,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // Standard classes for controlling our arm
   public final PIDController m_controller = new PIDController(m_kPArm, 0, 0);
-  public final DutyCycleEncoderSim m_EncoderSim = new DutyCycleEncoderSim(m_encoder);
+  public final m_EncoderSim = new DutyCycleEncoderSim(m_encoder);
 
   // public final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
   public final Joystick m_joystick = new Joystick(kJoystickPort);
 
   // Simulation classes help us simulate what's going on, including gravity.
-  public static final double m_armReduction = 200;
+  public static final double m_armReduction = 395.77;
   public static final double m_armMass = 1; // Kilograms
   public static final double m_armLength = Units.inchesToMeters(30);
 
@@ -85,6 +89,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   private boolean m_coastMode = false;
 
   private boolean m_resetArmPos = false;
+
+  private double m_goal;
 
   final SingleJointedArmSim m_armSim = new SingleJointedArmSim(
       m_armGearbox,
@@ -122,13 +128,14 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     TrapezoidProfile.State previousProfiledReference = new TrapezoidProfile.State(Constants.ARM_OFFSET_RAD, 0.0);
 
     // Create the motor, PID Controller and encoder.
-    m_motorLeader = new CANSparkMax(Constants.SHOULDER_CAN_ID[0], MotorType.kBrushless);
-    m_motorFollower = new CANSparkMax(Constants.SHOULDER_CAN_ID[1], MotorType.kBrushless);
+    m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[0]);
+    m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[1]);
     m_motorLeader.restoreFactoryDefaults();
     // Set follower and invert
-    m_motorFollower.follow(m_motorLeader, true);
+    m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
 
     m_PIDController = m_motorLeader.getPIDController();
+    m_PIDController.setFeedbackDevice(m_encoder);
     m_PIDController.setP(m_kPArm);
     m_PIDController.setI(Constants.ARM_K_I);
     m_PIDController.setD(Constants.ARM_K_D);
@@ -178,6 +185,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     SmartDashboard.putNumber("Arm motor speed",m_motorLeader.get());
     SmartDashboard.putNumber("Simulated Arm Angle", m_armSim.getAngleRads());
     SmartDashboard.putNumber("Sim Battery voltage", RobotController.getBatteryVoltage());
+    SmartDashboard.putNumber("Shoulder Goal", m_goal);
     // if in coast mode, stop the periodic() here to prevent the PID from
     // setReference()
     if (m_coastMode)
@@ -244,7 +252,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     }
   }
 
-  public CANSparkMax getMotor() {
+  public WPI_TalonFX getMotor() {
     return m_motorLeader;
   }
 
@@ -252,17 +260,14 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     return m_encoder;
   }
 
-  public void setBrakeMode(boolean brake) {
-    m_motorLeader.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
-    m_coastMode = (brake ? false : true);
-  }
 
   public void resetArmPos() {
     super.setGoal(m_encoder.getAbsolutePosition());
     m_resetArmPos = true;
   }
 public void setGoal(double goal){
-super.setGoal(goal);
+  m_goal = goal;
+  super.setGoal(goal);
 }
 
 }
