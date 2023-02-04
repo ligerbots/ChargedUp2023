@@ -24,7 +24,7 @@ public class Arm extends SubsystemBase {
 
   public Double m_currentGoal = Math.toRadians(90.0);
 
-  public Double goal = Math.toRadians(90.0);
+  public Double m_goal = Math.toRadians(90.0);
 
   public CANSparkMax m_elevatorMotor;
   
@@ -45,11 +45,12 @@ public class Arm extends SubsystemBase {
 
   public void periodic() {
    
-    SmartDashboard.getNumber("Arm Goal", goal);
-    if (m_currentGoal != goal) {
-      m_currentGoal = goal;
+    m_goal = SmartDashboard.getNumber("Arm Goal", m_goal);
+    if (m_currentGoal != m_goal) {
+      m_currentGoal = m_goal;
       setShoulderAngle(Math.toRadians(m_currentGoal));
-
+      
+      
     }
   }
 

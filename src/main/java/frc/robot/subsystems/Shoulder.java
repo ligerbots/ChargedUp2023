@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 public class Shoulder extends TrapezoidProfileSubsystem {
 
@@ -43,7 +44,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   private final CANSparkMax m_motorFollower;
   private final DutyCycleEncoder m_encoder = new DutyCycleEncoder(0);
   private final SparkMaxPIDController m_PIDController;
-
+ 
   public static final int kMotorPort = 0;
   public static final int kEncoderAChannel = 0;
   public static final int kEncoderBChannel = 1;
@@ -54,19 +55,18 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // The P gain for the PID controller that drives this arm.
 
-  public static double kArmKp = 100.0;
+  public static double m_kPArm = 1000000.0;
 
-  public static double armPositionDeg = 75.0;
+  public static double armPositionDeg = 90.0;
 
   // distance per pulse = (angle per revolution) / (pulses per revolution)
   // = (2 * PI rads) / (4096 pulses)
   public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
-
   // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  public final DCMotor m_armGearbox = DCMotor.getVex775Pro(2);
+  public final DCMotor m_armGearbox = DCMotor.getNEO(2);
 
   // Standard classes for controlling our arm
-  public final PIDController m_controller = new PIDController(kArmKp, 0, 0);
+  public final PIDController m_controller = new PIDController(m_kPArm, 0, 0);
   public final DutyCycleEncoderSim m_EncoderSim = new DutyCycleEncoderSim(m_encoder);
 
   // public final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
@@ -74,13 +74,12 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // Simulation classes help us simulate what's going on, including gravity.
   public static final double m_armReduction = 200;
-  public static final double m_armMass = 1.0; // Kilograms
+  public static final double m_armMass = 1; // Kilograms
   public static final double m_armLength = Units.inchesToMeters(30);
 
   private final ArmFeedforward m_Feedforward = new ArmFeedforward(Constants.ARM_KS, Constants.ARM_KG, Constants.ARM_KV,
       Constants.ARM_KA);
 
-  private double m_kPArm = Constants.ARM_K_P;
   private int m_index;
 
   private boolean m_coastMode = false;
@@ -134,7 +133,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     m_PIDController.setI(Constants.ARM_K_I);
     m_PIDController.setD(Constants.ARM_K_D);
     m_PIDController.setFF(Constants.ARM_K_FF);
-
+    
     // Set the position conversion factor. Note that the Trapezoidal control
     // expects angles in radians.
     // TODO: Set this based on shoulder gearbox gear ratio
@@ -143,15 +142,16 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     SmartDashboard.putNumber("arm" + m_index + "/P Gain", m_kPArm);
 
     SmartDashboard.putData("Arm Sim", m_mech2d);
-    SmartDashboard.putData()
+   
+  
   }
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
-
+ 
   public void simulationPeriodic() {
-
+   
     // First, we set our "inputs" (voltages)
     m_armSim.setInput(m_motorLeader.get() * RobotController.getBatteryVoltage());
-
+ 
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);
 
@@ -164,7 +164,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Update the Mechanism Arm angle based on the simulated arm angle
     m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
-
+    
   }
 
   @Override
@@ -175,7 +175,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motorLeader.getAppliedOutput());
     SmartDashboard.putNumber("arm" + m_index + "/Encoder" + m_index, Units.radiansToDegrees(encoderValue));
     SmartDashboard.putBoolean("arm" + m_index + "/CoastMode" + m_index, m_coastMode);
-
+    SmartDashboard.putNumber("Arm motor speed",m_motorLeader.get());
+    SmartDashboard.putNumber("Simulated Arm Angle", m_armSim.getAngleRads());
+    SmartDashboard.putNumber("Sim Battery voltage", RobotController.getBatteryVoltage());
     // if in coast mode, stop the periodic() here to prevent the PID from
     // setReference()
     if (m_coastMode)
@@ -259,4 +261,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     super.setGoal(m_encoder.getAbsolutePosition());
     m_resetArmPos = true;
   }
+public void setGoal(double goal){
+super.setGoal(goal);
+}
+
 }
