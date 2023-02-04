@@ -59,8 +59,9 @@ public class SwerveModule {
         m_driveController.setReferenceVoltage(driveVoltage);
     }
 
-    public void setDrive(double driveVoltage){
-       m_driveController.setReferenceVoltage(driveVoltage);
+    //stops individual module
+    public void stopWheel() {
+        m_driveController.setReferenceVoltage(0.0);
     }
 
     // get the swerve module position 
