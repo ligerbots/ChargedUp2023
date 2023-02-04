@@ -47,14 +47,14 @@ public class DriveTrain extends SubsystemBase {
 
     // if true, then robot is in precision mode
     private boolean m_precisionMode = false;
+
     // limit the acceleration from 0 to full power to take 1/3 second.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
-	// if true, then robot is in precision mode
 
-	// pose for testing, can switch to whatever
-	private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+    // pose for testing, can switch to whatever
+    private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
     // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
     // The formula for calculating the theoretical maximum velocity is:
@@ -87,8 +87,8 @@ public class DriveTrain extends SubsystemBase {
     private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
             Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-            / 6.0;
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
+            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -255,12 +255,12 @@ public class DriveTrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_navx.getRoll());
     }
 
-	// toggle precision mode for driving
-	public void togglePrecisionMode() {
-		m_precisionMode = !m_precisionMode;
-		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-	}
+    // toggle precision mode for driving
+    public void togglePrecisionMode() {
+        m_precisionMode = !m_precisionMode;
+        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+    }
 
     public PIDController getXController() { // gets the controller for x position of robot
         return m_xController;
@@ -333,37 +333,37 @@ public class DriveTrain extends SubsystemBase {
                 },
                 this).andThen(() -> stop());
 
-		return command;
-	}
+        return command;
+    }
 
-	//get target pose
-	public Pose2d getTargetPose(){
-		return m_poseTest;
-	}
+    //get target pose
+    public Pose2d getTargetPose(){
+        return m_poseTest;
+    }
 
-	// find a trajectory from robot pose to a target pose
-	public Command trajectoryToPose(Pose2d targetPose) {
-		Pose2d currentPose = getPose(); //get robot current pose
-		PathPlannerTrajectory traj = PathPlanner.generatePath(
-				new PathConstraints(2.0, 1.0), // velocity, acceleration
-				new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), //starting pose
-				new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-		// always look at same direction
-		);
+    // find a trajectory from robot pose to a target pose
+    public Command trajectoryToPose(Pose2d targetPose) {
+        Pose2d currentPose = getPose(); //get robot current pose
+        PathPlannerTrajectory traj = PathPlanner.generatePath(
+                new PathConstraints(2.0, 1.0), // velocity, acceleration
+                new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
+                new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
+        // always look at same direction
+        );
 
-		Command command = new FollowTrajectory(
-				this,
-				traj,
-				() -> this.getPose(),
-				m_kinematics,
-				m_xController,
-				m_yController,
-				m_thetaController,
-				(states) -> {
-					this.drive(m_kinematics.toChassisSpeeds(states));
-				},
-				this).andThen(() -> stop());
+        Command command = new FollowTrajectory(
+                this,
+                traj,
+                () -> this.getPose(),
+                m_kinematics,
+                m_xController,
+                m_yController,
+                m_thetaController,
+                (states) -> {
+                    this.drive(m_kinematics.toChassisSpeeds(states));
+                },
+                this).andThen(() -> stop());
 
-		return command;
-	}
+        return command;
+    }
 }
