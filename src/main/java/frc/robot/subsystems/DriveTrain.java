@@ -175,13 +175,15 @@ public class DriveTrain extends SubsystemBase {
 
 	// sets the odometry to the specified pose
 	public void setPose(Pose2d pose) {
-		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
-
 		if(Robot.isSimulation()){
 			m_simX = pose.getX();
 			m_simY = pose.getY();
 			m_yaw = pose.getRotation();
+			m_chassisSpeeds = new ChassisSpeeds();
+			return ;
 		}
+
+		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);		
 	}
 
 	public Rotation2d getHeading() {
@@ -225,9 +227,9 @@ public class DriveTrain extends SubsystemBase {
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
-		m_chassisSpeeds = chassisSpeeds;
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+		m_chassisSpeeds = m_kinematics.toChassisSpeeds(states);
 		for (int i = 0; i < 4; i++) {
 			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
 					states[i].angle.getRadians());
@@ -306,6 +308,7 @@ public class DriveTrain extends SubsystemBase {
 	@Override
 	public void periodic() {
 		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		simulationPeriodic();
 
 		// Have the vision system update based on the Apriltags, if seen
 		// Comment out for now so we don't get exceptions
@@ -344,7 +347,7 @@ public class DriveTrain extends SubsystemBase {
 	// get the trajectory following autonomous command in PathPlanner using the name
 	public Command getTrajectoryFollowingCommand(String trajectoryName) {
 
-		PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 3.0, 1.0);
+		PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
 
 		Command command = new FollowTrajectory(
 				this,
