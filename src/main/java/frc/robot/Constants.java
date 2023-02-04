@@ -62,7 +62,9 @@ public final class Constants {
 	 * This can be reduced to cap the robot's maximum speed. Typically, this is
 	 * useful during initial testing of the robot.
 	 */
+
 	public static final double MAX_VOLTAGE = 12.0; //default
+
 
     // Xbox button mapping
     public static final int XBOX_A = 1;
