@@ -190,6 +190,12 @@ public class DriveTrain extends SubsystemBase {
         double newInputY = m_yLimiter.calculate(inputY);
         double newInputRotation = m_rotationLimiter.calculate(inputRotation);
 
+        // prevents a drive call with parameters of 0 0 0
+        if (Math.abs(newInputX) < 0.01 && Math.abs(newInputY) < 0.01 && Math.abs(newInputRotation) < 0.01){
+            stop();
+            return;
+        } 
+
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
@@ -205,11 +211,8 @@ public class DriveTrain extends SubsystemBase {
                     newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
-        if (Math.abs(newInputX) < 0.01 && Math.abs(newInputY) < 0.01 && Math.abs(newInputRotation) < 0.01){
-            stop();
-        } else {
-            drive(chassisSpeeds);
-        }
+
+        drive(chassisSpeeds);
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
@@ -233,7 +236,7 @@ public class DriveTrain extends SubsystemBase {
         m_precisionMode = false;
     }
 
-        // toggle whether driving is field-centric
+    // toggle whether driving is field-centric
     public void toggleFieldCentric() {
         m_fieldCentric = !m_fieldCentric;
     }

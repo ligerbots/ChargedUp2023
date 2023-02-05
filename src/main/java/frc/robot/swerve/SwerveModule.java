@@ -55,11 +55,11 @@ public class SwerveModule {
             steerAngle += 2.0 * Math.PI;
         }
 
-        m_steerController.setReferenceAngle(steerAngle);
         m_driveController.setReferenceVoltage(driveVoltage);
+        m_steerController.setReferenceAngle(steerAngle);
     }
 
-    //stops individual module
+    // stops individual module
     public void stopWheel() {
         m_driveController.setReferenceVoltage(0.0);
     }
