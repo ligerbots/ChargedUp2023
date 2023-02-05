@@ -13,7 +13,6 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -24,12 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
@@ -39,8 +33,6 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class DriveTrain extends SubsystemBase {
 
@@ -55,6 +47,7 @@ public class DriveTrain extends SubsystemBase {
 
     // if true, then robot is in precision mode
     private boolean m_precisionMode = false;
+
     // limit the acceleration from 0 to full power to take 1/3 second.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
@@ -96,8 +89,8 @@ public class DriveTrain extends SubsystemBase {
     private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
             Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-            / 6.0;
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
+            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -131,25 +124,25 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain(Vision vision) {
 
-        m_swerveModules[0] = new SwerveModule(
-                new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
-                        FRONT_LEFT_MODULE_STEER_OFFSET));
+		m_swerveModules[0] = new SwerveModule("frontLeft",
+				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
+						FRONT_LEFT_MODULE_STEER_OFFSET));
 
-        m_swerveModules[1] = new frc.robot.swerve.SwerveModule(
-                new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+		m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
+				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
+						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
 
-        m_swerveModules[2] = new frc.robot.swerve.SwerveModule(
-                new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET));
+		m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
+				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
+						BACK_LEFT_MODULE_STEER_OFFSET));
 
-        m_swerveModules[3] = new frc.robot.swerve.SwerveModule(
-                new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET));
+		m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
+				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
+						BACK_RIGHT_MODULE_STEER_OFFSET));
 
         // initialize the odometry class
         // needs to be done after the Modules are created and initialized
@@ -264,12 +257,12 @@ public class DriveTrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_navx.getRoll());
     }
 
-	// toggle precision mode for driving
-	public void togglePrecisionMode() {
-		m_precisionMode = !m_precisionMode;
-		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-	}
+    // toggle precision mode for driving
+    public void togglePrecisionMode() {
+        m_precisionMode = !m_precisionMode;
+        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+    }
 
     public PIDController getXController() { // gets the controller for x position of robot
         return m_xController;
@@ -318,11 +311,11 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-        m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
-        m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
-        m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
-        m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
-    }
+		for (SwerveModule mod : m_swerveModules) {
+			mod.updateSmartDashboard();
+		}
+	}
+
 
     // get the trajectory following autonomous command in PathPlanner using the name
     public Command getTrajectoryFollowingCommand(String trajectoryName) {
