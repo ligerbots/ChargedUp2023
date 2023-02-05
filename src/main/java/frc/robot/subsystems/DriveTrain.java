@@ -26,7 +26,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
+import frc.robot.Constants;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -69,9 +69,6 @@ public class DriveTrain extends SubsystemBase {
 	 * line.
 	 */
 	//constants for shifting the robot left or right, change later
-	private static final Translation2d CONE_LEFT_TRANSLATION = new Translation2d(-4.5, 3); //but you can also shoot a cube at left/right
-	private static final Translation2d CONE_RIGHT_TRANSLATION = new Translation2d(4.5, 3); 
-	private static final Translation2d CUBE_TRANSLATION = new Translation2d(0, 3);
 
 	private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
 			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
@@ -340,24 +337,21 @@ public class DriveTrain extends SubsystemBase {
 
 	//get best pose to shoot based on Apriltag pose, the pose you want to go to
 	public Pose2d getTagRobotPose(boolean shiftLeft, boolean shiftRight){
-		Pose2d tagPose = m_vision.getTagPose(m_vision.getBestTagID()).get(); //get AprilTag pose of best ID tag
+		Pose2d tagPose = m_vision.getCentralTagPose(); //get AprilTag pose of target ID tag
+        Translation2d translated = new Translation2d(0, 0); //temp holder
 		if(shiftLeft){ //if aiming for left
 			//make new translation to go to left of tag
-			Translation2d translated = tagPose.getTranslation().plus(CONE_LEFT_TRANSLATION);
-			Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
-			return targetPose;
-		}else if(shiftRight){
-			//make new translation
-			Translation2d translated = tagPose.getTranslation().plus(CONE_RIGHT_TRANSLATION);
-			Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
-			return targetPose;
-		}else{
-			//make new translation
-			Translation2d translated = tagPose.getTranslation().plus(CUBE_TRANSLATION);
-			Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
-			return targetPose;
-		}
+			translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
+		}else if(shiftRight){ //if aiming for right
+			//make new translation to go right of tag
+			translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
 
+		}else{ //if aiming for center
+			//make new translation to go to middle of tag
+			translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
+		}
+        Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
+        return targetPose;
 	}
 
 	// find a trajectory from robot pose to a target pose

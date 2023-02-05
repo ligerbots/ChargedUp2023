@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.commands.Drive;
+import frc.robot.commands.ShiftToShoot;
 import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
@@ -73,7 +74,6 @@ public class RobotContainer {
 		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
 		// inline command to create trajectory from robot pose to right of the best apriltag
 		xboxYButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, true))));
-
 		
 	}
 

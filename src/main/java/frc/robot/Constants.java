@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -55,6 +56,13 @@ public final class Constants {
     public static final double X_PID_CONTROLLER_P = 2.0;
     public static final double Y_PID_CONTROLLER_P = 2.0;
     public static final double THETA_PID_CONTROLLER_P = 2.0;
+
+    //transformations to shooting positions, change later
+    //x controls distance from target, y is left and right of target
+	public static final Translation2d CONE_LEFT_TRANSLATION = new Translation2d(3, -4.5); //but you can also shoot a cube at left/right
+	public static final Translation2d CONE_RIGHT_TRANSLATION = new Translation2d(3, 4.5); 
+	public static final Translation2d CUBE_TRANSLATION = new Translation2d(3, 0);
+    
 
     // max voltages
     /**

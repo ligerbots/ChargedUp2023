@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -20,8 +21,11 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -123,31 +127,32 @@ public class Vision {
         return m_photonPoseEstimator.update();
     }
 
-	/*public Pose2d getTagPose() {
+	public Pose2d getCentralTagPose() { //gets target closets to center of camera
 		var targetResult = m_aprilTagCamera.getLatestResult();
-		
 		int targetID = -1;
 		if (targetResult.hasTargets()) {
-			// Get the current best target.
-			PhotonTrackedTarget target = targetResult.getBestTarget();
-			targetID = target.getFiducialId();
+			// Get lists of targets
+            List<PhotonTrackedTarget> targets = targetResult.getTargets();
+            //make a temp holder var for least Y translation
+            Translation2d translationHolder = new Translation2d(0, 0);
+            for(PhotonTrackedTarget tag: targets){ //for every target in camera
+                //get transformation to target
+                Transform3d tagTransform = tag.getBestCameraToTarget(); 
+                //get translation to target from transformation
+                Translation2d tagTranslation = tagTransform.getTranslation().toTranslation2d();
+
+                //looking for smallest absolute relative to camera Y
+                //if abs Y translation of new tag is less then holder tag, it becomes holder tag
+                if(Math.abs(tagTranslation.getY()) < Math.abs(translationHolder.getY())){
+                    translationHolder = tagTranslation;
+                    targetID = tag.getFiducialId(); //set targetID
+                }
+            }
 		}
 		return m_aprilTagFieldLayout.getTagPose(targetID).get().toPose2d();
 
-	}*/
-    //returns ID of best target
-    public int getBestTagID(){
-        var targetResult = m_aprilTagCamera.getLatestResult();
-		
-		int targetID = -1;
-		if (targetResult.hasTargets()) {
-			// Get the current best target.
-			PhotonTrackedTarget target = targetResult.getBestTarget();
-			targetID = target.getFiducialId();
-		}
-        return targetID; 
+	}
 
-    }
     public Optional<Pose2d> getTagPose(int tagID){
         return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
     }
