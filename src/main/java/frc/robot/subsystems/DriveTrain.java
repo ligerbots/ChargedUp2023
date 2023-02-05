@@ -5,8 +5,10 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -31,6 +33,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
+
 public class DriveTrain extends SubsystemBase {
 
     // the max velocity for drivetrain
@@ -44,10 +47,14 @@ public class DriveTrain extends SubsystemBase {
 
     // if true, then robot is in precision mode
     private boolean m_precisionMode = false;
+
     // limit the acceleration from 0 to full power to take 1/3 second.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
+
+    // pose for testing, can switch to whatever
+    private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
     // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
     // The formula for calculating the theoretical maximum velocity is:
@@ -80,8 +87,8 @@ public class DriveTrain extends SubsystemBase {
     private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
             Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-            / 6.0;
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
+            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -115,25 +122,25 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain(Vision vision) {
 
-        m_swerveModules[0] = new SwerveModule(
-                new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
-                        FRONT_LEFT_MODULE_STEER_OFFSET));
+		m_swerveModules[0] = new SwerveModule("frontLeft",
+				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
+						FRONT_LEFT_MODULE_STEER_OFFSET));
 
-        m_swerveModules[1] = new frc.robot.swerve.SwerveModule(
-                new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+		m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
+				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
+						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
 
-        m_swerveModules[2] = new frc.robot.swerve.SwerveModule(
-                new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET));
+		m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
+				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
+						BACK_LEFT_MODULE_STEER_OFFSET));
 
-        m_swerveModules[3] = new frc.robot.swerve.SwerveModule(
-                new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET));
+		m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
+				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
+						BACK_RIGHT_MODULE_STEER_OFFSET));
 
         // initialize the odometry class
         // needs to be done after the Modules are created and initialized
@@ -320,16 +327,46 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-        m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
-        m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
-        m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
-        m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
-    }
+		for (SwerveModule mod : m_swerveModules) {
+			mod.updateSmartDashboard();
+		}
+	}
 
     // get the trajectory following autonomous command in PathPlanner using the name
     public Command getTrajectoryFollowingCommand(String trajectoryName) {
 
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+
+        Command command = new FollowTrajectory(
+                this,
+                traj,
+                () -> this.getPose(),
+                m_kinematics,
+                m_xController,
+                m_yController,
+                m_thetaController,
+                (states) -> {
+                    this.drive(m_kinematics.toChassisSpeeds(states));
+                },
+                this).andThen(() -> stop());
+
+        return command;
+    }
+
+    //get target pose
+    public Pose2d getTargetPose(){
+        return m_poseTest;
+    }
+
+    // find a trajectory from robot pose to a target pose
+    public Command trajectoryToPose(Pose2d targetPose) {
+        Pose2d currentPose = getPose(); //get robot current pose
+        PathPlannerTrajectory traj = PathPlanner.generatePath(
+                new PathConstraints(2.0, 1.0), // velocity, acceleration
+                new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
+                new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
+        // always look at same direction
+        );
 
         Command command = new FollowTrajectory(
                 this,
