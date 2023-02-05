@@ -185,10 +185,11 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
-
+        // apply SlewLimiters to the joystick values to control acceleration
         double newInputX = m_xLimiter.calculate(inputX);
         double newInputY = m_yLimiter.calculate(inputY);
         double newInputRotation = m_rotationLimiter.calculate(inputRotation);
+
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
@@ -205,9 +206,9 @@ public class DriveTrain extends SubsystemBase {
                     newInputRotation * m_maxAngularVelocity);
         }
         if (Math.abs(newInputX) < 0.01 && Math.abs(newInputY) < 0.01 && Math.abs(newInputRotation) < 0.01){
-        stop();
+            stop();
         } else {
-        drive(chassisSpeeds);
+            drive(chassisSpeeds);
         }
     }
 
@@ -233,26 +234,26 @@ public class DriveTrain extends SubsystemBase {
     }
 
         // toggle whether driving is field-centric
-	public void toggleFieldCentric() {
-		m_fieldCentric = !m_fieldCentric;
-	}
+    public void toggleFieldCentric() {
+        m_fieldCentric = !m_fieldCentric;
+    }
 
     // toggle precision mode for driving
-	public void togglePrecisionMode() {
-		m_precisionMode = !m_precisionMode;
-		m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-		m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
-				: MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-	}
+    public void togglePrecisionMode() {
+        m_precisionMode = !m_precisionMode;
+        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+    }
 
     // lock wheels in x position to resist pushing
-	public void lockWheels() {
+    public void lockWheels() {
         double lockRadians = Math.toRadians(45);
         m_swerveModules[0].set(0.0, lockRadians);
         m_swerveModules[1].set(0.0, -lockRadians);
         m_swerveModules[2].set(0.0, -lockRadians);
         m_swerveModules[3].set(0.0, lockRadians);
-	}
+    }
 
     public Rotation2d getPitch() {
         //gets pitch of robot
@@ -269,9 +270,9 @@ public class DriveTrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_navx.getRoll());
     }
 
-	public PIDController getXController() { // gets the controller for x position of robot
-		return m_xController;
-	}
+    public PIDController getXController() { // gets the controller for x position of robot
+        return m_xController;
+    }
 
     public PIDController getYController() { // gets controller for y position of bot
         return m_yController;
