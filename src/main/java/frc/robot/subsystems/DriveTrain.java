@@ -322,21 +322,24 @@ public class DriveTrain extends SubsystemBase {
 
     // get best pose to shoot based on Apriltag pose, the pose you want to go to
     public Pose2d getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
-        Pose2d tagPose = m_vision.getCentralTagPose(); // get AprilTag pose of target ID tag
-        Translation2d translated = new Translation2d(0, 0); // temp holder
-        if (shiftLeft) { // if aiming for left
-            // make new translation to go to left of tag
-            translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
-        } else if (shiftRight) { // if aiming for right
-            // make new translation to go right of tag
-            translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
-
-        } else { // if aiming for center
-                 // make new translation to go to middle of tag
-            translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
+        if(m_vision.getCentralTagPose().isPresent()){
+            Pose2d tagPose = m_vision.getCentralTagPose().get(); // get AprilTag pose of target ID tag
+            Translation2d translated = new Translation2d(0, 0); // temp holder
+            if (shiftLeft) { // if aiming for left
+                // make new translation to go to left of tag
+                translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
+            } else if (shiftRight) { // if aiming for right
+                // make new translation to go right of tag
+                translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
+    
+            } else { // if aiming for center
+                     // make new translation to go to middle of tag
+                translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
+            }
+            Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
+            return targetPose;
         }
-        Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
-        return targetPose;
+        return getPose(); //if no targets are found, stay in current pose
     }
 
     // find a trajectory from robot pose to a target pose

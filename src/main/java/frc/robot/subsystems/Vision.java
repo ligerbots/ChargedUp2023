@@ -126,14 +126,15 @@ public class Vision {
         return m_photonPoseEstimator.update();
     }
 
-    public Pose2d getCentralTagPose() { // gets target closets to center of camera
+    public Optional<Pose2d> getCentralTagPose() { // gets target closets to center of camera
         var targetResult = m_aprilTagCamera.getLatestResult();
         int targetID = -1;
         if (targetResult.hasTargets()) {
             // Get lists of targets
             List<PhotonTrackedTarget> targets = targetResult.getTargets();
-            // make a temp holder var for least Y translation
-            Translation2d translationHolder = new Translation2d(0, 0);
+            // make a temp holder var for least Y translation, set to first tags translation
+            //Translation2d translationHolder = targets.get(0).getBestCameraToTarget().getTranslation().toTranslation2d();
+            double minTranslation = targets.get(0).getBestCameraToTarget().getTranslation().toTranslation2d().getY();
             for (PhotonTrackedTarget tag : targets) { // for every target in camera
                 // get transformation to target
                 Transform3d tagTransform = tag.getBestCameraToTarget();
@@ -142,13 +143,14 @@ public class Vision {
 
                 // looking for smallest absolute relative to camera Y
                 // if abs Y translation of new tag is less then holder tag, it becomes holder tag
-                if (Math.abs(tagTranslation.getY()) < Math.abs(translationHolder.getY())) {
-                    translationHolder = tagTranslation;
+                if (Math.abs(tagTranslation.getY()) < Math.abs(minTranslation)) {
+                    minTranslation = tagTranslation.getY();
                     targetID = tag.getFiducialId(); // set targetID
                 }
             }
         }
-        return m_aprilTagFieldLayout.getTagPose(targetID).get().toPose2d();
+        //optional in case no target is found
+        return Optional.of(m_aprilTagFieldLayout.getTagPose(targetID).get().toPose2d());
 
     }
 
