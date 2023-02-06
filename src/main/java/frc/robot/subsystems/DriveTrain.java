@@ -33,7 +33,6 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
-
 public class DriveTrain extends SubsystemBase {
 
     // the max velocity for drivetrain
@@ -53,25 +52,24 @@ public class DriveTrain extends SubsystemBase {
     private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
 
-	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
-	// The formula for calculating the theoretical maximum velocity is:
-	// <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
-	// pi
-	// By default this value is setup for a Mk3 standard module using Falcon500s to
-	// drive.
-	// An example of this constant for a Mk4 L2 module with NEOs to drive is:
-	// 5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() *
-	// SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
-	/**
-	 * The maximum velocity of the robot in meters per second.
-	 * <p>
-	 * This is a measure of how fast the robot should be able to drive in a straight
-	 * line.
-	 */
-	//constants for shifting the robot left or right, change later
+    // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
+    // The formula for calculating the theoretical maximum velocity is:
+    // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
+    // pi
+    // By default this value is setup for a Mk3 standard module using Falcon500s to
+    // drive.
+    // An example of this constant for a Mk4 L2 module with NEOs to drive is:
+    // 5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() *
+    // SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
+    /**
+     * The maximum velocity of the robot in meters per second.
+     * <p>
+     * This is a measure of how fast the robot should be able to drive in a straight line.
+     */
+    // constants for shifting the robot left or right, change later
 
-	private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
-			NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
+    private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 * NeoDriveController.DRIVE_REDUCTION
+            * NeoDriveController.WHEEL_DIAMETER * Math.PI;
 
     // TODO: tune and check this
     private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6.0;
@@ -83,11 +81,11 @@ public class DriveTrain extends SubsystemBase {
      */
     // Here we calculate the theoretical maximum angular velocity. You can also
     // replace this with a measured amount.
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
-            Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND
+            / Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
-            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            / 6.0;
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -115,31 +113,30 @@ public class DriveTrain extends SubsystemBase {
     // PID controller for swerve
     private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
     private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
-    private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P,
-            0, 0,
+    private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P, 0, 0,
             new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
     public DriveTrain(Vision vision) {
 
-		m_swerveModules[0] = new SwerveModule("frontLeft",
-				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
-						FRONT_LEFT_MODULE_STEER_OFFSET));
+        m_swerveModules[0] = new SwerveModule("frontLeft",
+                new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
+                        FRONT_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
-				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
-						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+        m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
+                new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
-				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
-						BACK_LEFT_MODULE_STEER_OFFSET));
+        m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
+                new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
+                        BACK_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
-				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
-						BACK_RIGHT_MODULE_STEER_OFFSET));
+        m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
+                new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
+                        BACK_RIGHT_MODULE_STEER_OFFSET));
 
         // initialize the odometry class
         // needs to be done after the Modules are created and initialized
@@ -198,16 +195,12 @@ public class DriveTrain extends SubsystemBase {
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    newInputX * m_maxVelocity,
-                    newInputY * m_maxVelocity,
-                    newInputRotation * m_maxAngularVelocity,
-                    getHeading());
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(newInputX * m_maxVelocity, newInputY * m_maxVelocity,
+                    newInputRotation * m_maxAngularVelocity, getHeading());
         }
         // when in robot-centric mode
         else {
-            chassisSpeeds = new ChassisSpeeds(newInputX * m_maxVelocity,
-                    newInputY * m_maxVelocity,
+            chassisSpeeds = new ChassisSpeeds(newInputX * m_maxVelocity, newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
         drive(chassisSpeeds);
@@ -240,17 +233,17 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Rotation2d getPitch() {
-        //gets pitch of robot
+        // gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getPitch());
     }
 
     public Rotation2d getYaw() {
-        //gets pitch of robot
+        // gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getYaw());
     }
 
     public Rotation2d getRoll() {
-        //gets pitch of robot
+        // gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getRoll());
     }
 
@@ -258,7 +251,8 @@ public class DriveTrain extends SubsystemBase {
     public void togglePrecisionMode() {
         m_precisionMode = !m_precisionMode;
         m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
     }
 
     public PIDController getXController() { // gets the controller for x position of robot
@@ -281,7 +275,7 @@ public class DriveTrain extends SubsystemBase {
         }
         return state;
     }
-        
+
     public void syncSwerveAngleEncoders() {
         // check if we can sync the swerve angle encoders
         // this will only trigger if the chassis is idle for 10 seconds
@@ -308,75 +302,57 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		for (SwerveModule mod : m_swerveModules) {
-			mod.updateSmartDashboard();
-		}
-	}
-
+        for (SwerveModule mod : m_swerveModules) {
+            mod.updateSmartDashboard();
+        }
+    }
 
     // get the trajectory following autonomous command in PathPlanner using the name
     public Command getTrajectoryFollowingCommand(String trajectoryName) {
 
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
 
-        Command command = new FollowTrajectory(
-                this,
-                traj,
-                () -> this.getPose(),
-                m_kinematics,
-                m_xController,
-                m_yController,
-                m_thetaController,
-                (states) -> {
+        Command command = new FollowTrajectory(this, traj, () -> this.getPose(), m_kinematics, m_xController,
+                m_yController, m_thetaController, (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this).andThen(() -> stop());
+                }, this).andThen(() -> stop());
 
-		return command;
-	}
+        return command;
+    }
 
-	//get best pose to shoot based on Apriltag pose, the pose you want to go to
-	public Pose2d getTagRobotPose(boolean shiftLeft, boolean shiftRight){
-		Pose2d tagPose = m_vision.getCentralTagPose(); //get AprilTag pose of target ID tag
-        Translation2d translated = new Translation2d(0, 0); //temp holder
-		if(shiftLeft){ //if aiming for left
-			//make new translation to go to left of tag
-			translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
-		}else if(shiftRight){ //if aiming for right
-			//make new translation to go right of tag
-			translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
+    // get best pose to shoot based on Apriltag pose, the pose you want to go to
+    public Pose2d getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
+        Pose2d tagPose = m_vision.getCentralTagPose(); // get AprilTag pose of target ID tag
+        Translation2d translated = new Translation2d(0, 0); // temp holder
+        if (shiftLeft) { // if aiming for left
+            // make new translation to go to left of tag
+            translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
+        } else if (shiftRight) { // if aiming for right
+            // make new translation to go right of tag
+            translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
 
-		}else{ //if aiming for center
-			//make new translation to go to middle of tag
-			translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
-		}
+        } else { // if aiming for center
+                 // make new translation to go to middle of tag
+            translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
+        }
         Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
         return targetPose;
-	}
+    }
 
-	// find a trajectory from robot pose to a target pose
-	public Command trajectoryToPose(Pose2d targetPose) {
-		Pose2d currentPose = getPose(); //get robot current pose
-		PathPlannerTrajectory traj = PathPlanner.generatePath(
-				new PathConstraints(2.0, 1.0), // velocity, acceleration
-				new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), //starting pose
-				new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-		// always look at same direction
-		);
+    // find a trajectory from robot pose to a target pose
+    public Command trajectoryToPose(Pose2d targetPose) {
+        Pose2d currentPose = getPose(); // get robot current pose
+        PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
+                new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
+                new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
+        // always look at same direction
+        );
 
-		Command command = new FollowTrajectory(
-				this,
-				traj,
-				() -> this.getPose(),
-				m_kinematics,
-				m_xController,
-				m_yController,
-				m_thetaController,
-				(states) -> {
-					this.drive(m_kinematics.toChassisSpeeds(states));
-				},
-				this).andThen(() -> stop());
+        Command command = new FollowTrajectory(this, traj, () -> this.getPose(), m_kinematics, m_xController,
+                m_yController, m_thetaController, (states) -> {
+                    this.drive(m_kinematics.toChassisSpeeds(states));
+                }, this).andThen(() -> stop());
 
-		return command;
-	}
+        return command;
+    }
 }
