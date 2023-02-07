@@ -34,12 +34,12 @@ public final class Constants {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 9;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(169.1);
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(168.1);
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 3;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 4;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 10;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(22.4);
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(20.7);
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 5;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
@@ -49,23 +49,11 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(91.8);
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(91.4);
 
     public static final double X_PID_CONTROLLER_P = 0.2;
     public static final double Y_PID_CONTROLLER_P = 0.2;
     public static final double THETA_PID_CONTROLLER_P = 8.0;
-
-    //photonvision constants, change all of these later
-    public static final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24); //change later
-    
-    public static final double TARGET_HEIGHT_METERS_CUBE = Units.feetToMeters(0); //on ground target for cube?
-
-    public static final double TARGET_HEIGHT_METERS_CONE = Units.feetToMeters(5); //only top target?
-    // Angle between horizontal and the camera.
-    public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0); 
-
-    // How far from the target we want to be
-    public static final double GOAL_RANGE_METERS = Units.feetToMeters(3); //always adjust to 3 feet away from goal 
 
     // max voltages
     /**
@@ -74,8 +62,9 @@ public final class Constants {
 	 * This can be reduced to cap the robot's maximum speed. Typically, this is
 	 * useful during initial testing of the robot.
 	 */
+
 	public static final double MAX_VOLTAGE = 12.0; //default
-    public static final double PRECISION_MAX_VOLTAGE = 2.0; //precision mode
+
 
     // Xbox button mapping
     public static final int XBOX_A = 1;
@@ -93,6 +82,5 @@ public final class Constants {
     // joy stick button
     public static final int XBOX_JL = 9;
     public static final int XBOX_JR = 10;
-
 
 }

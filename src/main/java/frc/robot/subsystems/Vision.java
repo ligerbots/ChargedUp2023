@@ -4,84 +4,132 @@
 
 package frc.robot.subsystems;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
-public class Vision extends SubsystemBase {
+public class Vision {
+    // Values for the Shed in late January
+    private static final double CUSTOM_FIELD_LENGTH = 8.780;    // meters
+    private static final double CUSTOM_FIELD_WIDTH = 6.0;       // meters
+    private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = 
+            new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+                {
+                    add(constructTag(26, 0, 1.636, 0.865, 0));
+                    add(constructTag(25, 0, 3.24, 0.895, 0));
+                    add(constructTag(24, 1.915, 0, 0.857, 90));
+                    add(constructTag(23, 4.958, 0, 0.845, 90));
+                    add(constructTag(22, 7.763, 0, 0.896, 90));
+                    add(constructTag(21, 8.780, 1.373, 0.895, 180));
+                    add(constructTag(20, 8.780, 2.392, 0.946, 180));
+                }
+            }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 
-	private final PhotonCamera m_camera = new PhotonCamera("Cam");
-	private final DriveTrain m_driveTrain;
+    private final PhotonCamera m_aprilTagCamera = new PhotonCamera("ApriltagCamera");
+    private final AprilTagFieldLayout m_aprilTagFieldLayout;
+    
+    // Forward B&W camera for Apriltags
+    // relative position of the camera on the robot ot the robot center
+    private final Transform3d m_robotToAprilTagCam = new Transform3d(
+        new Translation3d(Units.inchesToMeters(31.25 / 2.0), 0.0, Units.inchesToMeters(21.0)),
+        new Rotation3d(0.0, 0.0, 0.0)); 
 
-	/** Creates a new Vision. */
-	public Vision(DriveTrain driveTrain) {
-		this.m_driveTrain = driveTrain;
-	}
+    private final PhotonPoseEstimator m_photonPoseEstimator;
 
-	@Override
-	public void periodic() {
-		// This method will be called once per scheduler run
+    private double m_lastImageTimeStamp = -1.0;
 
-		// System.out.println(m_camera.getDriverMode());
+    public Vision() {
+        // try{
+        // 	m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+        // } catch(IOException e){
+        // 	System.out.println("Unable to load AprilTag layout" + e.getMessage());
+        // 	m_aprilTagFieldLayout = null;
+        // }
+        m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
+        System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
-		var result = m_camera.getLatestResult();
+        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+                m_aprilTagCamera, m_robotToAprilTagCam);
 
-		SmartDashboard.putBoolean("hasTargets?", result.hasTargets());
-		SmartDashboard.putBoolean("drivemode", m_camera.getDriverMode());
-		if (result.hasTargets()) {
-			// Get the current best target.
-			PhotonTrackedTarget target = result.getBestTarget();
-			int targetID = target.getFiducialId();
-			SmartDashboard.putNumber("targetID", targetID);
+        // set the driver mode to false
+        m_aprilTagCamera.setDriverMode(false);
+    }
 
-		} else {
-			SmartDashboard.putNumber("targetID", -1);
-			SmartDashboard.putNumber("PPL", m_camera.getPipelineIndex());
-		}
-	}
+    public void updateOdometry(SwerveDrivePoseEstimator odometry) {
+        if (!m_aprilTagCamera.isConnected())
+            return;
 
-	// adjusts robot automatically so it is in position to pick up cone
-	public void AdjustRobotCone() {
+        var targetResult = m_aprilTagCamera.getLatestResult();
+        double curImageTimeStamp = targetResult.getTimestampSeconds();
 
-	}
+        if (curImageTimeStamp <= m_lastImageTimeStamp) 
+            return;
 
-	// adjusts robot automatically so it is in position to pick up cube
-	public void AdjustRobotCube() {
-		double forwardSpeed; // how much speed robot needs to go forward to target
-		double rotationSpeed; // how much speed robot needs to rotate to target
+        m_lastImageTimeStamp = curImageTimeStamp;
 
-		var result = m_camera.getLatestResult(); // camera's latest result
+        SmartDashboard.putBoolean("vision/hasTargets", targetResult.hasTargets());
+        if (!targetResult.hasTargets()) 
+            return;
 
-		if (result.hasTargets()) {
-			// First calculate range
-			double range = PhotonUtils.calculateDistanceToTargetMeters(
-					Constants.CAMERA_HEIGHT_METERS,
-					Constants.TARGET_HEIGHT_METERS_CUBE,
-					Constants.CAMERA_PITCH_RADIANS,
-					Units.degreesToRadians(result.getBestTarget().getPitch()));
+        // Get the current best target.
+        PhotonTrackedTarget target = targetResult.getBestTarget();
+        SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
+        Transform3d cameraToTarget = target.getBestCameraToTarget();
+        SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
+        SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
+        SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
 
-			// Use this range as the measurement we give to the PID controller.
-			// -1.0 required to ensure positive PID controller effort _increases_ range
-			forwardSpeed = -m_driveTrain.getXController().calculate(range, Constants.GOAL_RANGE_METERS);
-			// use x controller to move forward?
+        if (m_aprilTagFieldLayout == null)
+            return;
+        
+        // Estimate the robot pose.
+        // If successful, update the odometry using the timestamp of the measurement
+        Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
+        if (result.isPresent()) {
+            EstimatedRobotPose camPose = result.get();
+            var estimatedPose = camPose.estimatedPose;
+            odometry.addVisionMeasurement(estimatedPose.toPose2d(), curImageTimeStamp);
+            SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
+            SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
+            SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
+        // } else {
+        //     // move it way off the screen to make it disappear
+        //     SmartDashboard.putNumber("vision/estimatedPoseX", 0);
+        //     SmartDashboard.putNumber("vision/estimatedPoseY", 0);
+        //     SmartDashboard.putNumber("vision/estimatedPoseZ", 0);	
+        }
+    }
 
-			// Also calculate angular power
-			// -1.0 required to ensure positive PID controller effort _increases_ yaw
-			rotationSpeed = -m_driveTrain.getThetaController().calculate(result.getBestTarget().getYaw(), 0);
-			// use theta to rotate
-		} else {
-			// If we have no targets, stay still.
-			forwardSpeed = 0;
-			rotationSpeed = 0;
-		}
-		m_driveTrain.drive(new ChassisSpeeds(forwardSpeed, 0.0, rotationSpeed)); // make it move forward and rotate
-		// is y affected by adjusting?
-	}
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+        m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        return m_photonPoseEstimator.update();
+    }
+
+    // private Optional<Pose2d> getTagPose(int tagID){
+    //     // This can fail if the tagID is not part of the map. 
+    //     // Need to check before converting to Pose2d
+    //     return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
+    // }
+
+    private static AprilTag constructTag(int id, double x, double y, double z, double angle){
+        return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
+    }
 }
