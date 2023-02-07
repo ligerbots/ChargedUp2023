@@ -128,30 +128,32 @@ public class Vision {
 
     public Optional<Pose2d> getCentralTagPose() { // gets target closets to center of camera
         var targetResult = m_aprilTagCamera.getLatestResult();
+        if (!targetResult.hasTargets()) {
+            return Optional.empty();
+        }
+        // make a temp holder var for least Y translation, set to first tags translation
+        double minY = 1.0e6; // big number
         int targetID = -1;
-        if (targetResult.hasTargets()) {
-            // Get lists of targets
-            List<PhotonTrackedTarget> targets = targetResult.getTargets();
-            // make a temp holder var for least Y translation, set to first tags translation
-            //Translation2d translationHolder = targets.get(0).getBestCameraToTarget().getTranslation().toTranslation2d();
-            double minTranslation = targets.get(0).getBestCameraToTarget().getTranslation().toTranslation2d().getY();
-            for (PhotonTrackedTarget tag : targets) { // for every target in camera
-                // get transformation to target
-                Transform3d tagTransform = tag.getBestCameraToTarget();
-                // get translation to target from transformation
-                Translation2d tagTranslation = tagTransform.getTranslation().toTranslation2d();
+        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera
+            // get transformation to target
+            Transform3d tagTransform = tag.getBestCameraToTarget();
+            // get abs translation to target from transformation
+            double tagY = Math.abs(tagTransform.getY());
 
-                // looking for smallest absolute relative to camera Y
-                // if abs Y translation of new tag is less then holder tag, it becomes holder tag
-                if (Math.abs(tagTranslation.getY()) < Math.abs(minTranslation)) {
-                    minTranslation = tagTranslation.getY();
-                    targetID = tag.getFiducialId(); // set targetID
-                }
+            // looking for smallest absolute relative to camera Y
+            // if abs Y translation of new tag is less then holder tag, it becomes holder tag
+            if (tagY < minY) {
+                minY = tagY;
+                targetID = tag.getFiducialId(); // set targetID
             }
         }
+        
         //optional in case no target is found
-        return Optional.of(m_aprilTagFieldLayout.getTagPose(targetID).get().toPose2d());
-
+        Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(targetID);
+        if(tagPose.isEmpty()){
+            return Optional.empty(); //returns an empty optional
+        }
+        return Optional.of(tagPose.get().toPose2d());
     }
 
     public Optional<Pose2d> getTagPose(int tagID) {

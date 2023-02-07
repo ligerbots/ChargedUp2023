@@ -25,6 +25,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.Constants;
 import frc.robot.commands.FollowTrajectory;
@@ -32,6 +33,8 @@ import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
+
+import java.util.Optional;
 
 public class DriveTrain extends SubsystemBase {
 
@@ -321,30 +324,38 @@ public class DriveTrain extends SubsystemBase {
     }
 
     // get best pose to shoot based on Apriltag pose, the pose you want to go to
-    public Pose2d getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
-        if(m_vision.getCentralTagPose().isPresent()){
-            Pose2d tagPose = m_vision.getCentralTagPose().get(); // get AprilTag pose of target ID tag
-            Translation2d translated = new Translation2d(0, 0); // temp holder
-            if (shiftLeft) { // if aiming for left
-                // make new translation to go to left of tag
-                translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
-            } else if (shiftRight) { // if aiming for right
-                // make new translation to go right of tag
-                translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
-    
-            } else { // if aiming for center
-                     // make new translation to go to middle of tag
-                translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
-            }
-            Pose2d targetPose = new Pose2d(translated, tagPose.getRotation());
-            return targetPose;
+    public Optional<Pose2d> getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
+        Optional<Pose2d> centralTagPose = m_vision.getCentralTagPose();
+        if(centralTagPose.isEmpty()){
+            return Optional.empty(); //return a null
+        
         }
-        return getPose(); //if no targets are found, stay in current pose
+        Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
+        Translation2d translated = new Translation2d(0, 0); // temp holder
+        if (shiftLeft) { // if aiming for left
+            // make new translation to go to left of tag
+            translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
+        } else if (shiftRight) { // if aiming for right
+            // make new translation to go right of tag
+            translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
+
+        } else { // if aiming for center
+                 // make new translation to go to middle of tag
+            translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
+        }
+        return Optional.of(new Pose2d(translated, tagPose.getRotation()));
     }
 
     // find a trajectory from robot pose to a target pose
-    public Command trajectoryToPose(Pose2d targetPose) {
+    public Command trajectoryToPose(Optional<Pose2d> optTargetPose) {
+        //if there is no target, then nothing happens
+        if(optTargetPose.isEmpty()){ 
+            //return an InstantCommand to do nothing
+            return new InstantCommand(); 
+        }
+        
         Pose2d currentPose = getPose(); // get robot current pose
+        Pose2d targetPose = optTargetPose.get();
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
                 new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
