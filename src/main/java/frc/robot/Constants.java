@@ -124,16 +124,16 @@ public final class Constants {
       public static final double ARM_MAX_VEL_RAD_PER_SEC = Math.toRadians(200.0);
       public static final double ARM_MAX_ACC_RAD_PER_SEC_SQ = Math.toRadians(200.0);
       public static final double ARM_OFFSET_RAD = Math.toRadians(110.0);
-  
+      
       // PID Constants for the Arm PID controller
       // Since we're using Trapeziodal control, all values will be 0 except for P
       public static final double ARM_K_P = 10.0;
       public static final double ARM_K_I = 0.0;
       public static final double ARM_K_D = 0.0;
       public static final double ARM_K_FF = 0.0;
-
+      public static final int kPIDLoopIdx = 0;
       public static final double ARM_ANGLE_TOLERANCE = Units.degreesToRadians(1.0);
-
+      public static final int kTimeoutMs = 0;
           // Constants to limit the elevator veocity and accel
 
     public static final double ELEVATOR_MAX_VEL_METER_PER_SEC_ASCEND = Units.inchesToMeters(1000.0);

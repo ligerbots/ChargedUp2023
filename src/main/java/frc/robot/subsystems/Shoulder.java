@@ -4,7 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
+import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
@@ -45,10 +49,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   // Define the motor and encoders
   private final WPI_TalonFX m_motorLeader;
   private final WPI_TalonFX m_motorFollower;
-  private final DutyCycleEncoder m_encoder = new DutyCycleEncoder(0);
+  private final TalonFXSensorCollection m_encoder;
+  private final TalonFXSimCollection m_encoderSim;
 
-  private final SparkMaxPIDController m_PIDController;
- 
   public static final int kMotorPort = 0;
   public static final int kEncoderAChannel = 0;
   public static final int kEncoderBChannel = 1;
@@ -59,7 +62,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // The P gain for the PID controller that drives this arm.
 
-  public static double m_kPArm = 1000000.0;
+  public static double m_kPArm = 100.0;
 
   public static double armPositionDeg = 90.0;
 
@@ -71,7 +74,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // Standard classes for controlling our arm
   public final PIDController m_controller = new PIDController(m_kPArm, 0, 0);
-  public final m_EncoderSim = new DutyCycleEncoderSim(m_encoder);
+  
 
   // public final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
   public final Joystick m_joystick = new Joystick(kJoystickPort);
@@ -117,7 +120,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
           6,
           new Color8Bit(Color.kYellow)));
 
-  /**
+  /**TalonFXPIDSetConfiguration
    * Creates a new ShoulderArm
    * .
    * 
@@ -130,22 +133,22 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // Create the motor, PID Controller and encoder.
     m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[0]);
     m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[1]);
-    m_motorLeader.restoreFactoryDefaults();
+    m_encoder = m_motorLeader.getSensorCollection();
+    m_encoderSim = m_motorLeader.getSimCollection();
+    m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.kPIDLoopIdx, Constants.kTimeoutMs);
     // Set follower and invert
     m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
-
-    m_PIDController = m_motorLeader.getPIDController();
-    m_PIDController.setFeedbackDevice(m_encoder);
-    m_PIDController.setP(m_kPArm);
-    m_PIDController.setI(Constants.ARM_K_I);
-    m_PIDController.setD(Constants.ARM_K_D);
-    m_PIDController.setFF(Constants.ARM_K_FF);
+    m_motorLeader.config_kF(Constants.kPIDLoopIdx, Constants.ARM_K_FF, Constants.kTimeoutMs);
+		m_motorLeader.config_kP(Constants.kPIDLoopIdx, Constants.ARM_K_P, Constants.kTimeoutMs);
+		m_motorLeader.config_kI(Constants.kPIDLoopIdx, Constants.ARM_K_I, Constants.kTimeoutMs);
+		m_motorLeader.config_kD(Constants.kPIDLoopIdx, Constants.ARM_K_D, Constants.kTimeoutMs);
     
+  
+   
     // Set the position conversion factor. Note that the Trapezoidal control
     // expects angles in radians.
     // TODO: Set this based on shoulder gearbox gear ratio
-    m_encoder.setDistancePerRotation(2.0 * Math.PI);
-    m_encoder.reset();
+  
     SmartDashboard.putNumber("arm" + m_index + "/P Gain", m_kPArm);
 
     SmartDashboard.putData("Arm Sim", m_mech2d);
@@ -164,7 +167,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
-    m_EncoderSim.setDistance(m_armSim.getAngleRads());
+    m_encoderSim.setIntegratedSensorRawPosition(m_armSim.getAngleRads());
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
@@ -178,6 +181,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   public void periodic() {
     double encoderValue = m_encoder.getAbsolutePosition();
 
+
+
+    
     // Display current values on the SmartDashboard
     SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motorLeader.getAppliedOutput());
     SmartDashboard.putNumber("arm" + m_index + "/Encoder" + m_index, Units.radiansToDegrees(encoderValue));
@@ -235,7 +241,6 @@ public class Shoulder extends TrapezoidProfileSubsystem {
       setPoint.position = m_encoder.getAbsolutePosition();
       m_resetArmPos = false;
     }
-    m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0, feedforward / 12.0);
     SmartDashboard.putNumber("arm" + m_index + "/feedforward" + m_index, feedforward);
     SmartDashboard.putNumber("arm" + m_index + "/setPoint" + m_index, Units.metersToInches(setPoint.position));
     SmartDashboard.putNumber("arm" + m_index + "/velocity" + m_index, Units.metersToInches(setPoint.velocity));
@@ -247,7 +252,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // if PID coefficients on SmartDashboard have changed, write new values to
     // controller
     if ((p != m_kPArm)) {
-      m_PIDController.setP(p);
+      m_motorLeader.config_kP(Constants.kPIDLoopIdx, Constants.ARM_K_P, Constants.kTimeoutMs);
       m_kPArm = p;
     }
   }
@@ -256,7 +261,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     return m_motorLeader;
   }
 
-  public DutyCycleEncoder getEncoder() {
+  public FeedbackDevice getEncoder() {
     return m_encoder;
   }
 

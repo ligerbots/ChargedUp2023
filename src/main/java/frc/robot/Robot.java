@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -22,7 +25,7 @@ public class Robot extends TimedRobot {
   private SendableChooser<Command> m_chosenTrajectory = new SendableChooser<>();
   private RobotContainer m_robotContainer;
   double m_goal = Math.toRadians(90.0);
-  /**
+  WPI_TalonFX m_motorLeader = new WPI_TalonFX(2, "rio");  /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
@@ -36,7 +39,16 @@ public class Robot extends TimedRobot {
     //   NetworkTableInstance.getDefault().setServer("127.0.0.1");
     //   NetworkTableInstance.getDefault().startClient4("MainRobotProgram");
     // }
-    
+    m_motorLeader.configFactoryDefault();
+		
+		/* Config the sensor used for Primary PID and sensor direction */
+        m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 
+                                            0,
+				                            0);
+
+		/* Ensure sensor is positive when output is positive */
+		m_motorLeader.setSensorPhase(true);
+    m_motorLeader.setInverted(false);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
