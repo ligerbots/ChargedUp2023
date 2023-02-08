@@ -4,11 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.Drive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -20,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
+    private Alliance m_alliance = Alliance.Invalid;
     private Command m_autonomousCommand;
     private SendableChooser<Command> m_chosenTrajectory = new SendableChooser<>();
     private RobotContainer m_robotContainer;
@@ -65,6 +69,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+        checkDSUpdate();
+
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled
         // commands, running already-scheduled commands, removing finished or
@@ -91,6 +97,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
+        checkDSUpdate();
+
         m_autonomousCommand = m_chosenTrajectory.getSelected();
 
         // schedule the autonomous command (example)
@@ -134,5 +142,15 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
+    }
+
+    private void checkDSUpdate() {
+        Alliance currentAlliance = DriverStation.getAlliance();
+
+        if (DriverStation.isDSAttached() && currentAlliance != m_alliance) {
+            m_alliance = currentAlliance;
+
+            m_robotContainer.getVision().detectAllianceAndSetFieldLayout();
+        }
     }
 }
