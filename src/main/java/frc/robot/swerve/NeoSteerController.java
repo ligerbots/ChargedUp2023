@@ -10,6 +10,9 @@ import frc.robot.Constants;
 // LigerBots SteerController for Swerve
 
 public class NeoSteerController {
+    // we use this all over the place, so keep it as a constant
+    private static final double TWO_PI = 2.0 * Math.PI;
+
     private static final int ENCODER_RESET_ITERATIONS = 500;
     private static final double ENCODER_RESET_MAX_ANGULAR_VELOCITY = Math.toRadians(0.5);
 
@@ -37,9 +40,9 @@ public class NeoSteerController {
         }
     }
 
-    public NeoSteerController(int canId, int canCoderCanId, double angleOffset) {
+    public NeoSteerController(int canId, int canCoderCanId, double angleOffsetRadians) {
         // absolute angle encoder CANcoder
-        m_absoluteEncoder = new CanCoderWrapper(canCoderCanId, angleOffset);
+        m_absoluteEncoder = new CanCoderWrapper(canCoderCanId, angleOffsetRadians);
 
         // the turn motor
         m_motor = new CANSparkMax(canId, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -66,13 +69,13 @@ public class NeoSteerController {
         m_motorEncoder = m_motor.getEncoder();
 
         // set the builtin encoder scaling for distance and speed
-        checkNeoError(m_motorEncoder.setPositionConversionFactor(2.0 * Math.PI * STEER_REDUCTION),
+        checkNeoError(m_motorEncoder.setPositionConversionFactor(TWO_PI * STEER_REDUCTION),
                 "Failed to set NEO encoder conversion factor");
-        checkNeoError(m_motorEncoder.setVelocityConversionFactor(2.0 * Math.PI * STEER_REDUCTION / 60.0),
+        checkNeoError(m_motorEncoder.setVelocityConversionFactor(TWO_PI * STEER_REDUCTION / 60.0),
                 "Failed to set NEO encoder conversion factor");
 
         // set the built in encoder to match the CANcoder
-        checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle()),
+        checkNeoError(m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngleRadians()),
                 "Failed to set NEO encoder position");
 
         // PID controller to maintain the turn angle
@@ -98,7 +101,7 @@ public class NeoSteerController {
 
         if (dontCheckTimer) {
             // System.out.println("** Synchronizing swerve angle encoders");
-            m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle());
+            m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngleRadians());
             m_resetIteration = 0;
             return;
         }
@@ -106,7 +109,7 @@ public class NeoSteerController {
         if (m_motorEncoder.getVelocity() < ENCODER_RESET_MAX_ANGULAR_VELOCITY) {
             if (++m_resetIteration >= ENCODER_RESET_ITERATIONS) {
                 // System.out.println("** Synchronizing swerve angle encoders");
-                m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngle());
+                m_motorEncoder.setPosition(m_absoluteEncoder.getAbsoluteAngleRadians());
                 m_resetIteration = 0;
             }
         } else {
@@ -119,17 +122,17 @@ public class NeoSteerController {
         double currentAngleRadians = m_motorEncoder.getPosition();
 
         // force into 0 -> 2*PI
-        double currentAngleRadiansMod = currentAngleRadians % (2.0 * Math.PI);
+        double currentAngleRadiansMod = currentAngleRadians % TWO_PI;
         if (currentAngleRadiansMod < 0.0) {
-            currentAngleRadiansMod += 2.0 * Math.PI;
+            currentAngleRadiansMod += TWO_PI;
         }
 
         // The reference angle has the range [0, 2pi) but the Neo's encoder can go above that
         double adjustedReferenceAngleRadians = referenceAngleRadians + currentAngleRadians - currentAngleRadiansMod;
         if (referenceAngleRadians - currentAngleRadiansMod > Math.PI) {
-            adjustedReferenceAngleRadians -= 2.0 * Math.PI;
+            adjustedReferenceAngleRadians -= TWO_PI;
         } else if (referenceAngleRadians - currentAngleRadiansMod < -Math.PI) {
-            adjustedReferenceAngleRadians += 2.0 * Math.PI;
+            adjustedReferenceAngleRadians += TWO_PI;
         }
 
         m_referenceAngleRadians = referenceAngleRadians;
@@ -140,19 +143,28 @@ public class NeoSteerController {
     // get the current module angle in radians
     public Rotation2d getStateAngle() {
         double motorAngleRadians = m_motorEncoder.getPosition();
-        motorAngleRadians %= 2.0 * Math.PI;
+        motorAngleRadians %= TWO_PI;
         if (motorAngleRadians < 0.0) {
-            motorAngleRadians += 2.0 * Math.PI;
+            motorAngleRadians += TWO_PI;
         }
 
         return Rotation2d.fromRadians(motorAngleRadians);
     }
 
-    public void updateSmartDashboard(String prefix) {
-        // SmartDashboard.putNumber(prefix + "_angle", getStateAngle().getDegrees());
-        double offset = Math.toDegrees(getStateAngle().getRadians() - m_absoluteEncoder.getAbsoluteAngle());
-        if (offset > 180.0) offset -= 360.0;
-        if (offset < -180.0) offset += 360.0;
-        SmartDashboard.putNumber(prefix + "_cancoder_offset", offset);
+    public void updateSmartDashboard(String sdPrefix) {
+        SmartDashboard.putNumber(sdPrefix + "/angle", getStateAngle().getDegrees());
+
+        // Compute the calibration angle for this module
+        // Only use the value if the wheels are physically aligned forward, with bevel gear on the left
+        // NOTE: we want a negative angle, -2PI -> 0
+        double calibAngle = m_absoluteEncoder.getOffsetAngleRadians() - m_absoluteEncoder.getAbsoluteAngleRadians();
+        if (calibAngle > 0.0) calibAngle -= TWO_PI;
+        if (calibAngle < -TWO_PI) calibAngle += TWO_PI;
+        SmartDashboard.putNumber(sdPrefix + "/calibrationAngle", Math.toDegrees(calibAngle));
+
+        double offset = getStateAngle().getRadians() - m_absoluteEncoder.getAbsoluteAngleRadians();
+        if (offset > Math.PI) offset -= TWO_PI;
+        if (offset < -Math.PI) offset += TWO_PI;
+        SmartDashboard.putNumber(sdPrefix + "/cancoder_offset", Math.toDegrees(offset));
     }
 }
