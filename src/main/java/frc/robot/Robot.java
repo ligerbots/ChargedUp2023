@@ -43,6 +43,10 @@ public class Robot extends TimedRobot {
     m_chosenTrajectory.addOption("drive_and_slide", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_slide"));
     m_chosenTrajectory.addOption("drive_and_turn", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
     m_chosenTrajectory.addOption("Test", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("Test"));
+    //autonomous period
+    m_chosenTrajectory.addOption("c_forward_balance", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("c_forward_balance"));
+    m_chosenTrajectory.addOption("l_1piece", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("l_1piece"));
+
     SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
   }
 
