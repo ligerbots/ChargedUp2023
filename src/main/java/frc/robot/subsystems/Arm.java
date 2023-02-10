@@ -71,10 +71,10 @@ public class Arm extends SubsystemBase {
 
   // returns the current angle of the arm
   public double[] getArmAngle() {
-    return new double[] {m_shoulder.getEncoder().getDistance()};
+    return new double[] {m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition()};
   }
   public double[] getSimArmAngle() {
-    return new double[] {m_shoulder.getEncoder().getDistance()};
+    return new double[] {m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition()};
   }
 
 }

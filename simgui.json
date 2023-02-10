@@ -58,6 +58,9 @@
       "LiveWindow": {
         "open": true
       },
+      "Shuffleboard": {
+        "open": true
+      },
       "SmartDashboard": {
         "Arm Sim": {
           "open": true

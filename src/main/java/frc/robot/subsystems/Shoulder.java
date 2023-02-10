@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
@@ -50,7 +51,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   private final WPI_TalonFX m_motorLeader;
   private final WPI_TalonFX m_motorFollower;
   private final TalonFXSensorCollection m_encoder;
-  private final TalonFXSimCollection m_encoderSim;
+  // private final EncoderSim m_encoderSim;
 
   public static final int kMotorPort = 0;
   public static final int kEncoderAChannel = 0;
@@ -62,7 +63,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   // The P gain for the PID controller that drives this arm.
 
-  public static double m_kPArm = 100.0;
+  public static double m_kPArm = 1.0;
 
   public static double armPositionDeg = 90.0;
 
@@ -70,20 +71,19 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   // = (2 * PI rads) / (4096 pulses)
   public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
   // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  public final DCMotor m_armGearbox = DCMotor.getNEO(2);
+  public final DCMotor m_armGearbox = DCMotor.getFalcon500(2);
 
   // Standard classes for controlling our arm
   public final PIDController m_controller = new PIDController(m_kPArm, 0, 0);
-  
+
 
   // public final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
   public final Joystick m_joystick = new Joystick(kJoystickPort);
 
   // Simulation classes help us simulate what's going on, including gravity.
   public static final double m_armReduction = 395.77;
-  public static final double m_armMass = 1; // Kilograms
+  public static final double m_armMass = 10; // Kilograms
   public static final double m_armLength = Units.inchesToMeters(30);
-
   private final ArmFeedforward m_Feedforward = new ArmFeedforward(Constants.ARM_KS, Constants.ARM_KG, Constants.ARM_KV,
       Constants.ARM_KA);
 
@@ -94,6 +94,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   private boolean m_resetArmPos = false;
 
   private double m_goal;
+  private TalonFXSimCollection m_motorSim;
 
   final SingleJointedArmSim m_armSim = new SingleJointedArmSim(
       m_armGearbox,
@@ -134,7 +135,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[0]);
     m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[1]);
     m_encoder = m_motorLeader.getSensorCollection();
-    m_encoderSim = m_motorLeader.getSimCollection();
+    // m_motorSim = new TalonFXSimCollection(m_motorLeader);
+    // m_encoderSim = new TalonFXSimCollection(m_encoder);
     m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.kPIDLoopIdx, Constants.kTimeoutMs);
     // Set follower and invert
     m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
@@ -156,18 +158,23 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   
   }
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
- 
+ public void simulationInit(){
+  
+  
+
+
+ };
+   
   public void simulationPeriodic() {
    
     // First, we set our "inputs" (voltages)
     m_armSim.setInput(m_motorLeader.get() * RobotController.getBatteryVoltage());
- 
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);
 
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
-    m_encoderSim.setIntegratedSensorRawPosition(m_armSim.getAngleRads());
+    // m_motorSim.setIntegratedSensorRawPosition(m_armSim.getAngleRads());
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
@@ -179,13 +186,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
   @Override
   public void periodic() {
-    double encoderValue = m_encoder.getAbsolutePosition();
+    double encoderValue = m_encoder.getIntegratedSensorAbsolutePosition();
 
 
 
     
     // Display current values on the SmartDashboard
-    SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motorLeader.getAppliedOutput());
+    SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motorLeader.get());
     SmartDashboard.putNumber("arm" + m_index + "/Encoder" + m_index, Units.radiansToDegrees(encoderValue));
     SmartDashboard.putBoolean("arm" + m_index + "/CoastMode" + m_index, m_coastMode);
     SmartDashboard.putNumber("Arm motor speed",m_motorLeader.get());
@@ -238,9 +245,11 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // TODO: if the "12.0" is volts, should use RobotController.getBatteryVoltage()
     if (m_resetArmPos) {
-      setPoint.position = m_encoder.getAbsolutePosition();
+      setPoint.position = m_encoder.getIntegratedSensorAbsolutePosition();
       m_resetArmPos = false;
     }
+    m_motorLeader.set(ControlMode.Position, feedforward);
+    // m_motorLeader.set(feedforward);
     SmartDashboard.putNumber("arm" + m_index + "/feedforward" + m_index, feedforward);
     SmartDashboard.putNumber("arm" + m_index + "/setPoint" + m_index, Units.metersToInches(setPoint.position));
     SmartDashboard.putNumber("arm" + m_index + "/velocity" + m_index, Units.metersToInches(setPoint.velocity));
@@ -261,13 +270,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     return m_motorLeader;
   }
 
-  public FeedbackDevice getEncoder() {
+  public TalonFXSensorCollection getEncoder() {
     return m_encoder;
   }
 
 
   public void resetArmPos() {
-    super.setGoal(m_encoder.getAbsolutePosition());
+    super.setGoal(m_encoder.getIntegratedSensorAbsolutePosition());
     m_resetArmPos = true;
   }
 public void setGoal(double goal){
