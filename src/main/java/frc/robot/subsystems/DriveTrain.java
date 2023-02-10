@@ -122,25 +122,25 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain(Vision vision) {
 
-		m_swerveModules[0] = new SwerveModule("frontLeft",
-				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
-						FRONT_LEFT_MODULE_STEER_OFFSET));
+        m_swerveModules[0] = new SwerveModule("frontLeft",
+                new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
+                        FRONT_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
-				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
-						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+        m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
+                new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
-				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
-						BACK_LEFT_MODULE_STEER_OFFSET));
+        m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
+                new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
+                        BACK_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
-				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
-						BACK_RIGHT_MODULE_STEER_OFFSET));
+        m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
+                new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
+                        BACK_RIGHT_MODULE_STEER_OFFSET));
 
         // initialize the odometry class
         // needs to be done after the Modules are created and initialized
@@ -309,17 +309,15 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		for (SwerveModule mod : m_swerveModules) {
-			mod.updateSmartDashboard();
-		}
-	}
+        for (SwerveModule mod : m_swerveModules) {
+            mod.updateSmartDashboard();
+        }
+    }
 
-    // get the trajectory following autonomous command in PathPlanner using the name
-    public Command getTrajectoryFollowingCommand(String trajectoryName) {
-
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
-
-        Command command = new FollowTrajectory(
+    // Make a command to follow a given trajectory
+    // Note this does NOT include stopping at the end
+    public Command makeFollowTrajectoryCommand(PathPlannerTrajectory traj) {
+        return new FollowTrajectory(
                 this,
                 traj,
                 () -> this.getPose(),
@@ -330,12 +328,16 @@ public class DriveTrain extends SubsystemBase {
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
                 },
-                this).andThen(() -> stop());
-
-        return command;
+                this);
     }
 
-    //get target pose
+    // get the trajectory following autonomous command in PathPlanner using the name
+    public Command getTrajectoryFollowingCommand(String trajectoryName) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+        return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
+    }
+
+    // get target pose
     public Pose2d getTargetPose(){
         return m_poseTest;
     }
@@ -350,19 +352,6 @@ public class DriveTrain extends SubsystemBase {
         // always look at same direction
         );
 
-        Command command = new FollowTrajectory(
-                this,
-                traj,
-                () -> this.getPose(),
-                m_kinematics,
-                m_xController,
-                m_yController,
-                m_thetaController,
-                (states) -> {
-                    this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this).andThen(() -> stop());
-
-        return command;
+        return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
     }
 }
