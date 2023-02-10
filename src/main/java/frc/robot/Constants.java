@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
@@ -63,7 +67,28 @@ public final class Constants {
 	public static final Translation2d CONE_RIGHT_TRANSLATION = new Translation2d(3, 4.5); 
 	public static final Translation2d CUBE_TRANSLATION = new Translation2d(3, 0);
     
+    //scoring positions
+    //p1-9 is for the scoring grid
+    // 1    2   3
+	// 4    5   6
+	// 7    8   9
+    //p10 and p11 are for the left and right pickup stations
+    //note: enums cannot be integers, can only be strings
+    public enum Position {
+        p1,
+        p2,
+        p3,
+        p4,
+        p5,
+        p6,
+        p7,
+        p8,
+        p9,
+        p10,
+        p11
+    }
 
+    Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>();
     // max voltages
     /**
 	 * The maximum voltage that will be delivered to the drive motors.
