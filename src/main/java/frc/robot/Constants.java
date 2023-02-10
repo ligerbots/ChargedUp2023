@@ -20,14 +20,14 @@ public final class Constants {
      *
      * Should be measured from center to center.
      */
-    public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(25.625);
+    public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(19.5625);
 
     /**
      * The front-to-back distance between the drivetrain wheels.
      *
      * Should be measured from center to center.
      */
-    public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(25.75);
+    public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(24.625);
 
     public static final int DRIVETRAIN_NAVX_ID = 0;
 
