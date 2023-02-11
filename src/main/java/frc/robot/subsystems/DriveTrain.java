@@ -324,7 +324,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     // get best pose to shoot based on Apriltag pose, the pose you want to go to
-    public Optional<Pose2d> getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
+    /*public Optional<Pose2d> getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
         Optional<Pose2d> centralTagPose = m_vision.getCentralTagPose();
         if(centralTagPose.isEmpty()){
             return Optional.empty(); //return a null
@@ -344,7 +344,7 @@ public class DriveTrain extends SubsystemBase {
             translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
         }
         return Optional.of(new Pose2d(translated, tagPose.getRotation()));
-    }
+    }*/
 
     // find a trajectory from robot pose to a target pose
     public Command trajectoryToPose(Optional<Pose2d> optTargetPose) {
