@@ -62,7 +62,7 @@ public class RobotContainer {
 
 		// button X
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
-		// inline command to create trajectory from robot pose to left of the best apriltag
+        //testing if the command works by passing in a position, we need more buttons for all 11
 		xboxXButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Position.LEFT_TOP));
 		
         /* //Commented out for now

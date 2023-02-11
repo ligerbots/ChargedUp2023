@@ -269,7 +269,9 @@ public class DriveTrain extends SubsystemBase {
     public ProfiledPIDController getThetaController() { // gets controller for angle
         return m_thetaController;
     }
-
+    public SwerveDriveKinematics getKinematics(){
+        return m_kinematics;
+    }
     // get the swerveModuleState manually
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] state = new SwerveModulePosition[4];
@@ -347,7 +349,7 @@ public class DriveTrain extends SubsystemBase {
     }*/
 
     // find a trajectory from robot pose to a target pose
-    public Command trajectoryToPose(Optional<Pose2d> optTargetPose) {
+    /*public Command trajectoryToPose(Optional<Pose2d> optTargetPose) {
         //if there is no target, then nothing happens
         if(optTargetPose.isEmpty()){ 
             //return an InstantCommand to do nothing
@@ -368,5 +370,5 @@ public class DriveTrain extends SubsystemBase {
                 }, this).andThen(() -> stop());
 
         return command;
-    }
+    }*/
 }
