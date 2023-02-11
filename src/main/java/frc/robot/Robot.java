@@ -4,13 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,31 +25,30 @@ public class Robot extends TimedRobot {
     private RobotContainer m_robotContainer;
 
     /**
-     * This function is run when the robot is first started up and should be used
-     * for any
+     * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
     @Override
     public void robotInit() {
 
-        if (this.isSimulation()) {
-            // At-Home Network Debug Only - host the NT server on photonvision and connect
-            // to it.
-            NetworkTableInstance.getDefault().stopServer();
-            // NetworkTableInstance.getDefault().setServer("photonvision.local");
-            NetworkTableInstance.getDefault().setServer("127.0.0.1");
-            NetworkTableInstance.getDefault().startClient4("MainRobotProgram");
-        }
-        // Instantiate our RobotContainer. This will perform all our button bindings,
-        // and put our
-        // autonomous chooser on the dashboard.
+        // If you are trying to work with a running PV and simulation, enable this code.
+        // Otherwise it is not needed, even when running a simulation
+        // if (isSimulation()) {
+        //   // At-Home Network Debug Only - host the NT server on photonvision and connect to it.
+        //   var ntinst = edu.wpi.first.networktables.NetworkTableInstance.getDefault();
+        //   ntinst.stopServer();
+        //   // ntinst.setServer("photonvision.local");
+        //   ntinst.setServer("127.0.0.1");
+        //   ntinst.startClient4("MainRobotProgram");
+        // }
+        
+        // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();
-        m_chosenTrajectory.setDefaultOption("drive_1m",
-                m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_1m"));
-        m_chosenTrajectory.addOption("drive_and_slide",
-                m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_slide"));
-        m_chosenTrajectory.addOption("drive_and_turn",
-                m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
+
+        // Initialize the list of available Autonomous routines
+        m_chosenTrajectory.setDefaultOption("drive_1m", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_1m"));
+        m_chosenTrajectory.addOption("drive_and_slide", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_slide"));
+        m_chosenTrajectory.addOption("drive_and_turn", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
     }
 
