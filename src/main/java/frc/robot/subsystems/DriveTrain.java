@@ -271,13 +271,7 @@ public class DriveTrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_navx.getRoll());
     }
 
-    // toggle precision mode for driving
-    public void togglePrecisionMode() {
-        m_precisionMode = !m_precisionMode;
-        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
-                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-    }
+   
 
     public PIDController getXController() { // gets the controller for x position of robot
         return m_xController;
