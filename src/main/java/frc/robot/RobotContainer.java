@@ -64,8 +64,7 @@ public class RobotContainer {
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
 		xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
-		// when button Y is press
-        ed, attempt to balance on the Charging Station
+		// when button Y is pressed, attempt to balance on the Charging Station
 		// assumes that the robot is already mostly up on the Station
 		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
 		xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
