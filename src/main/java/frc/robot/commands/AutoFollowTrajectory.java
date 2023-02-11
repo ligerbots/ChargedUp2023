@@ -13,7 +13,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,7 +42,7 @@ public class AutoFollowTrajectory extends CommandBase {
 	@Override
 	public void initialize() {
 		PathPlannerTrajectory m_curTraj;
-		if(DriverStation.getAlliance() == Alliance.Red)
+		if (DriverStation.getAlliance() == Alliance.Red)
 			m_curTraj = m_redTrajectory;
 		else
 			m_curTraj = m_blueTrajectory;
@@ -52,18 +52,21 @@ public class AutoFollowTrajectory extends CommandBase {
 
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
-	public void execute() {
-	}
+	public void execute() {}
 
 	// Called once the command ends or is interrupted.
 	@Override
 	public void end(boolean interrupted) {
+		if(interrupted){
+			m_trajFollowCommand.cancel();
+		}
+		m_trajFollowCommand = null;
 	}
 
 	// Returns true when the command should end.
 	@Override
 	public boolean isFinished() {
-		return m_trajFollowCommand.isFinished();
+		return m_trajFollowCommand == null || !m_trajFollowCommand.isScheduled();
 	}
 
 	private PathPlannerTrajectory reflectTrajOverCenterLine(PathPlannerTrajectory traj) {
@@ -74,19 +77,20 @@ public class AutoFollowTrajectory extends CommandBase {
 
 			// Create a new state so that we don't overwrite the original
 			// reflect the position over the center line
-			// have to use the tranformStateForAlliance because curveRadius and deltaPos are private variable
-			PathPlannerState transformedState = PathPlannerTrajectory.transformStateForAlliance(state, Alliance.Red);
 
 			Translation2d transformedTranslation = new Translation2d(
 					Constants.CUSTOM_FIELD_LENGTH - state.poseMeters.getX(), state.poseMeters.getY());
 
-			transformedState.poseMeters = new Pose2d(transformedTranslation, transformedState.poseMeters.getRotation());
+			Rotation2d transformedRotation = state.poseMeters.getRotation().times(-1);
 
-			transformedPathPoint.add(new PathPoint(transformedState.poseMeters.getTranslation(),
-					transformedState.poseMeters.getRotation(), transformedState.holonomicRotation));
+			Rotation2d transformedHolonomicRotation = state.holonomicRotation.times(-1);
+
+			transformedPathPoint
+					.add(new PathPoint(transformedTranslation, transformedRotation, transformedHolonomicRotation));
 		}
 
 		// has to generate the trajectory using pathpoints because the PathPlannerTrajectory constructor is private
-		return PathPlanner.generatePath(new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), transformedPathPoint);
-	}	
+		return PathPlanner.generatePath(new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC),
+				transformedPathPoint);
+	}
 }
