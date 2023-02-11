@@ -159,9 +159,7 @@ public class DriveTrain extends SubsystemBase {
     // sets the heading to zero with the existing pose
     public void resetHeading() {
         Pose2d pose = getPose();
-
         Pose2d newPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(0));
-
         setPose(newPose);
     }
 
@@ -183,7 +181,7 @@ public class DriveTrain extends SubsystemBase {
     private Rotation2d getGyroscopeRotation() {
         if (m_navx.isMagnetometerCalibrated()) {
             // We will only get valid fused headings if the magnetometer is calibrated
-            return Rotation2d.fromDegrees(m_navx.getFusedHeading());
+            return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
         // We have to invert the angle of the NavX so that rotating the robot
@@ -192,10 +190,17 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
-
+        // apply SlewLimiters to the joystick values to control acceleration
         double newInputX = m_xLimiter.calculate(inputX);
         double newInputY = m_yLimiter.calculate(inputY);
         double newInputRotation = m_rotationLimiter.calculate(inputRotation);
+
+        // prevents a drive call with parameters of 0 0 0
+        if (Math.abs(newInputX) < 0.01 && Math.abs(newInputY) < 0.01 && Math.abs(newInputRotation) < 0.01){
+            stop();
+            return;
+        } 
+
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
@@ -211,6 +216,7 @@ public class DriveTrain extends SubsystemBase {
                     newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
+
         drive(chassisSpeeds);
     }
 
@@ -223,10 +229,10 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    // future changes: maybe leave the modules so the angles remain the same instead
-    // of pointing at 0
     public void stop() {
-        drive(new ChassisSpeeds(0, 0, 0));
+        for (int i = 0; i < 4; i++) {
+            m_swerveModules[i].stopWheel();
+        }
     }
 
     // for the beginning of auto rountines
@@ -238,6 +244,23 @@ public class DriveTrain extends SubsystemBase {
     // toggle whether driving is field-centric
     public void toggleFieldCentric() {
         m_fieldCentric = !m_fieldCentric;
+    }
+
+    // toggle precision mode for driving
+    public void togglePrecisionMode() {
+        m_precisionMode = !m_precisionMode;
+        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+    }
+
+    // lock wheels in x position to resist pushing
+    public void lockWheels() {
+        double lockRadians = Math.toRadians(45);
+        m_swerveModules[0].set(0.0, lockRadians);
+        m_swerveModules[1].set(0.0, -lockRadians);
+        m_swerveModules[2].set(0.0, -lockRadians);
+        m_swerveModules[3].set(0.0, lockRadians);
     }
 
     public Rotation2d getPitch() {
@@ -253,13 +276,6 @@ public class DriveTrain extends SubsystemBase {
     public Rotation2d getRoll() {
         //gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getRoll());
-    }
-
-    // toggle precision mode for driving
-    public void togglePrecisionMode() {
-        m_precisionMode = !m_precisionMode;
-        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
     }
 
     public PIDController getXController() { // gets the controller for x position of robot
@@ -302,10 +318,11 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
         SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
         SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-
-        SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
-        SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
-        SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
+        SmartDashboard.putNumber("drivetrain/gyro", m_navx.getYaw());
+    
+        // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+        // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
