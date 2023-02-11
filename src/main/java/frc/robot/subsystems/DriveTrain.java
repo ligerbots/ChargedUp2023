@@ -159,9 +159,7 @@ public class DriveTrain extends SubsystemBase {
     // sets the heading to zero with the existing pose
     public void resetHeading() {
         Pose2d pose = getPose();
-
         Pose2d newPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(0));
-
         setPose(newPose);
     }
 
@@ -183,7 +181,7 @@ public class DriveTrain extends SubsystemBase {
     private Rotation2d getGyroscopeRotation() {
         if (m_navx.isMagnetometerCalibrated()) {
             // We will only get valid fused headings if the magnetometer is calibrated
-            return Rotation2d.fromDegrees(m_navx.getFusedHeading());
+            return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
         // We have to invert the angle of the NavX so that rotating the robot
@@ -320,10 +318,11 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
         SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
         SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-
-        SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
-        SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
-        SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
+        SmartDashboard.putNumber("drivetrain/gyro", m_navx.getYaw());
+    
+        // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+        // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
