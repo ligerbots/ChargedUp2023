@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.AutoFollowTrajectory;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -46,9 +47,9 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
 
         // Initialize the list of available Autonomous routines
-        m_chosenTrajectory.setDefaultOption("drive_1m", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_1m"));
-        m_chosenTrajectory.addOption("drive_and_slide", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_slide"));
-        m_chosenTrajectory.addOption("drive_and_turn", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("drive_and_turn"));
+        m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_1m"));
+        m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
+        m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
     }
 

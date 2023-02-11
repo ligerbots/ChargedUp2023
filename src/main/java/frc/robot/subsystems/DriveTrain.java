@@ -26,7 +26,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
+import frc.robot.Constants;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -333,7 +333,7 @@ public class DriveTrain extends SubsystemBase {
 
     // get the trajectory following autonomous command in PathPlanner using the name
     public Command getTrajectoryFollowingCommand(String trajectoryName) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
         return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
     }
 
@@ -346,7 +346,7 @@ public class DriveTrain extends SubsystemBase {
     public Command trajectoryToPose(Pose2d targetPose) {
         Pose2d currentPose = getPose(); //get robot current pose
         PathPlannerTrajectory traj = PathPlanner.generatePath(
-                new PathConstraints(2.0, 1.0), // velocity, acceleration
+                new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
                 new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
         // always look at same direction
