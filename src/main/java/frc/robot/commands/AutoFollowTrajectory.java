@@ -41,12 +41,12 @@ public class AutoFollowTrajectory extends CommandBase {
 	// Called when the command is initially scheduled.
 	@Override
 	public void initialize() {
-		PathPlannerTrajectory m_curTraj;
+		PathPlannerTrajectory curTraj;
 		if (DriverStation.getAlliance() == Alliance.Red)
-			m_curTraj = m_redTrajectory;
+			curTraj = m_redTrajectory;
 		else
-			m_curTraj = m_blueTrajectory;
-		m_trajFollowCommand = m_driveTrain.makeFollowTrajectoryCommand(m_curTraj);
+			curTraj = m_blueTrajectory;
+		m_trajFollowCommand = m_driveTrain.makeFollowTrajectoryCommand(curTraj);
 		CommandScheduler.getInstance().schedule(m_trajFollowCommand);
 	}
 
