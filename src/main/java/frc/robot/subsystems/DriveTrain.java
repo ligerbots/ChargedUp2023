@@ -233,7 +233,7 @@ public class DriveTrain extends SubsystemBase {
 
     public void stop() {
         for (int i = 0; i < 4; i++) {
-            m_swerveModules[1].stopWheel();
+            m_swerveModules[i].stopWheel();
         }
     }
 
