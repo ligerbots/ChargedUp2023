@@ -4,18 +4,8 @@
 
 package frc.robot.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,8 +24,8 @@ public class AutoFollowTrajectory extends CommandBase {
 	public AutoFollowTrajectory(DriveTrain driveTrain, String trajectoryName) {
 		// Use addRequirements() here to declare subsystem dependencies.
 		m_driveTrain = driveTrain;
-		m_blueTrajectory = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
-		m_redTrajectory = reflectTrajOverCenterLine(m_blueTrajectory);
+		m_blueTrajectory = PathPlanner.loadPath(trajectoryName + "_blue", Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
+		m_redTrajectory = PathPlanner.loadPath(trajectoryName + "_red", Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
 	}
 
 	// Called when the command is initially scheduled.
@@ -67,30 +57,5 @@ public class AutoFollowTrajectory extends CommandBase {
 	@Override
 	public boolean isFinished() {
 		return m_trajFollowCommand == null || !m_trajFollowCommand.isScheduled();
-	}
-
-	private PathPlannerTrajectory reflectTrajOverCenterLine(PathPlannerTrajectory traj) {
-		List<PathPoint> transformedPathPoint = new ArrayList<>();
-
-		for (Trajectory.State s : traj.getStates()) {
-			PathPlannerState state = (PathPlannerState) s;
-
-			// Create a new state so that we don't overwrite the original
-			// reflect the position over the center line
-
-			Translation2d transformedTranslation = new Translation2d(
-					Constants.CUSTOM_FIELD_LENGTH - state.poseMeters.getX(), state.poseMeters.getY());
-
-			Rotation2d transformedRotation = state.poseMeters.getRotation().times(-1);
-
-			Rotation2d transformedHolonomicRotation = state.holonomicRotation.times(-1);
-
-			transformedPathPoint
-					.add(new PathPoint(transformedTranslation, transformedRotation, transformedHolonomicRotation));
-		}
-
-		// has to generate the trajectory using pathpoints because the PathPlannerTrajectory constructor is private
-		return PathPlanner.generatePath(new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC),
-				transformedPathPoint);
 	}
 }
