@@ -5,10 +5,8 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -25,16 +23,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import frc.robot.Constants;
+
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
-
-import java.util.Optional;
 
 public class DriveTrain extends SubsystemBase {
 
@@ -391,5 +386,5 @@ public class DriveTrain extends SubsystemBase {
         );
 
         return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-        }*/
+     }*/
 }
