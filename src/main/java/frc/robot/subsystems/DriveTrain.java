@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
@@ -27,6 +28,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -111,7 +113,7 @@ public class DriveTrain extends SubsystemBase {
 
     private final Vision m_vision;
 
-    // private final Field2d m_fieldSim;
+    private final Field2d m_field = new Field2d();
 
     // PID controller for swerve
     private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
@@ -154,6 +156,9 @@ public class DriveTrain extends SubsystemBase {
         for (SwerveModule module : m_swerveModules) {
             module.syncAngleEncoders(true);
         }
+
+        SmartDashboard.putData("Field", m_field);
+
     }
 
     // sets the heading to zero with the existing pose
@@ -288,6 +293,10 @@ public class DriveTrain extends SubsystemBase {
 
     public ProfiledPIDController getThetaController() { // gets controller for angle
         return m_thetaController;
+    }
+
+    public Field2d getField2d(){
+        return m_field;
     }
 
     // get the swerveModuleState manually

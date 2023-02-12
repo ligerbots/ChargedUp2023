@@ -13,6 +13,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -24,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
 
-public class AutoFollowTrajectory extends CommandBase {
+public class AutoFollowTrajectory extends CommandBase implements AutoCommandInterface {
 
 	private final DriveTrain m_driveTrain;
 	private final PathPlannerTrajectory m_blueTrajectory, m_redTrajectory;
@@ -41,11 +42,11 @@ public class AutoFollowTrajectory extends CommandBase {
 	// Called when the command is initially scheduled.
 	@Override
 	public void initialize() {
-		PathPlannerTrajectory curTraj;
+        PathPlannerTrajectory curTraj;
 		if (DriverStation.getAlliance() == Alliance.Red)
-			curTraj = m_redTrajectory;
+            curTraj = m_redTrajectory;
 		else
-			curTraj = m_blueTrajectory;
+            curTraj = m_blueTrajectory;
 		m_trajFollowCommand = m_driveTrain.makeFollowTrajectoryCommand(curTraj);
 		CommandScheduler.getInstance().schedule(m_trajFollowCommand);
 	}
@@ -72,10 +73,10 @@ public class AutoFollowTrajectory extends CommandBase {
 	private PathPlannerTrajectory reflectTrajOverCenterLine(PathPlannerTrajectory traj) {
 		List<PathPoint> transformedPathPoint = new ArrayList<>();
 
-		for (Trajectory.State s : traj.getStates()) {
+        for (Trajectory.State s : traj.getStates()) {
 			PathPlannerState state = (PathPlannerState) s;
 
-			// Create a new state so that we don't overwrite the original
+            // Create a new state so that we don't overwrite the original
 			// reflect the position over the center line
 
 			Translation2d transformedTranslation = new Translation2d(
@@ -93,4 +94,21 @@ public class AutoFollowTrajectory extends CommandBase {
 		return PathPlanner.generatePath(new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC),
 				transformedPathPoint);
 	}
+
+    @Override
+    public Pose2d getInitialPose() {
+        // TODO Auto-generated method stub
+        if(DriverStation.getAlliance() == Alliance.Red)
+            return m_redTrajectory.getInitialPose();
+        else 
+            return m_blueTrajectory.getInitialPose();
+    }
+
+    @Override
+    public void plotTrajectory(TrajectoryPlotter plotter) {
+        if(DriverStation.getAlliance() == Alliance.Red)
+            plotter.plotTrajectory(m_redTrajectory);
+        else 
+            plotter.plotTrajectory(m_blueTrajectory);
+    }
 }
