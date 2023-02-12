@@ -58,9 +58,11 @@ public class RobotContainer {
 		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
 		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-		// trajectory to AprilTag vision buttons (3 of them, left, middle, right)
+        // when button B is pressed, lock wheels
+		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
+		xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
 
-		// button X
+		// when button X is pressed, toggle precision (slow) drive mode 
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
         //testing if the command works by passing in a position, we need more buttons for all 11
 		xboxXButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Position.LEFT_TOP));
