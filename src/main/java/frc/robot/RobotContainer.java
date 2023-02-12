@@ -49,6 +49,10 @@ public class RobotContainer {
 		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
 		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
+        // when button B is pressed, lock wheels
+		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
+		xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
+
 		// when button X is pressed, toggle precision (slow) drive mode
 		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
 		xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
