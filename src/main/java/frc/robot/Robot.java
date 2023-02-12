@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
+import frc.robot.commands.TrajectoryPlotter;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -22,8 +24,10 @@ import frc.robot.commands.AutoFollowTrajectory;
  */
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
-    private SendableChooser<Command> m_chosenTrajectory = new SendableChooser<>();
+    private SendableChooser<AutoCommandInterface> m_chosenTrajectory = new SendableChooser<>();
     private RobotContainer m_robotContainer;
+    private TrajectoryPlotter m_plotter;
+    private AutoCommandInterface m_prevAutoCommand = null;
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -51,6 +55,8 @@ public class Robot extends TimedRobot {
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
+
+        m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
     }
 
     /**
@@ -84,6 +90,18 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledPeriodic() {
         m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
+
+        // auto trajectory plotter
+        AutoCommandInterface autoCommandInterface = m_chosenTrajectory.getSelected();
+        if (autoCommandInterface != null && autoCommandInterface != m_prevAutoCommand) {
+            m_robotContainer.getDriveTrain().setPose(autoCommandInterface.getInitialPose());
+            m_prevAutoCommand = autoCommandInterface;
+
+            if (Robot.isSimulation()) {
+                m_plotter.clear();
+                autoCommandInterface.plotTrajectory(m_plotter);
+            }
+        }
     }
 
     /**
