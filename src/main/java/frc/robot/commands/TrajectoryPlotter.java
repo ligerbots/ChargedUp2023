@@ -46,6 +46,7 @@ public class TrajectoryPlotter {
             m_maxTrajectory = Math.max(m_maxTrajectory, index);
         }
 
+        // plot the state using holomonic rotation as the rotation
         m_field2d.getObject("trajectory" + indexStr)
                 .setPoses(((PathPlannerTrajectory) trajectory).getStates().stream().map(state -> {
                     PathPlannerState s = (PathPlannerState) state;
