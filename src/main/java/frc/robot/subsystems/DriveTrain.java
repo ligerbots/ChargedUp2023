@@ -64,10 +64,8 @@ public class DriveTrain extends SubsystemBase {
      * <p>
      * This is a measure of how fast the robot should be able to drive in a straight line.
      */
-    // constants for shifting the robot left or right, change later
-
-    private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 * NeoDriveController.DRIVE_REDUCTION
-            * NeoDriveController.WHEEL_DIAMETER * Math.PI;
+    private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
+            NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
 
     // TODO: tune and check this
     private static final double MAX_VELOCITY_PRECISION_MODE = MAX_VELOCITY_METERS_PER_SECOND / 6.0;
@@ -79,11 +77,11 @@ public class DriveTrain extends SubsystemBase {
      */
     // Here we calculate the theoretical maximum angular velocity. You can also
     // replace this with a measured amount.
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND
-            / Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
+            Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
-    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-            / 6.0;
+    private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
+            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -111,7 +109,8 @@ public class DriveTrain extends SubsystemBase {
     // PID controller for swerve
     private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
     private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
-    private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P, 0, 0,
+    private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P,
+            0, 0,
             new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
     public DriveTrain(Vision vision) {
@@ -198,12 +197,16 @@ public class DriveTrain extends SubsystemBase {
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(newInputX * m_maxVelocity, newInputY * m_maxVelocity,
-                    newInputRotation * m_maxAngularVelocity, getHeading());
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                    newInputX * m_maxVelocity,
+                    newInputY * m_maxVelocity,
+                    newInputRotation * m_maxAngularVelocity,
+                    getHeading());
         }
         // when in robot-centric mode
         else {
-            chassisSpeeds = new ChassisSpeeds(newInputX * m_maxVelocity, newInputY * m_maxVelocity,
+            chassisSpeeds = new ChassisSpeeds(newInputX * m_maxVelocity,
+                    newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
 

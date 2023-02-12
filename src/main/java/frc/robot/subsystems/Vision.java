@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -21,30 +20,28 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision {
     // Values for the Shed in late January
-    private static final double CUSTOM_FIELD_LENGTH = 8.780; // meters
-    private static final double CUSTOM_FIELD_WIDTH = 6.0; // meters
-    private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
-        {
-            add(constructTag(26, 0, 1.636, 0.865, 0));
-            add(constructTag(25, 0, 3.24, 0.895, 0));
-            add(constructTag(24, 1.915, 0, 0.857, 90));
-            add(constructTag(23, 4.958, 0, 0.845, 90));
-            add(constructTag(22, 7.763, 0, 0.896, 90));
-            add(constructTag(21, 8.780, 1.373, 0.895, 180));
-            add(constructTag(20, 8.780, 2.392, 0.946, 180));
-        }
-    }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
+    private static final double CUSTOM_FIELD_LENGTH = 8.780;    // meters
+    private static final double CUSTOM_FIELD_WIDTH = 6.0;       // meters
+    private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = 
+            new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+                {
+                    add(constructTag(26, 0, 1.636, 0.865, 0));
+                    add(constructTag(25, 0, 3.24, 0.895, 0));
+                    add(constructTag(24, 1.915, 0, 0.857, 90));
+                    add(constructTag(23, 4.958, 0, 0.845, 90));
+                    add(constructTag(22, 7.763, 0, 0.896, 90));
+                    add(constructTag(21, 8.780, 1.373, 0.895, 180));
+                    add(constructTag(20, 8.780, 2.392, 0.946, 180));
+                }
+            }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
 
     private final PhotonCamera m_aprilTagCamera = new PhotonCamera("ApriltagCamera");
     private final AprilTagFieldLayout m_aprilTagFieldLayout;
@@ -61,10 +58,10 @@ public class Vision {
 
     public Vision() {
         // try{
-        // m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+        // 	m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
         // } catch(IOException e){
-        // System.out.println("Unable to load AprilTag layout" + e.getMessage());
-        // m_aprilTagFieldLayout = null;
+        // 	System.out.println("Unable to load AprilTag layout" + e.getMessage());
+        // 	m_aprilTagFieldLayout = null;
         // }
         m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
@@ -113,15 +110,15 @@ public class Vision {
             SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
             SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
             SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
-            // } else {
-            // // move it way off the screen to make it disappear
-            // SmartDashboard.putNumber("vision/estimatedPoseX", 0);
-            // SmartDashboard.putNumber("vision/estimatedPoseY", 0);
-            // SmartDashboard.putNumber("vision/estimatedPoseZ", 0);
+        // } else {
+        //     // move it way off the screen to make it disappear
+        //     SmartDashboard.putNumber("vision/estimatedPoseX", 0);
+        //     SmartDashboard.putNumber("vision/estimatedPoseY", 0);
+        //     SmartDashboard.putNumber("vision/estimatedPoseZ", 0);	
         }
     }
 
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    private Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return m_photonPoseEstimator.update();
     }
@@ -154,10 +151,6 @@ public class Vision {
             return Optional.empty(); //returns an empty optional
         }
         return Optional.of(tagPose.get().toPose2d());
-    }
-
-    public Optional<Pose2d> getTagPose(int tagID) {
-        return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
     }
 
     private static AprilTag constructTag(int id, double x, double y, double z, double angle) {
