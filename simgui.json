@@ -17,6 +17,12 @@
         }
       },
       "/SmartDashboard/Field": {
+        "trajectory": {
+          "arrowSize": 100,
+          "length": 0.20000000298023224,
+          "weight": 0.0,
+          "width": 0.10000000149011612
+        },
         "window": {
           "visible": true
         }

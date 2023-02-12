@@ -5,6 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -43,8 +47,10 @@ public class TrajectoryPlotter {
         }
 
         m_field2d.getObject("trajectory" + indexStr)
-                .setPoses(trajectory.getStates().stream()
-                .map(state -> state.poseMeters).collect(Collectors.toList()));
+                .setPoses(((PathPlannerTrajectory) trajectory).getStates().stream().map(state -> {
+                    PathPlannerState s = (PathPlannerState) state;
+                    return new Pose2d(s.poseMeters.getTranslation(), s.holonomicRotation);
+                }).collect(Collectors.toList()));
     }
 
     public void plotWaypoints(List<Translation2d> waypoints) {
