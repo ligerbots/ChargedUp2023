@@ -17,15 +17,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class TagPositionDrive extends CommandBase {
     private DriveTrain m_driveTrain;
-    private SequentialCommandGroup m_followTrajectory;
+    private Command m_followTrajectory;
     private Vision m_vision;
     private Position m_targetPosition;
 
@@ -33,68 +33,63 @@ public class TagPositionDrive extends CommandBase {
     private static final Map<Position, Transform2d> ROBOT_POSITIONS = new HashMap<Position, Transform2d>() {
         {
             // scoring transformations, change later
-            put(Position.LEFT_TOP, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(0))); // position1
-            put(Position.CENTER_TOP, new Transform2d(new Translation2d(3, 0), new Rotation2d(0)));
-            put(Position.RIGHT_TOP, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(0)));
-            put(Position.LEFT_MIDDLE, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(0)));
-            put(Position.CENTER_MIDDLE, new Transform2d(new Translation2d(3, 0), new Rotation2d(0)));
-            put(Position.RIGHT_MIDDLE, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(0)));
-            put(Position.LEFT_BOTTOM, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(0)));
-            put(Position.CENTER_BOTTOM, new Transform2d(new Translation2d(3, 0), new Rotation2d(0)));
-            put(Position.RIGHT_BOTTOM, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(0)));
+            put(Position.LEFT_TOP, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(180))); // position1
+            put(Position.CENTER_TOP, new Transform2d(new Translation2d(3, 0), new Rotation2d(180)));
+            put(Position.RIGHT_TOP, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(180)));
+            put(Position.LEFT_MIDDLE, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(180)));
+            put(Position.CENTER_MIDDLE, new Transform2d(new Translation2d(3, 0), new Rotation2d(180)));
+            put(Position.RIGHT_MIDDLE, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(180)));
+            put(Position.LEFT_BOTTOM, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(180)));
+            put(Position.CENTER_BOTTOM, new Transform2d(new Translation2d(3, 0), new Rotation2d(180)));
+            put(Position.RIGHT_BOTTOM, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(180)));
             // substation positions, change later
-            put(Position.LEFT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(0)));
-            put(Position.RIGHT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(0)));
+            put(Position.LEFT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
+            put(Position.RIGHT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
 
         }
     };
 
-    /** Creates a new ChargeStationDrive. */
     public TagPositionDrive(DriveTrain driveTrain, Vision vision, Position targetPosition) {
         this.m_driveTrain = driveTrain;
         this.m_vision = vision;
         //pass in a Position ex. pass in Position.LEFT_TOP
         this.m_targetPosition = targetPosition; 
-        // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        //for safety, set command to null
+        this.m_followTrajectory = null;
+
         Optional<Pose2d> centralTagPose = m_vision.getCentralTagPose();
         if (centralTagPose.isEmpty()) {
             return; // return a null, stop command
 
         }
-        //get from the optional if its not null
+        //get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
         
         //this is the transformation we want to translate from the target AprilTag by
         //can do this instead of if checks
         Transform2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
         
-        //target pose for trajectory        
-        Optional<Pose2d> optTargetPose = Optional.of(tagPose.plus(robotTransformation));
-        if(optTargetPose.isEmpty()){ 
-            //return if there is not trajectory target
-            return;  
-        }
-
-        //preparing command, copied code from trajectoryToPose
-        Pose2d currentPose = m_driveTrain.getPose(); // get robot current pose
-        Pose2d targetPose = optTargetPose.get(); //get targetPose
+        //because tag is rotated
+        Translation2d poseOffset =  robotTransformation.getTranslation().rotateBy(tagPose.getRotation());
+        //add to get target rotation and translation for robot     
+        Translation2d robotTargetTranslation = tagPose.getTranslation().plus(poseOffset);
+        Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
+        
+        // get robot current pose
+        Pose2d currentPose = m_driveTrain.getPose(); 
+        //robot target position
+        Pose2d targetPose = new Pose2d(robotTargetTranslation, robotTargetRotation); 
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
                 new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
         // always look at same direction
         );
-
-        m_followTrajectory = new FollowTrajectory(m_driveTrain, traj, () -> m_driveTrain.getPose(), m_driveTrain.getKinematics(), m_driveTrain.getXController(),
-                m_driveTrain.getYController(), m_driveTrain.getThetaController(), (states) -> {
-                    m_driveTrain.drive(m_driveTrain.getKinematics().toChassisSpeeds(states));
-                }, m_driveTrain).andThen(() -> m_driveTrain.stop());
-
+        m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.schedule();
     }
 
