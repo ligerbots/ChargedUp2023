@@ -4,43 +4,21 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
-
 	private Shoulder m_shoulder;
-
 	private Elevator m_elevator;
 
-	private Double m_currentGoal = Math.toRadians(90.0);
-
-	private Double m_goal = Math.toRadians(90.0);
-
-	private CANSparkMax m_elevatorMotor;
-
 	public Arm() {
-		// Construct the arm trapezoid subsystems
+		// Construct the shoulder and elevator trapezoid subsystems
 		m_shoulder = new Shoulder();
-
-		m_elevatorMotor = new CANSparkMax(Constants.ELEVATOR_CAN_ID, MotorType.kBrushless);
-
-		m_elevator = new Elevator(m_elevatorMotor);
-
+		m_elevator = new Elevator();
 	}
 
 	public void periodic() {
-
-		m_goal = SmartDashboard.getNumber("Arm Goal", m_goal);
-		if (m_currentGoal != m_goal) {
-			m_currentGoal = m_goal;
-			setShoulderAngle(Math.toRadians(m_currentGoal));
-
-		}
 	}
 
 	public void setElevatorExtent(TrapezoidProfile.State extent) {
@@ -50,7 +28,6 @@ public class Arm extends SubsystemBase {
 	// rotates the arms to a certain angle
 	public void setShoulderAngle(double degree) {
 		m_shoulder.setGoal(degree);
-
 	}
 
 	// returns the currrent height of the elevator
@@ -59,12 +36,11 @@ public class Arm extends SubsystemBase {
 	}
 
 	// returns the current angle of the arm
-	public double[] getArmAngle() {
-		return new double[] { m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition() };
+	public double getArmAngle() {
+		return m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition();
 	}
 
-	public double[] getSimArmAngle() {
-		return new double[] { m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition() };
+	public double getSimArmAngle() {
+		return m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition();
 	}
-
 }

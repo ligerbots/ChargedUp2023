@@ -38,8 +38,6 @@ public class SetArmAngle extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        double[] arr = m_arm.getArmAngle();
-        return Math.abs(arr[0] - m_angle) < Constants.ARM_ANGLE_TOLERANCE
-                && Math.abs(arr[1] - m_angle) < Constants.ARM_ANGLE_TOLERANCE;
+        return Math.abs(m_arm.getArmAngle() - m_angle) < Constants.SHOULDER_ANGLE_TOLERANCE;
     }
 }

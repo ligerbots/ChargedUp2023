@@ -8,7 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
-
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -30,11 +30,11 @@ public class Elevator extends SubsystemBase {
 	private boolean m_resetElevatorPos = false;
 
 	/** Creates a new Elevator. */
-	public Elevator(CANSparkMax motor) {
+	public Elevator() {
 		m_kPElevator = Constants.ELEVATOR_K_P0;
 
 		// Create the motor, PID Controller and encoder.
-		m_motor = motor;
+		m_motor = new CANSparkMax(Constants.ELEVATOR_CAN_ID, MotorType.kBrushless);
 		m_motor.restoreFactoryDefaults();
 
 		m_PIDController = m_motor.getPIDController();
@@ -50,13 +50,13 @@ public class Elevator extends SubsystemBase {
 
 		m_encoder.setPosition(Constants.ELEVATOR_OFFSET_METER);
 
-		SmartDashboard.putNumber("elevator" + "/P Gain", m_kPElevator);
+		SmartDashboard.putNumber("elevator/P Gain", m_kPElevator);
 	}
 
 	@Override
 	public void periodic() {
 		double encoderValue = m_encoder.getPosition();
-		SmartDashboard.putNumber("elevator" + "/Encoder", Units.metersToInches(encoderValue));
+		SmartDashboard.putNumber("elevator/Encoder", Units.metersToInches(encoderValue));
 
 		// update the PID val
 		checkPIDVal();
@@ -74,11 +74,11 @@ public class Elevator extends SubsystemBase {
 			m_resetElevatorPos = false;
 		}
 		m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0, feedforward / 12.0);
-		SmartDashboard.putNumber("elevator" + "/setPoint", Units.metersToInches(setPoint.position));
+		SmartDashboard.putNumber("elevator/setPoint", Units.metersToInches(setPoint.position));
 	}
 
 	private void checkPIDVal() {
-		double p = SmartDashboard.getNumber("elevator" + "/P Gain", 0);
+		double p = SmartDashboard.getNumber("elevator/P Gain", 0);
 		// if PID coefficients on SmartDashboard have changed, write new values to controller
 		if ((p != m_kPElevator)) {
 			m_PIDController.setP(p);
