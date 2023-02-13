@@ -65,7 +65,7 @@ public final class Constants {
 
 	public static final double MAX_VOLTAGE = 12.0; //default
 
-    public static final int PNEUMATIC_HUB_PORT = 0;
+    public static final int PNEUMATIC_HUB_PORT = 2;
     public static final int DOUBLE_SOLENOID_MODULE_NUMBER = 1;
     public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
     public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;

@@ -10,10 +10,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.commands.Drive;
-import frc.robot.commands.ChargeStationBalance;
-
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
@@ -35,6 +33,8 @@ public class RobotContainer {
 
     private final XboxController m_controller = new XboxController(0);
 
+    private final Claw m_claw = new Claw();
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -52,22 +52,29 @@ public class RobotContainer {
 	 * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings() {
-		// when button A is pressed, toggle field-centric drive mode
-		JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
-		xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-        // when button B is pressed, lock wheels
+        JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
+		xboxAButton.onTrue(new InstantCommand(m_claw::open));
+
 		JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
-		xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
+		xboxBButton.onTrue(new InstantCommand(m_claw::close));
 
-		// when button X is pressed, toggle precision (slow) drive mode 
-		JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
-		xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+		// // when button A is pressed, toggle field-centric drive mode
+		// JoystickButton xboxAButton = new JoystickButton(m_controller, Constants.XBOX_A);
+		// xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-		// when button Y is pressed, attempt to balance on the Charging Station
-		// assumes that the robot is already mostly up on the Station
-		JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
-		xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
+        // // when button B is pressed, lock wheels
+		// JoystickButton xboxBButton = new JoystickButton(m_controller, Constants.XBOX_B);
+		// xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
+
+		// // when button X is pressed, toggle precision (slow) drive mode 
+		// JoystickButton xboxXButton = new JoystickButton(m_controller, Constants.XBOX_X);
+		// xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+
+		// // when button Y is pressed, attempt to balance on the Charging Station
+		// // assumes that the robot is already mostly up on the Station
+		// JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);
+		// xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
 
 		// when button Y is pressed, attempt to drive up onto the Charging Station
 		// JoystickButton xboxYButton = new JoystickButton(m_controller, Constants.XBOX_Y);

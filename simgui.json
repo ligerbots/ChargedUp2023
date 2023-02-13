@@ -19,6 +19,9 @@
         "open": true
       },
       "SmartDashboard": {
+        "claw": {
+          "open": true
+        },
         "open": true
       }
     }
