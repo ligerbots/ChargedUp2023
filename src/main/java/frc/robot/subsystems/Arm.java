@@ -4,63 +4,42 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxLimitSwitch;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxLimitSwitch.Type;
-
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
+	private Shoulder m_shoulder;
+	private Reacher m_reacher;
 
-  public Shoulder m_shoulder;
+	public Arm() {
+		// Construct the shoulder and reacher trapezoid subsystems
+		m_shoulder = new Shoulder();
+		m_reacher = new Reacher();
+	}
 
-  public Elevator m_elevator;
+	public void periodic() {
+	}
 
-  public CANSparkMax m_elevatorMotor;
-  
-  public SparkMaxLimitSwitch m_limitSwitch;
+	public void setReacherExtent(TrapezoidProfile.State extent) {
+		m_reacher.setSetPoint(extent);
+	}
 
+	// rotates the arms to a certain angle
+	public void setShoulderAngle(double degree) {
+		m_shoulder.setGoal(degree);
+	}
 
-  public Arm() {
-    // Construct the arm trapezoid subsystems
-    m_shoulder = new Shoulder();
-   
-    m_elevatorMotor = new CANSparkMax(Constants.ELEVATOR_CAN_ID, MotorType.kBrushless);
+	// returns the currrent height of the Reacher
+	public double getReacherExtent() {
+		return m_reacher.getExtent();
+	}
 
-    m_elevator = new Elevator(m_elevatorMotor);
-   
-  }
+	// returns the current angle of the arm
+	public double getArmAngle() {
+		return m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition();
+	}
 
-  public void periodic() {
-    
-  }
-
-  public void setElevatorExtent(TrapezoidProfile.State extent){
-    m_elevator.setSetPoint(extent);
-  }
-
-  // rotates the arms to a certain angle
-  public void setShoulderAngle(double degree) {
-      m_shoulder.setGoal(degree);
-  }
-
-  // returns the currrent height of the elevator
-  public double getElevatorExtent() {
-    return m_elevator.getExtent();
-  }
-
-  // returns the current angle of the arm
-  public double[] getArmAngle() {
-    return new double[] {m_shoulder.getEncoder().getPosition()};
-  }
-
-  // Set idle mode of all motors
-  public void setBrakeMode(boolean brake) {
-    m_shoulder.setBrakeMode(brake);
-    m_elevator.setBrakeMode(brake);
-  }
+	public double getSimArmAngle() {
+		return m_shoulder.getEncoder().getIntegratedSensorAbsolutePosition();
+	}
 }

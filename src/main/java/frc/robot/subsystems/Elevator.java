@@ -118,3 +118,4 @@ public class Elevator extends SubsystemBase {
     m_motor.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
   }
 }
+

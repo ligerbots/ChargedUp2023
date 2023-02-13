@@ -4,16 +4,27 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
+import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 
@@ -38,139 +49,196 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   private static final double ARM_OFFSET_RAD = Math.toRadians(110.0);
 
 
-  // Define the motor and encoders
-  private final CANSparkMax m_motorLeader;
-  private final CANSparkMax m_motorFollower;
-  private final RelativeEncoder m_encoder;
-  private final SparkMaxPIDController m_PIDController;
+    // Define the motor and encoders
+    private final WPI_TalonFX m_motor;
+    private final TalonFXSensorCollection m_encoder;
+    // private final EncoderSim m_encoderSim;
 
-  private final ArmFeedforward m_Feedforward = 
-    new ArmFeedforward(ARM_KS, ARM_KG, ARM_KV, ARM_KA);
+    // The P gain for the PID controller that drives this shoulder.
+    public static double m_kPShoulder = 1.0;
 
-  private double m_kPArm = ARM_K_P;
-  private int m_index;
+    // *********************Simulation Stuff************************
 
-  private boolean m_coastMode = false;
+    // distance per pulse = (angle per revolution) / (pulses per revolution)
+    // = (2 * PI rads) / (4096 pulses)
+    public static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / 4096;
+    // The arm gearbox represents a gearbox containing two Vex 775pro motors.
+    public final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
 
-  private boolean m_resetArmPos = false;
-  
-  /** Creates a new ShoulderArm
-   *. */
-  public Shoulder() {
+    // Standard classes for controlling our arm
+    public final PIDController m_controller = new PIDController(m_kPShoulder, 0, 0);
 
-    super(
-      // The constraints for the generated profiles
-      new TrapezoidProfile.Constraints(ARM_MAX_VEL_RAD_PER_SEC, ARM_MAX_ACC_RAD_PER_SEC_SQ),
-      // The initial position of the mechanism
-      ARM_OFFSET_RAD);
+    // Simulation classes help us simulate what's going on, including gravity.
+    public static final double m_shoulderReduction = 395.77;
+    public static final double m_shoulderMass = 10; // Kilograms
+    public static final double m_shoulderLength = Units.inchesToMeters(30);
+    private final ArmFeedforward m_feedForward = new ArmFeedforward(Constants.SHOULDER_KS, Constants.SHOULDER_KG,
+            Constants.SHOULDER_KV, Constants.SHOULDER_KA);
 
-    
-    // Create the motor, PID Controller and encoder.
-    m_motorLeader = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
-    m_motorFollower = new CANSparkMax(Constants.SHOULDER_CAN_IDS[0], MotorType.kBrushless);
-    m_motorLeader.restoreFactoryDefaults();
-    // Set follower and invert
-    m_motorFollower.follow(m_motorLeader, true);
-    
-    m_PIDController = m_motorLeader.getPIDController();
-    m_PIDController.setP(m_kPArm);
-    m_PIDController.setI(ARM_K_I);
-    m_PIDController.setD(ARM_K_D);
-    m_PIDController.setFF(ARM_K_FF);
+    private TalonFXSimCollection m_motorSim;
 
-    m_encoder = m_motorLeader.getEncoder();
-    // Set the position conversion factor. Note that the Trapezoidal control
-    // expects angles in radians.
-    // TODO: Set this based on shoulder gearbox gear ratio
-    m_encoder.setPositionConversionFactor((1.0 / (25.0 * 60.0 / 16.0)) * 2.0 * Math.PI);
-    m_encoder.setPosition(ARM_OFFSET_RAD);
-    SmartDashboard.putNumber("arm" + m_index + "/P Gain", m_kPArm);
-  }
+    final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, m_shoulderReduction,
+            SingleJointedArmSim.estimateMOI(m_shoulderLength, m_shoulderMass), m_shoulderLength,
+            Units.degreesToRadians(-75), Units.degreesToRadians(120), m_shoulderMass, true,
+            VecBuilder.fill(kShoulderEncoderDistPerPulse) // Add noise with a
+    // std-dev of 1 tick
+    );
+    // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
+    // public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
+    final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
+    final MechanismRoot2d m_shoulderPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+    final MechanismLigament2d m_shoulderTower = m_shoulderPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+    final MechanismLigament2d m_shoulder = m_shoulderPivot.append(new MechanismLigament2d("Arm", 30,
+            Units.radiansToDegrees(m_shoulderSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
-  @Override
-  public void periodic() {
-    double encoderValue = m_encoder.getPosition();
-    
-    // Display current values on the SmartDashboard
-    SmartDashboard.putNumber("arm" + m_index + "/Output" + m_index, m_motorLeader.getAppliedOutput());
-    SmartDashboard.putNumber("arm" + m_index + "/Encoder" + m_index, Units.radiansToDegrees(encoderValue));
-    SmartDashboard.putBoolean("arm" + m_index + "/CoastMode" + m_index, m_coastMode);
+    private boolean m_coastMode = false;
+    private boolean m_resetShoulderPos = false;
+    private double m_goal;
 
-    // if in coast mode, stop the periodic() here to prevent the PID from setReference()
-    if (m_coastMode)  return;
-      
-    // // First check if we've gone too far. If we have, reset the setPoint to the limit.
-    // m_tooFarForward = encoderValue > Constants.ARM_MAX_ANGLE;
-    // SmartDashboard.putBoolean("arm" + m_index + "/too Forward", m_tooFarForward);
-    // if (m_tooFarForward) {
-    //   // TODO: convert MAX to encoder position
-    //   m_PIDController.setReference(Constants.ARM_MAX_ANGLE, ControlType.kPosition, 0, 0.0);
-    //   return; // Do we really not want to run super.periodic()?
-    // }
+    /**
+     * TalonFXPIDSetConfiguration Creates a new ShoulderArm .
+     * 
+     * @return
+     */
+    public Shoulder() {
+        super(new TrapezoidProfile.Constraints(Constants.SHOULDER_MAX_VEL_RAD_PER_SEC,
+                Constants.SHOULDER_MAX_ACC_RAD_PER_SEC_SQ));
 
-    // m_tooFarBack = encoderValue < Constants.ARM_MIN_ANGLE;
-    // SmartDashboard.putBoolean("arm" + m_index + "/too Backward", m_tooFarBack);
-    // if (m_tooFarBack) {
-    //   // TODO: convert MIN to encoder position
-    //   m_PIDController.setReference(Constants.ARM_MIN_ANGLE, ControlType.kPosition, 0, 0.0);
-    //   return;
-    // }
-    
-    // Execute the super class periodic method
-    super.periodic();
+        TrapezoidProfile.State previousProfiledReference = new TrapezoidProfile.State(Constants.SHOULDER_OFFSET_RAD,
+                0.0);
 
-    // Here we can check the SmartDashboard for any updates to the PIC constants.
-    // Note that since this is Trapezoidal control, we only need to set P.
-    // Each increment will only change the set point position a little bit.
+        // Create the motor, PID Controller and encoder.
+        m_motor = new WPI_TalonFX(Constants.SHOULDER_CAN_ID);
+        m_encoder = m_motor.getSensorCollection();
 
-    checkPIDVal();
-  }
+        // m_motorSim = new TalonFXSimCollection(m_motorLeader);
+        // m_encoderSim = new TalonFXSimCollection(m_encoder);
+        m_motor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.kPIDLoopIdx,
+                Constants.kTimeoutMs);
+        // Set follower and invert
+        m_motor.config_kF(Constants.kPIDLoopIdx, Constants.SHOULDER_K_FF, Constants.kTimeoutMs);
+        m_motor.config_kP(Constants.kPIDLoopIdx, Constants.SHOULDER_K_P, Constants.kTimeoutMs);
+        m_motor.config_kI(Constants.kPIDLoopIdx, Constants.SHOULDER_K_I, Constants.kTimeoutMs);
+        m_motor.config_kD(Constants.kPIDLoopIdx, Constants.SHOULDER_K_D, Constants.kTimeoutMs);
 
-  @Override
-  protected void useState(TrapezoidProfile.State setPoint) {
-    // Calculate the feedforward fromteh setPoint
-    double feedforward = m_Feedforward.calculate(setPoint.position, setPoint.velocity);
+        // Set the position conversion factor. Note that the Trapezoidal control
+        // expects angles in radians.
+        // TODO: Set this based on shoulder gearbox gear ratio
 
-    // Add the feedforward to the PID output to get the motor output
-    // The ArmFeedForward computes in radians. We need to convert back to degrees.
-    // Remember that the encoder was already set to account for the gear ratios.
-    
-    // TODO: if the "12.0" is volts, should use RobotController.getBatteryVoltage()
-    if(m_resetArmPos){
-      setPoint.position = m_encoder.getPosition();
-      m_resetArmPos = false;
+        SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
+        SmartDashboard.putData("shoulder Sim", m_mech2d);
     }
-    m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0, feedforward / 12.0);
-    SmartDashboard.putNumber("arm" + m_index + "/feedforward" + m_index, feedforward);
-    SmartDashboard.putNumber("arm" + m_index + "/setPoint" + m_index, Units.metersToInches(setPoint.position));
-    SmartDashboard.putNumber("arm" + m_index + "/velocity" + m_index, Units.metersToInches(setPoint.velocity));
-   
-}
 
-  private void checkPIDVal() {
-    double p = SmartDashboard.getNumber("arm" + m_index + "/P Gain", 0);
-    // if PID coefficients on SmartDashboard have changed, write new values to controller
-    if ((p != m_kPArm)) {
-      m_PIDController.setP(p);
-      m_kPArm = p;
+    public void simulationPeriodic() {
+        // First, we set our "inputs" (voltages)
+        m_shoulderSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
+        // Next, we update it. The standard loop time is 20ms.
+        m_shoulderSim.update(0.020);
+
+        // Finally, we set our simulated encoder's readings and simulated battery
+        // voltage
+        // m_motorSim.setIntegratedSensorRawPosition(m_armSim.getAngleRads());
+        // SimBattery estimates loaded battery voltages
+        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shoulderSim.getCurrentDrawAmps()));
+
+        // Update the Mechanism Arm angle based on the simulated arm angle
+        m_shoulder.setAngle(Units.radiansToDegrees(m_shoulderSim.getAngleRads()));
+        SmartDashboard.putNumber("Simulated Shoulder Angle", m_shoulderSim.getAngleRads());
+        SmartDashboard.putNumber("Sim Battery voltage", RobotController.getBatteryVoltage());
     }
-  }
 
-  public CANSparkMax getMotor() {
-    return m_motorLeader;
-  }
+    @Override
+    public void periodic() {
+        double encoderValue = m_encoder.getIntegratedSensorAbsolutePosition();
 
-  public RelativeEncoder getEncoder() {
-    return m_encoder;
-  }
+        // Display current values on the SmartDashboard
+        SmartDashboard.putNumber("shoulder/Output", m_motor.get());
+        SmartDashboard.putNumber("shoulder/Encoder", Units.radiansToDegrees(encoderValue));
+        SmartDashboard.putBoolean("shoulder/CoastMode", m_coastMode);
+        SmartDashboard.putNumber("shoulder/Goal", m_goal);
 
-  public void setBrakeMode (boolean brake) {
-    m_motorLeader.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
-    m_coastMode = (brake ? false : true);
-  }
+        // if in coast mode, stop the periodic() here to prevent the PID from
+        // setReference()
+        if (m_coastMode)
+            return;
 
-  public void resetArmPos(){
-    super.setGoal(m_encoder.getPosition());
-    m_resetArmPos = true;
-  }
+        // // First check if we've gone too far. If we have, reset the setPoint to the
+        // limit.
+        // m_tooFarForward = encoderValue > Constants.ARM_MAX_ANGLE;
+        // SmartDashboard.putBoolean("arm" + m_index + "/too Forward", m_tooFarForward);
+        // if (m_tooFarForward) {
+        // // TODO: convert MAX to encoder position
+        // m_PIDController.setReference(Constants.ARM_MAX_ANGLE, ControlType.kPosition,
+        // 0, 0.0);
+        // return; // Do we really not want to run super.periodic()?
+        // }
+
+        // m_tooFarBack = encoderValue < Constants.ARM_MIN_ANGLE;
+        // SmartDashboard.putBoolean("arm" + m_index + "/too Backward", m_tooFarBack);
+        // if (m_tooFarBack) {
+        // // TODO: convert MIN to encoder position
+        // m_PIDController.setReference(Constants.ARM_MIN_ANGLE, ControlType.kPosition,
+        // 0, 0.0);
+        // return;
+        // }
+
+        // Execute the super class periodic method
+        super.periodic();
+
+        // Here we can check the SmartDashboard for any updates to the PIC constants.
+        // Note that since this is Trapezoidal control, we only need to set P.
+        // Each increment will only change the set point position a little bit.
+
+        checkPIDVal();
+    }
+
+    @Override
+    protected void useState(TrapezoidProfile.State setPoint) {
+        // Calculate the feedforward fromteh setPoint
+        double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
+
+        // Add the feedforward to the PID output to get the motor output
+        // The ArmFeedForward computes in radians. We need to convert back to degrees.
+        // Remember that the encoder was already set to account for the gear ratios.
+
+        // TODO: if the "12.0" is volts, should use RobotController.getBatteryVoltage()
+        if (m_resetShoulderPos) {
+            setPoint.position = m_encoder.getIntegratedSensorAbsolutePosition();
+            m_resetShoulderPos = false;
+        }
+
+        m_motor.set(ControlMode.Position, feedforward);
+        SmartDashboard.putNumber("shoulder/feedforward", feedforward);
+        SmartDashboard.putNumber("shoulder/setPoint", Units.metersToInches(setPoint.position));
+        SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
+    }
+
+    private void checkPIDVal() {
+        double p = SmartDashboard.getNumber("shoulder/P Gain", 0);
+        // if PID coefficients on SmartDashboard have changed, write new values to
+        // controller
+        if ((p != m_kPShoulder)) {
+            m_motor.config_kP(Constants.kPIDLoopIdx, Constants.SHOULDER_K_P, Constants.kTimeoutMs);
+            m_kPShoulder = p;
+        }
+    }
+
+    public WPI_TalonFX getMotor() {
+        return m_motor;
+    }
+
+    public TalonFXSensorCollection getEncoder() {
+        return m_encoder;
+    }
+
+    public void resetShoulderPos() {
+        super.setGoal(m_encoder.getIntegratedSensorAbsolutePosition());
+        m_resetShoulderPos = true;
+    }
+
+    public void setGoal(double goal) {
+        m_goal = goal;
+        super.setGoal(goal);
+    }
+
 }
