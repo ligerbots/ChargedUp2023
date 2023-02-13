@@ -16,47 +16,47 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class Elevator extends SubsystemBase {
-	/** Creates a new Elevator. */
+public class Reacher extends SubsystemBase {
+	/** Creates a new Reacher. */
 	// Define the motor and encoders
 	private final CANSparkMax m_motor;
 	private final RelativeEncoder m_encoder;
 	private final SparkMaxPIDController m_PIDController;
 
-	private final ElevatorFeedforward m_Feedforward = new ElevatorFeedforward(Constants.ELEVATOR_KS,
-			Constants.ELEVATOR_KG, Constants.ELEVATOR_KV, Constants.ELEVATOR_KA);
+	private final ElevatorFeedforward m_Feedforward = new ElevatorFeedforward(Constants.REACHER_KS,
+			Constants.REACHER_KG, Constants.REACHER_KV, Constants.REACHER_KA);
 
-	private double m_kPElevator;
-	private boolean m_resetElevatorPos = false;
+	private double m_kPReacher;
+	private boolean m_resetReacherPos = false;
 
-	/** Creates a new Elevator. */
-	public Elevator() {
-		m_kPElevator = Constants.ELEVATOR_K_P0;
+	/** Creates a new Reacher. */
+	public Reacher() {
+		m_kPReacher = Constants.REACHER_K_P0;
 
 		// Create the motor, PID Controller and encoder.
-		m_motor = new CANSparkMax(Constants.ELEVATOR_CAN_ID, MotorType.kBrushless);
+		m_motor = new CANSparkMax(Constants.REACHER_CAN_ID, MotorType.kBrushless);
 		m_motor.restoreFactoryDefaults();
 
 		m_PIDController = m_motor.getPIDController();
-		m_PIDController.setP(m_kPElevator);
-		m_PIDController.setI(Constants.ELEVATOR_K_I);
-		m_PIDController.setD(Constants.ELEVATOR_K_D);
-		m_PIDController.setFF(Constants.ELEVATOR_K_FF);
+		m_PIDController.setP(m_kPReacher);
+		m_PIDController.setI(Constants.REACHER_K_I);
+		m_PIDController.setD(Constants.REACHER_K_D);
+		m_PIDController.setFF(Constants.REACHER_K_FF);
 
 		m_encoder = m_motor.getEncoder();
 
 		// Set the position conversion factor.
 		m_encoder.setPositionConversionFactor((12.0 / 72.0) * Units.inchesToMeters((7.0 / 8.0) * Math.PI)); // was 5/8
 
-		m_encoder.setPosition(Constants.ELEVATOR_OFFSET_METER);
+		m_encoder.setPosition(Constants.REACHER_OFFSET_METER);
 
-		SmartDashboard.putNumber("elevator/P Gain", m_kPElevator);
+		SmartDashboard.putNumber("Reacher/P Gain", m_kPReacher);
 	}
 
 	@Override
 	public void periodic() {
 		double encoderValue = m_encoder.getPosition();
-		SmartDashboard.putNumber("elevator/Encoder", Units.metersToInches(encoderValue));
+		SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
 
 		// update the PID val
 		checkPIDVal();
@@ -69,20 +69,20 @@ public class Elevator extends SubsystemBase {
 		// Add the feedforward to the PID output to get the motor output
 		// Remember that the encoder was already set to account for the gear ratios.
 
-		if (m_resetElevatorPos) {
+		if (m_resetReacherPos) {
 			setPoint.position = m_encoder.getPosition();
-			m_resetElevatorPos = false;
+			m_resetReacherPos = false;
 		}
 		m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0, feedforward / 12.0);
-		SmartDashboard.putNumber("elevator/setPoint", Units.metersToInches(setPoint.position));
+		SmartDashboard.putNumber("Reacher/setPoint", Units.metersToInches(setPoint.position));
 	}
 
 	private void checkPIDVal() {
-		double p = SmartDashboard.getNumber("elevator/P Gain", 0);
+		double p = SmartDashboard.getNumber("Reacher/P Gain", 0);
 		// if PID coefficients on SmartDashboard have changed, write new values to controller
-		if ((p != m_kPElevator)) {
+		if ((p != m_kPReacher)) {
 			m_PIDController.setP(p);
-			m_kPElevator = p;
+			m_kPReacher = p;
 		}
 	}
 
@@ -92,7 +92,7 @@ public class Elevator extends SubsystemBase {
 
 	public void resetExtent() {
 		setSetPoint(new TrapezoidProfile.State(m_encoder.getPosition(), 0.0));
-		m_resetElevatorPos = true;
+		m_resetReacherPos = true;
 	}
 
 	public void setBrakeMode(boolean brake) {

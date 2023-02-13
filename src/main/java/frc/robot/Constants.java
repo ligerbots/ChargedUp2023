@@ -87,23 +87,23 @@ public final class Constants {
     // These need to be set for this robot.
 
     // Following CAN IDs are for the Arm subsystem
-    public static final int ELEVATOR_CAN_ID = 13; // TODO: Set CanID
+    public static final int REACHER_CAN_ID = 13; // TODO: Set CanID
     public static final int SHOULDER_CAN_ID = 14; // TODO: Set CANIDs
-    // Feedforward constants for the elevator
-    public static final double ELEVATOR_KS = 0.182; // TODO: This may need to be tuned
+    // Feedforward constants for the reacher
+    public static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm
-    public static final double ELEVATOR_KG = 1.19;
-    public static final double ELEVATOR_KV = 7.67;
-    public static final double ELEVATOR_KA = 0.19;
+    public static final double REACHER_KG = 1.19;
+    public static final double REACHER_KV = 7.67;
+    public static final double REACHER_KA = 0.19;
 
-    // PID Constants for the elevator PID controller
+    // PID Constants for the reacher PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    public static final double ELEVATOR_K_P0 = 100;
-    public static final double ELEVATOR_K_P1 = 100;
-    public static final double ELEVATOR_K_I = 0.0;
-    public static final double ELEVATOR_K_D = 0.0;
-    public static final double ELEVATOR_K_FF = 0.0;
-    public static final double ELEVATOR_OFFSET_METER = Units.inchesToMeters(1.5);
+    public static final double REACHER_K_P0 = 100;
+    public static final double REACHER_K_P1 = 100;
+    public static final double REACHER_K_I = 0.0;
+    public static final double REACHER_K_D = 0.0;
+    public static final double REACHER_K_FF = 0.0;
+    public static final double REACHER_OFFSET_METER = Units.inchesToMeters(1.5);
     // Feedforward constants for the shoulder
     public static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm
@@ -125,19 +125,19 @@ public final class Constants {
     public static final int kPIDLoopIdx = 0;
     public static final double SHOULDER_ANGLE_TOLERANCE = Units.degreesToRadians(1.0);
     public static final int kTimeoutMs = 0;
-    // Constants to limit the elevator veocity and accel
+    // Constants to limit the reacher veocity and accel
 
-    public static final double ELEVATOR_MAX_VEL_METER_PER_SEC_ASCEND = Units.inchesToMeters(1000.0);
-    public static final double ELEVATOR_MAX_ACC_METER_PER_SEC_SQ_ASCEND = Units.inchesToMeters(250.0);
+    public static final double REACHER_MAX_VEL_METER_PER_SEC_ASCEND = Units.inchesToMeters(1000.0);
+    public static final double REACHER_MAX_ACC_METER_PER_SEC_SQ_ASCEND = Units.inchesToMeters(250.0);
 
-    public static final double ELEVATOR_MAX_VEL_METER_PER_SEC_DESCEND = Units.inchesToMeters(100.0);
-    public static final double ELEVATOR_MAX_ACC_METER_PER_SEC_SQ_DESCEND = Units.inchesToMeters(30.0);
+    public static final double REACHER_MAX_VEL_METER_PER_SEC_DESCEND = Units.inchesToMeters(100.0);
+    public static final double REACHER_MAX_ACC_METER_PER_SEC_SQ_DESCEND = Units.inchesToMeters(30.0);
 
-    public static final double ELEVATOR_MAX_VEL_METER_PER_SEC_NORMAL = Units.inchesToMeters(50.0);
-    public static final double ELEVATOR_MAX_ACC_METER_PER_SEC_SQ_NORMAL = Units.inchesToMeters(10.0);
+    public static final double REACHER_MAX_VEL_METER_PER_SEC_NORMAL = Units.inchesToMeters(50.0);
+    public static final double REACHER_MAX_ACC_METER_PER_SEC_SQ_NORMAL = Units.inchesToMeters(10.0);
 
-    public static final double ELEVATOR_MAX_VEL_METER_PER_SEC_ASCEND_SLOW = Units.inchesToMeters(1000.0);
-    public static final double ELEVATOR_MAX_ACC_METER_PER_SEC_SQ_ASCEND_SLOW = Units.inchesToMeters(62.5);
+    public static final double REACHER_MAX_VEL_METER_PER_SEC_ASCEND_SLOW = Units.inchesToMeters(1000.0);
+    public static final double REACHER_MAX_ACC_METER_PER_SEC_SQ_ASCEND_SLOW = Units.inchesToMeters(62.5);
 
     // Constants for reaching the top level, middle level, bottom level, and feeder station. Currently just have
     // placeholder values

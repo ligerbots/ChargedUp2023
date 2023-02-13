@@ -15,7 +15,7 @@ import frc.robot.subsystems.Arm;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class SetElevatorHeight extends CommandBase {
+public class SetReacherHeight extends CommandBase {
     Arm m_arm;
     double m_height;
 
@@ -24,12 +24,12 @@ public class SetElevatorHeight extends CommandBase {
 
     Command m_command;
 
-    public SetElevatorHeight(Arm arm, double height) {
-        this(arm, height, Constants.ELEVATOR_MAX_VEL_METER_PER_SEC_DESCEND,
-                Constants.ELEVATOR_MAX_ACC_METER_PER_SEC_SQ_DESCEND);
+    public SetReacherHeight(Arm arm, double height) {
+        this(arm, height, Constants.REACHER_MAX_VEL_METER_PER_SEC_DESCEND,
+                Constants.REACHER_MAX_ACC_METER_PER_SEC_SQ_DESCEND);
     }
 
-    public SetElevatorHeight(Arm arm, double height, final double MAX_VEL_METER_PER_SEC,
+    public SetReacherHeight(Arm arm, double height, final double MAX_VEL_METER_PER_SEC,
             final double MAX_ACC_METER_PER_SEC) {
         m_maxAcc = MAX_ACC_METER_PER_SEC;
         m_maxVel = MAX_VEL_METER_PER_SEC;
@@ -45,9 +45,9 @@ public class SetElevatorHeight extends CommandBase {
                 // End at desired position in meters; implicitly starts at 0
                 new TrapezoidProfile.State(m_height, 0),
                 // initial position state
-                new TrapezoidProfile.State(m_arm.getElevatorExtent(), 0)),
+                new TrapezoidProfile.State(m_arm.getReacherExtent(), 0)),
                 // Pipe the profile state to the drive
-                setpointState -> m_arm.setElevatorExtent(setpointState));
+                setpointState -> m_arm.setReacherExtent(setpointState));
 
         CommandScheduler.getInstance().schedule(m_command);
     }
