@@ -35,7 +35,6 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.swerve.*;
 import static frc.robot.Constants.*;
 
-
 public class DriveTrain extends SubsystemBase {
 
     // the max velocity for drivetrain
@@ -55,9 +54,6 @@ public class DriveTrain extends SubsystemBase {
     private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
     private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
 
-    // pose for testing, can switch to whatever
-    private Pose2d m_poseTest = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
-
     // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
     // The formula for calculating the theoretical maximum velocity is:
     // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
@@ -70,8 +66,7 @@ public class DriveTrain extends SubsystemBase {
     /**
      * The maximum velocity of the robot in meters per second.
      * <p>
-     * This is a measure of how fast the robot should be able to drive in a straight
-     * line.
+     * This is a measure of how fast the robot should be able to drive in a straight line.
      */
     private static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
             NeoDriveController.DRIVE_REDUCTION * NeoDriveController.WHEEL_DIAMETER * Math.PI;
@@ -268,17 +263,17 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Rotation2d getPitch() {
-        //gets pitch of robot
+        // gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getPitch());
     }
 
     public Rotation2d getYaw() {
-        //gets pitch of robot
+        // gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getYaw());
     }
 
     public Rotation2d getRoll() {
-        //gets pitch of robot
+        // gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getRoll());
     }
 
@@ -306,7 +301,7 @@ public class DriveTrain extends SubsystemBase {
         }
         return state;
     }
-        
+
     public void syncSwerveAngleEncoders() {
         // check if we can sync the swerve angle encoders
         // this will only trigger if the chassis is idle for 10 seconds
@@ -362,11 +357,6 @@ public class DriveTrain extends SubsystemBase {
         return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
     }
 
-    // get target pose
-    public Pose2d getTargetPose(){
-        return m_poseTest;
-    }
-
     // find a trajectory from robot pose to a target pose
     public Command trajectoryToPose(Pose2d targetPose) {
         Pose2d currentPose = getPose(); //get robot current pose
@@ -374,9 +364,8 @@ public class DriveTrain extends SubsystemBase {
                 new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
                 new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-        // always look at same direction
         );
 
         return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    }
+     }
 }

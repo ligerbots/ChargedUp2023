@@ -51,9 +51,25 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.2);
 
-    public static final double X_PID_CONTROLLER_P = 0.2;
-    public static final double Y_PID_CONTROLLER_P = 0.2;
-    public static final double THETA_PID_CONTROLLER_P = 8.0;
+    //changed these all to 2.0 (the correct speed)
+    public static final double X_PID_CONTROLLER_P = 2.0;
+    public static final double Y_PID_CONTROLLER_P = 2.0;
+    public static final double THETA_PID_CONTROLLER_P = 2.0;
+
+    // scoring position numbers (m_positionNumber explained)
+    // p1-9 is for the scoring grid
+    // L Center R
+    // 1 2 3 Top
+    // 4 5 6 Middle
+    // 7 8 9 Bottom
+    // p10 and p11 are for the left and right pickup stations
+    // note: enums cannot be integers, can only be strings
+    public enum Position {
+        LEFT_TOP, CENTER_TOP, RIGHT_TOP, LEFT_MIDDLE, CENTER_MIDDLE, RIGHT_MIDDLE, LEFT_BOTTOM, CENTER_BOTTOM,
+        RIGHT_BOTTOM,
+        // for the two substations/pick up stations
+        LEFT_SUBSTATION, RIGHT_SUBSTATION
+    }
 
     public static final double TRAJ_MAX_VEL = 2.0;
     public static final double TRAJ_MAX_ACC = 1.0;
