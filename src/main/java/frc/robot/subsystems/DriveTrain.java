@@ -126,25 +126,25 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain(Vision vision) {
 
-		m_swerveModules[0] = new SwerveModule("frontLeft",
-				new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
-						FRONT_LEFT_MODULE_STEER_OFFSET));
+        m_swerveModules[0] = new SwerveModule("frontLeft",
+                new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
+                        FRONT_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
-				new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
-						FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+        m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
+                new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
-				new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
-						BACK_LEFT_MODULE_STEER_OFFSET));
+        m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
+                new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
+                        BACK_LEFT_MODULE_STEER_OFFSET));
 
-		m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
-				new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-				new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
-						BACK_RIGHT_MODULE_STEER_OFFSET));
+        m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
+                new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
+                        BACK_RIGHT_MODULE_STEER_OFFSET));
 
         // initialize the odometry class
         // needs to be done after the Modules are created and initialized
@@ -163,9 +163,7 @@ public class DriveTrain extends SubsystemBase {
     // sets the heading to zero with the existing pose
     public void resetHeading() {
         Pose2d pose = getPose();
-
         Pose2d newPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(0));
-
         setPose(newPose);
     }
 
@@ -187,7 +185,7 @@ public class DriveTrain extends SubsystemBase {
     private Rotation2d getGyroscopeRotation() {
         if (m_navx.isMagnetometerCalibrated()) {
             // We will only get valid fused headings if the magnetometer is calibrated
-            return Rotation2d.fromDegrees(m_navx.getFusedHeading());
+            return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
 		// We have to invert the angle of the NavX so that rotating the robot
@@ -219,10 +217,17 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
-
+        // apply SlewLimiters to the joystick values to control acceleration
         double newInputX = m_xLimiter.calculate(inputX);
         double newInputY = m_yLimiter.calculate(inputY);
         double newInputRotation = m_rotationLimiter.calculate(inputRotation);
+
+        // prevents a drive call with parameters of 0 0 0
+        if (Math.abs(newInputX) < 0.01 && Math.abs(newInputY) < 0.01 && Math.abs(newInputRotation) < 0.01){
+            stop();
+            return;
+        } 
+
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
@@ -238,6 +243,7 @@ public class DriveTrain extends SubsystemBase {
                     newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
+
         drive(chassisSpeeds);
     }
 
@@ -250,10 +256,10 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    // future changes: maybe leave the modules so the angles remain the same instead
-    // of pointing at 0
     public void stop() {
-        drive(new ChassisSpeeds(0, 0, 0));
+        for (int i = 0; i < 4; i++) {
+            m_swerveModules[i].stopWheel();
+        }
     }
 
     // for the beginning of auto rountines
@@ -265,6 +271,23 @@ public class DriveTrain extends SubsystemBase {
     // toggle whether driving is field-centric
     public void toggleFieldCentric() {
         m_fieldCentric = !m_fieldCentric;
+    }
+
+    // toggle precision mode for driving
+    public void togglePrecisionMode() {
+        m_precisionMode = !m_precisionMode;
+        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
+        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
+                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+    }
+
+    // lock wheels in x position to resist pushing
+    public void lockWheels() {
+        double lockRadians = Math.toRadians(45);
+        m_swerveModules[0].set(0.0, lockRadians);
+        m_swerveModules[1].set(0.0, -lockRadians);
+        m_swerveModules[2].set(0.0, -lockRadians);
+        m_swerveModules[3].set(0.0, lockRadians);
     }
 
     public Rotation2d getPitch() {
@@ -280,13 +303,6 @@ public class DriveTrain extends SubsystemBase {
     public Rotation2d getRoll() {
         //gets pitch of robot
         return Rotation2d.fromDegrees(m_navx.getRoll());
-    }
-
-    // toggle precision mode for driving
-    public void togglePrecisionMode() {
-        m_precisionMode = !m_precisionMode;
-        m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
-        m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
     }
 
     public PIDController getXController() { // gets the controller for x position of robot
@@ -329,24 +345,23 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
         SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
         SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-
-        SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
-        SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
-        SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
+        SmartDashboard.putNumber("drivetrain/gyro", m_navx.getYaw());
+    
+        // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+        // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		for (SwerveModule mod : m_swerveModules) {
-			mod.updateSmartDashboard();
-		}
-	}
+        for (SwerveModule mod : m_swerveModules) {
+            mod.updateSmartDashboard();
+        }
+    }
 
-    // get the trajectory following autonomous command in PathPlanner using the name
-    public Command getTrajectoryFollowingCommand(String trajectoryName) {
-
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
-
-        Command command = new FollowTrajectory(
+    // Make a command to follow a given trajectory
+    // Note this does NOT include stopping at the end
+    public Command makeFollowTrajectoryCommand(PathPlannerTrajectory traj) {
+        return new FollowTrajectory(
                 this,
                 traj,
                 () -> this.getPose(),
@@ -357,12 +372,16 @@ public class DriveTrain extends SubsystemBase {
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
                 },
-                this).andThen(() -> stop());
-
-        return command;
+                this);
     }
 
-    //get target pose
+    // get the trajectory following autonomous command in PathPlanner using the name
+    public Command getTrajectoryFollowingCommand(String trajectoryName) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+        return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
+    }
+
+    // get target pose
     public Pose2d getTargetPose(){
         return m_poseTest;
     }
@@ -377,19 +396,6 @@ public class DriveTrain extends SubsystemBase {
         // always look at same direction
         );
 
-        Command command = new FollowTrajectory(
-                this,
-                traj,
-                () -> this.getPose(),
-                m_kinematics,
-                m_xController,
-                m_yController,
-                m_thetaController,
-                (states) -> {
-                    this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this).andThen(() -> stop());
-
-        return command;
+        return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
     }
 }
