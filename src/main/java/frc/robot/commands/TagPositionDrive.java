@@ -33,15 +33,15 @@ public class TagPositionDrive extends CommandBase {
     private static final Map<Position, Transform2d> ROBOT_POSITIONS = new HashMap<Position, Transform2d>() {
         {
             // scoring transformations, change later
-            put(Position.LEFT_TOP, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(180))); // position1
-            put(Position.CENTER_TOP, new Transform2d(new Translation2d(3, 0), new Rotation2d(180)));
-            put(Position.RIGHT_TOP, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(180)));
-            put(Position.LEFT_MIDDLE, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(180)));
-            put(Position.CENTER_MIDDLE, new Transform2d(new Translation2d(3, 0), new Rotation2d(180)));
-            put(Position.RIGHT_MIDDLE, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(180)));
-            put(Position.LEFT_BOTTOM, new Transform2d(new Translation2d(3, -4.5), new Rotation2d(180)));
-            put(Position.CENTER_BOTTOM, new Transform2d(new Translation2d(3, 0), new Rotation2d(180)));
-            put(Position.RIGHT_BOTTOM, new Transform2d(new Translation2d(3, 4.5), new Rotation2d(180)));
+            put(Position.LEFT_TOP, new Transform2d(new Translation2d(2, -1), new Rotation2d(180))); // position1
+            put(Position.CENTER_TOP, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
+            put(Position.RIGHT_TOP, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
+            put(Position.LEFT_MIDDLE, new Transform2d(new Translation2d(2, -1), new Rotation2d(180)));
+            put(Position.CENTER_MIDDLE, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
+            put(Position.RIGHT_MIDDLE, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
+            put(Position.LEFT_BOTTOM, new Transform2d(new Translation2d(2, -1), new Rotation2d(180)));
+            put(Position.CENTER_BOTTOM, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
+            put(Position.RIGHT_BOTTOM, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
             // substation positions, change later
             put(Position.LEFT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
             put(Position.RIGHT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));

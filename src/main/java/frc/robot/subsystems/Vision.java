@@ -49,7 +49,7 @@ public class Vision {
     // Forward B&W camera for Apriltags
     // relative position of the camera on the robot ot the robot center
     private final Transform3d m_robotToAprilTagCam = new Transform3d(
-            new Translation3d(Units.inchesToMeters(31.25 / 2.0), 0.0, Units.inchesToMeters(21.0)),
+            new Translation3d(Units.inchesToMeters(3.5), -0.136, Units.inchesToMeters(22.5)),
             new Rotation3d(0.0, 0.0, 0.0));
 
     private final PhotonPoseEstimator m_photonPoseEstimator;
