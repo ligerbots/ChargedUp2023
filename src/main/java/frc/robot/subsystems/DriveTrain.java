@@ -364,9 +364,8 @@ public class DriveTrain extends SubsystemBase {
                 new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
                 new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-        // always look at same direction
         );
 
         return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-     }*/
+     }
 }
