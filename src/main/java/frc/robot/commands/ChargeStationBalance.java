@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 public class ChargeStationBalance extends CommandBase {
 
@@ -43,10 +44,10 @@ public class ChargeStationBalance extends CommandBase {
     public void execute() {
         //uses angle of robot to set its speed
         // *current robot has Roll
-        Rotation2d currentAngle = m_driveTrain.getRoll();
+        Rotation2d currentAngle = Rotation2d.fromDegrees(m_driveTrain.getTiltDegrees());
         Rotation2d error = Rotation2d.fromDegrees(BALANCED_DEGREES - currentAngle.getDegrees());
         double driveMPS = -error.getDegrees() * BALANCE_KP;
-
+    
         // cap max speed
         if (Math.abs(driveMPS) > MAX_MPS) {
             driveMPS = Math.copySign(MAX_MPS, driveMPS);
