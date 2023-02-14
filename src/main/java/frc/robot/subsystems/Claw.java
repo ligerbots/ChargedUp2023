@@ -25,6 +25,7 @@ public class Claw extends SubsystemBase {
 
 	private CANSparkMax m_motor;
 	private RelativeEncoder m_encoder;
+	private double m_speed = 0;
 
 	public Claw() {
 		// TODO: which one??
@@ -40,6 +41,10 @@ public class Claw extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		if (m_motor.getOutputCurrent() > 10.35) { 
+			m_speed = 0.0;
+        }
+		m_motor.set(m_speed);
 		// This method will be called once per scheduler run
 		SmartDashboard.putBoolean("claw/not full?", m_phCompressor.getPressureSwitchValue());
 		SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
@@ -52,8 +57,7 @@ public class Claw extends SubsystemBase {
 
 	public void open(){
 		m_clawSolenoid.set(Value.kForward);
-		m_motor.getEncoder().getVelocity();
-
+		m_speed = 0.8;
 	}
 
 	public void close(){
