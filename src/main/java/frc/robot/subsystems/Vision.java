@@ -25,11 +25,11 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 
 public class Vision {
     // Values for the Shed in late January
-    private static final double CUSTOM_FIELD_LENGTH = 8.780;    // meters
-    private static final double CUSTOM_FIELD_WIDTH = 6.0;       // meters
+
     private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = 
             new AprilTagFieldLayout(new ArrayList<AprilTag>() {
                 {
@@ -41,7 +41,7 @@ public class Vision {
                     add(constructTag(21, 8.780, 1.373, 0.895, 180));
                     add(constructTag(20, 8.780, 2.392, 0.946, 180));
                 }
-            }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
+            }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
 
     private final PhotonCamera m_aprilTagCamera = new PhotonCamera("ApriltagCamera");
     private final AprilTagFieldLayout m_aprilTagFieldLayout;

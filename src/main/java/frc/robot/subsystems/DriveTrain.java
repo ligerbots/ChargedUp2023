@@ -5,8 +5,10 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
@@ -24,7 +27,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
+import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -104,7 +108,7 @@ public class DriveTrain extends SubsystemBase {
 
     private final Vision m_vision;
 
-    // private final Field2d m_fieldSim;
+    private final Field2d m_field = new Field2d();
 
     // PID controller for swerve
     private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
@@ -147,6 +151,8 @@ public class DriveTrain extends SubsystemBase {
         for (SwerveModule module : m_swerveModules) {
             module.syncAngleEncoders(true);
         }
+
+        SmartDashboard.putData("Field", m_field);
     }
 
     // sets the heading to zero with the existing pose
@@ -282,9 +288,11 @@ public class DriveTrain extends SubsystemBase {
     public ProfiledPIDController getThetaController() { // gets controller for angle
         return m_thetaController;
     }
-    public SwerveDriveKinematics getKinematics(){
-        return m_kinematics;
+
+    public Field2d getField2d(){
+        return m_field;
     }
+
     // get the swerveModuleState manually
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] state = new SwerveModulePosition[4];
@@ -345,44 +353,15 @@ public class DriveTrain extends SubsystemBase {
 
     // get the trajectory following autonomous command in PathPlanner using the name
     public Command getTrajectoryFollowingCommand(String trajectoryName) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, 2.0, 1.0);
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
         return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
     }
 
-    // get best pose to shoot based on Apriltag pose, the pose you want to go to
-    /*public Optional<Pose2d> getTagRobotPose(boolean shiftLeft, boolean shiftRight) {
-        Optional<Pose2d> centralTagPose = m_vision.getCentralTagPose();
-        if(centralTagPose.isEmpty()){
-            return Optional.empty(); //return a null
-        
-        }
-        Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
-        Translation2d translated = new Translation2d(0, 0); // temp holder
-        if (shiftLeft) { // if aiming for left
-            // make new translation to go to left of tag
-            translated = tagPose.getTranslation().plus(Constants.CONE_LEFT_TRANSLATION);
-        } else if (shiftRight) { // if aiming for right
-            // make new translation to go right of tag
-            translated = tagPose.getTranslation().plus(Constants.CONE_RIGHT_TRANSLATION);
-
-        } else { // if aiming for center
-                 // make new translation to go to middle of tag
-            translated = tagPose.getTranslation().plus(Constants.CUBE_TRANSLATION);
-        }
-        return Optional.of(new Pose2d(translated, tagPose.getRotation()));
-    }*/
-
     // find a trajectory from robot pose to a target pose
-    /*public Command trajectoryToPose(Optional<Pose2d> optTargetPose) {
-        //if there is no target, then nothing happens
-        if(optTargetPose.isEmpty()){ 
-            //return an InstantCommand to do nothing
-            return new InstantCommand(); 
-        }
-        
-        Pose2d currentPose = getPose(); // get robot current pose
-        Pose2d targetPose = optTargetPose.get();
-        PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
+    public Command trajectoryToPose(Pose2d targetPose) {
+        Pose2d currentPose = getPose(); //get robot current pose
+        PathPlannerTrajectory traj = PathPlanner.generatePath(
+                new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
                 new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
         // always look at same direction

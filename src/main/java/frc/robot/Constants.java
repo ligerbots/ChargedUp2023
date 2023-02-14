@@ -71,6 +71,12 @@ public final class Constants {
         LEFT_SUBSTATION, RIGHT_SUBSTATION
     }
 
+    public static final double TRAJ_MAX_VEL = 2.0;
+    public static final double TRAJ_MAX_ACC = 1.0;
+
+    public static final double CUSTOM_FIELD_LENGTH = 8.780;    // meters
+    public static final double CUSTOM_FIELD_WIDTH = 6.0;       // meters
+
     // max voltages
     /**
 	 * The maximum voltage that will be delivered to the drive motors.
@@ -80,7 +86,6 @@ public final class Constants {
 	 */
 
 	public static final double MAX_VOLTAGE = 12.0; //default
-
 
     // Xbox button mapping
     public static final int XBOX_A = 1;
