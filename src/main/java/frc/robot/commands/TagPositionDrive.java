@@ -29,10 +29,11 @@ public class TagPositionDrive extends CommandBase {
     private Vision m_vision;
     private Position m_targetPosition;
 
-    //converted to Transform because cannot add two Poses together
+    // converted to Transform because cannot add two Poses together
     private static final Map<Position, Transform2d> ROBOT_POSITIONS = new HashMap<Position, Transform2d>() {
         {
             // scoring transformations, change later
+            // constant rotation offset of 180 so robot faces opposite direction as Apriltag (they both face each other)
             put(Position.LEFT_TOP, new Transform2d(new Translation2d(2, -1), new Rotation2d(180))); // position1
             put(Position.CENTER_TOP, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
             put(Position.RIGHT_TOP, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
@@ -52,14 +53,14 @@ public class TagPositionDrive extends CommandBase {
     public TagPositionDrive(DriveTrain driveTrain, Vision vision, Position targetPosition) {
         this.m_driveTrain = driveTrain;
         this.m_vision = vision;
-        //pass in a Position ex. pass in Position.LEFT_TOP
-        this.m_targetPosition = targetPosition; 
+        // pass in a Position ex. pass in Position.LEFT_TOP
+        this.m_targetPosition = targetPosition;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        //for safety, set command to null
+        // for safety, set command to null
         this.m_followTrajectory = null;
 
         Optional<Pose2d> centralTagPose = m_vision.getCentralTagPose();
@@ -67,27 +68,31 @@ public class TagPositionDrive extends CommandBase {
             return; // return a null, stop command
 
         }
-        //get from the optional if its not null, check if central tag exists
+        // get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
-        
-        //this is the transformation we want to translate from the target AprilTag by
-        //can do this instead of if checks
+        System.out.println("Target Tag Pose" + tagPose.toString());
+
+        // this is the transformation we want to translate from the target AprilTag by
+        // can do this instead of if checks
         Transform2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
-        
-        //because tag is rotated
-        Translation2d poseOffset =  robotTransformation.getTranslation().rotateBy(tagPose.getRotation());
-        //add to get target rotation and translation for robot     
+
+        // to rotate universal coordinates so translation is correct direction
+        Translation2d poseOffset = robotTransformation.getTranslation().rotateBy(tagPose.getRotation());
+        System.out.println("Pose Offset Translation" + poseOffset.toString());
+
+        // add to get target rotation and translation for robot
         Translation2d robotTargetTranslation = tagPose.getTranslation().plus(poseOffset);
+        System.out.println("Robot Target Pose Translation" + robotTargetTranslation.toString());
         Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
-        
+        System.out.println("Robot Target Pose Rotation" + robotTargetRotation.toString());
+
         // get robot current pose
-        Pose2d currentPose = m_driveTrain.getPose(); 
-        //robot target position
-        Pose2d targetPose = new Pose2d(robotTargetTranslation, robotTargetRotation); 
+        Pose2d currentPose = m_driveTrain.getPose();
+        System.out.println("Current Robot Pose" + currentPose.toString());
+
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-                new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-        // always look at same direction
+                new PathPoint(robotTargetTranslation, robotTargetRotation) // position, heading
         );
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.schedule();
@@ -96,9 +101,9 @@ public class TagPositionDrive extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        //if interrupted, stop the follow trajectory
+        // if interrupted, stop the follow trajectory
         if (interrupted) {
-           m_followTrajectory.cancel();
+            m_followTrajectory.cancel();
         }
         m_followTrajectory = null;
     }
