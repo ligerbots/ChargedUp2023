@@ -25,37 +25,37 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 
+import frc.robot.Constants;
+
 public class Shoulder extends TrapezoidProfileSubsystem {
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
-    // Following CAN IDs are for the Arm subsystem
-    public static final int SHOULDER_CAN_ID[] = {14, 15}; // TODO: Set CANIDs
 
     // Feedforward constants for the shoulder
-    public static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
+    private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm
-    public static final double SHOULDER_KG = 2.07;
-    public static final double SHOULDER_KV = 1.83;
-    public static final double SHOULDER_KA = 0.08;
+    private static final double SHOULDER_KG = 2.07;
+    private static final double SHOULDER_KV = 1.83;
+    private static final double SHOULDER_KA = 0.08;
 
     // Constants to limit the shoulder rotation speed
-    public static final double SHOULDER_MAX_VEL_RAD_PER_SEC = Math.toRadians(200.0);
-    public static final double SHOULDER_MAX_ACC_RAD_PER_SEC_SQ = Math.toRadians(200.0);
-    public static final double SHOULDER_OFFSET_RAD = Math.toRadians(110.0);
+    private static final double SHOULDER_MAX_VEL_RAD_PER_SEC = Math.toRadians(200.0);
+    private static final double SHOULDER_MAX_ACC_RAD_PER_SEC_SQ = Math.toRadians(200.0);
+    private static final double SHOULDER_OFFSET_RAD = Math.toRadians(110.0);
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    public static final double SHOULDER_K_P = 10.0;
-    public static final double SHOULDER_K_I = 0.0;
-    public static final double SHOULDER_K_D = 0.0;
-    public static final double SHOULDER_K_FF = 0.0;
-    public static final int kPIDLoopIdx = 0;
-    public static final int kTimeoutMs = 0;
+    private static final double SHOULDER_K_P = 10.0;
+    private static final double SHOULDER_K_I = 0.0;
+    private static final double SHOULDER_K_D = 0.0;
+    private static final double SHOULDER_K_FF = 0.0;
+    private static final int kPIDLoopIdx = 0;
+    private static final int kTimeoutMs = 0;
 
     // TODO: calculate this
-    public static final double SHOULDER_ANGLE_PER_UNIT = 1.0;
+    private static final double SHOULDER_ANGLE_PER_UNIT = 1.0;
 
     // Define the motor and encoders
     private final WPI_TalonFX[] m_motor = new WPI_TalonFX[2];
@@ -85,29 +85,27 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     private TalonFXSimCollection m_motorSim;
 
-    final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, m_shoulderReduction,
+    private final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, m_shoulderReduction,
             SingleJointedArmSim.estimateMOI(m_shoulderLength, m_shoulderMass), m_shoulderLength,
             Units.degreesToRadians(-75), Units.degreesToRadians(120), true);
 
     // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
-    // public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
-    final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-    final MechanismRoot2d m_shoulderPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-    final MechanismLigament2d m_shoulderTower = m_shoulderPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
-    final MechanismLigament2d m_shoulder = m_shoulderPivot.append(new MechanismLigament2d("Arm", 30,
+    // private final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
+    private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
+    private final MechanismRoot2d m_shoulderPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+    private final MechanismLigament2d m_shoulderTower = m_shoulderPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+    private final MechanismLigament2d m_shoulder = m_shoulderPivot.append(new MechanismLigament2d("Arm", 30,
             Units.radiansToDegrees(m_shoulderSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
-    /**
-     * TalonFXPIDSetConfiguration Creates a new ShoulderArm .
-     * 
-     * @return
-     */
+    // Construct a new Shoulder subsystem
     public Shoulder() {
         super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RAD_PER_SEC, SHOULDER_MAX_ACC_RAD_PER_SEC_SQ));
 
+        // ***
+        // PAULR: I think this is wrong. One motor should be set as a Follower
         for (int i = 0; i <= 1; i++) {
             // Create the motor, PID Controller and encoder.
-            m_motor[i] = new WPI_TalonFX(SHOULDER_CAN_ID[i]);
+            m_motor[i] = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[i]);
             m_encoder[i] = m_motor[i].getSensorCollection();
 
             // m_motorSim = new TalonFXSimCollection(m_motorLeader);
@@ -188,9 +186,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     private void checkPIDVal() {
         double p = SmartDashboard.getNumber("shoulder/P Gain", 0);
-        // if PID coefficients on SmartDashboard have changed, write new values to
-        // controller
+        // if PID coefficients on SmartDashboard have changed, write new values to controller
         if ((p != m_kPShoulder)) {
+            // PAULR: is this right? Do we need to set the follower?
             for(int i = 0; i <= 1; i++)
                 m_motor[i].config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
             m_kPShoulder = p;
@@ -198,7 +196,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     }
 
     public double getAngle() {
-        return (m_encoder[0].getIntegratedSensorAbsolutePosition() + m_encoder[1].getIntegratedSensorAbsolutePosition())/2.0;
+        return (m_encoder[0].getIntegratedSensorAbsolutePosition() + 
+                m_encoder[1].getIntegratedSensorAbsolutePosition()) / 2.0;
     }
 
     public void resetShoulderPos() {
@@ -212,6 +211,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     }
 
     public double getEncoderDistance() {
-        return (m_motor[0].getSelectedSensorPosition() * SHOULDER_ANGLE_PER_UNIT + m_motor[1].getSelectedSensorPosition() * SHOULDER_ANGLE_PER_UNIT)/2.0;
+        return (m_motor[0].getSelectedSensorPosition() * SHOULDER_ANGLE_PER_UNIT + 
+                m_motor[1].getSelectedSensorPosition() * SHOULDER_ANGLE_PER_UNIT) / 2.0;
     }
 }
