@@ -86,11 +86,11 @@ public class Reacher extends SubsystemBase {
 		}
 	}
 
-	public double getExtent() {
+	public double getLength() {
 		return m_encoder.getPosition();
 	}
 
-	public void resetExtent() {
+	public void resetLength() {
 		setSetPoint(new TrapezoidProfile.State(m_encoder.getPosition(), 0.0));
 		m_resetReacherPos = true;
 	}

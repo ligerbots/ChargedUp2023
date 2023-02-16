@@ -36,23 +36,23 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // private final EncoderSim m_encoderSim;
 
     // The P gain for the PID controller that drives this shoulder.
-    public static double m_kPShoulder = 1.0;
+    private static double m_kPShoulder = 1.0;
 
     // *********************Simulation Stuff************************
 
     // distance per pulse = (angle per revolution) / (pulses per revolution)
     // = (2 * PI rads) / (4096 pulses)
-    public static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / 4096;
+    private static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / 4096;
     // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-    public final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
+    private final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
 
     // Standard classes for controlling our arm
-    public final PIDController m_controller = new PIDController(m_kPShoulder, 0, 0);
+    private final PIDController m_controller = new PIDController(m_kPShoulder, 0, 0);
 
     // Simulation classes help us simulate what's going on, including gravity.
-    public static final double m_shoulderReduction = 395.77;
-    public static final double m_shoulderMass = 10; // Kilograms
-    public static final double m_shoulderLength = Units.inchesToMeters(30);
+    private static final double m_shoulderReduction = 395.77;
+    private static final double m_shoulderMass = 10; // Kilograms
+    private static final double m_shoulderLength = Units.inchesToMeters(30);
     private final ArmFeedforward m_feedForward = new ArmFeedforward(Constants.SHOULDER_KS, Constants.SHOULDER_KG,
             Constants.SHOULDER_KV, Constants.SHOULDER_KA);
 
@@ -134,7 +134,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // Display current values on the SmartDashboard
         SmartDashboard.putNumber("shoulder/Output", m_motor.get());
-        SmartDashboard.putNumber("shoulder/Encoder", Units.radiansToDegrees(encoderValue));
+        SmartDashboard.putNumber("shoulder/Encoder", Math.toDegrees(encoderValue));
         SmartDashboard.putBoolean("shoulder/CoastMode", m_coastMode);
         SmartDashboard.putNumber("shoulder/Goal", m_goal);
 
@@ -204,12 +204,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         }
     }
 
-    public WPI_TalonFX getMotor() {
-        return m_motor;
-    }
-
-    public TalonFXSensorCollection getEncoder() {
-        return m_encoder;
+    public double getAngle() {
+        return m_encoder.getIntegratedSensorPosition();
     }
 
     public void resetShoulderPos() {
