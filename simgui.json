@@ -31,26 +31,16 @@
       "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
-<<<<<<< HEAD
-      "/SmartDashboard/Arm Sim": "Mechanism2d",
-      "/SmartDashboard/Chosen Trajectory": "String Chooser"
-    },
-    "windows": {
-      "/SmartDashboard/Arm Sim": {
-=======
       "/SmartDashboard/Chosen Trajectory": "String Chooser",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/shoulder Sim": "Mechanism2d"
     },
     "windows": {
       "/SmartDashboard/Chosen Trajectory": {
->>>>>>> main
         "window": {
           "visible": true
         }
       },
-<<<<<<< HEAD
-      "/SmartDashboard/Chosen Trajectory": {
-=======
       "/SmartDashboard/Field": {
         "trajectory": {
           "arrowSize": 100,
@@ -58,7 +48,11 @@
           "weight": 0.0,
           "width": 0.10000000149011612
         },
->>>>>>> main
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/shoulder Sim": {
         "window": {
           "visible": true
         }
@@ -83,14 +77,14 @@
         "Arm Sim": {
           "open": true
         },
+        "Reacher": {
+          "open": true
+        },
         "arm0": {
           "open": true
         },
         "open": true
       }
     }
-  },
-  "NetworkTables Info": {
-    "visible": true
   }
 }

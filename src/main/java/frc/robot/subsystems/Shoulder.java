@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -32,7 +31,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // These need to be set for this robot.
 
     // Following CAN IDs are for the Arm subsystem
-    public static final int SHOULDER_CAN_ID = 14; // TODO: Set CANIDs
+    public static final int SHOULDER_CAN_ID[] = {14, 15}; // TODO: Set CANIDs
 
     // Feedforward constants for the shoulder
     public static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
@@ -88,10 +87,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, m_shoulderReduction,
             SingleJointedArmSim.estimateMOI(m_shoulderLength, m_shoulderMass), m_shoulderLength,
-            Units.degreesToRadians(-75), Units.degreesToRadians(120), m_shoulderMass, true,
-            VecBuilder.fill(kShoulderEncoderDistPerPulse) // Add noise with a
-    // std-dev of 1 tick
-    );
+            Units.degreesToRadians(-75), Units.degreesToRadians(120), true);
+
     // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
     // public final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
     final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
@@ -110,7 +107,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         for (int i = 0; i <= 1; i++) {
             // Create the motor, PID Controller and encoder.
-            m_motor[i] = new WPI_TalonFX(SHOULDER_CAN_ID);
+            m_motor[i] = new WPI_TalonFX(SHOULDER_CAN_ID[i]);
             m_encoder[i] = m_motor[i].getSensorCollection();
 
             // m_motorSim = new TalonFXSimCollection(m_motorLeader);
