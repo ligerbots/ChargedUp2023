@@ -5,17 +5,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
-import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class SetArmLength extends CommandBase {
+    
+    public static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(100.0);
+    public static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(30.0);
+
     Arm m_arm;
     double m_height;
 
@@ -25,8 +29,8 @@ public class SetArmLength extends CommandBase {
     Command m_command;
 
     public SetArmLength(Arm arm, double height) {
-        this(arm, height, Constants.REACHER_MAX_VEL_METER_PER_SEC_DESCEND,
-                Constants.REACHER_MAX_ACC_METER_PER_SEC_SQ_DESCEND);
+        this(arm, height, REACHER_MAX_VEL_METER_PER_SEC,
+                REACHER_MAX_ACC_METER_PER_SEC_SQ);
     }
 
     public SetArmLength(Arm arm, double height, final double MAX_VEL_METER_PER_SEC,

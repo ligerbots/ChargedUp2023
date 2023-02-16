@@ -14,41 +14,60 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class Reacher extends SubsystemBase {
+
+    public static final int REACHER_CAN_ID = 13; // TODO: Set CanID
+
+    // Feedforward constants for the reacher
+    public static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
+    // The following constants are computed from https://www.reca.lc/arm
+    public static final double REACHER_KG = 1.19;
+    public static final double REACHER_KV = 7.67;
+    public static final double REACHER_KA = 0.19;
+
+    // PID Constants for the reacher PID controller
+    // Since we're using Trapeziodal control, all values will be 0 except for P
+    public static final double REACHER_K_P0 = 100;
+    public static final double REACHER_K_P1 = 100;
+    public static final double REACHER_K_I = 0.0;
+    public static final double REACHER_K_D = 0.0;
+    public static final double REACHER_K_FF = 0.0;
+    public static final double REACHER_OFFSET_METER = Units.inchesToMeters(1.5);
+
+
 	/** Creates a new Reacher. */
 	// Define the motor and encoders
 	private final CANSparkMax m_motor;
 	private final RelativeEncoder m_encoder;
 	private final SparkMaxPIDController m_PIDController;
 
-	private final ElevatorFeedforward m_Feedforward = new ElevatorFeedforward(Constants.REACHER_KS,
-			Constants.REACHER_KG, Constants.REACHER_KV, Constants.REACHER_KA);
+	private final ElevatorFeedforward m_Feedforward = new ElevatorFeedforward(REACHER_KS,
+			REACHER_KG, REACHER_KV, REACHER_KA);
 
 	private double m_kPReacher;
 	private boolean m_resetReacherPos = false;
 
 	/** Creates a new Reacher. */
 	public Reacher() {
-		m_kPReacher = Constants.REACHER_K_P0;
+		m_kPReacher = REACHER_K_P0;
 
 		// Create the motor, PID Controller and encoder.
-		m_motor = new CANSparkMax(Constants.REACHER_CAN_ID, MotorType.kBrushless);
+		m_motor = new CANSparkMax(REACHER_CAN_ID, MotorType.kBrushless);
 		m_motor.restoreFactoryDefaults();
 
 		m_PIDController = m_motor.getPIDController();
 		m_PIDController.setP(m_kPReacher);
-		m_PIDController.setI(Constants.REACHER_K_I);
-		m_PIDController.setD(Constants.REACHER_K_D);
-		m_PIDController.setFF(Constants.REACHER_K_FF);
+		m_PIDController.setI(REACHER_K_I);
+		m_PIDController.setD(REACHER_K_D);
+		m_PIDController.setFF(REACHER_K_FF);
 
 		m_encoder = m_motor.getEncoder();
 
 		// Set the position conversion factor.
 		m_encoder.setPositionConversionFactor((12.0 / 72.0) * Units.inchesToMeters((7.0 / 8.0) * Math.PI)); // was 5/8
 
-		m_encoder.setPosition(Constants.REACHER_OFFSET_METER);
+		m_encoder.setPosition(REACHER_OFFSET_METER);
 
 		SmartDashboard.putNumber("Reacher/P Gain", m_kPReacher);
 	}
