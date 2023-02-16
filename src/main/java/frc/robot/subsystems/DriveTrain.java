@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
@@ -14,6 +11,7 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -214,20 +212,12 @@ public class DriveTrain extends SubsystemBase {
     }
 
     // know how much it tilted, so we know if it's balance on the ramp
-    public double getTiltAmount() {
+    public double getTiltDegrees() {
         return Math.toDegrees(Math.acos(getNormalVector3d().getZ()));
     }
 
     public Rotation2d getTiltDirection() {
         return new Rotation2d(getNormalVector3d().getX(), getNormalVector3d().getY());
-    }
-
-    public void setRotation(Rotation2d angle) {
-        setPose(new Pose2d(getPose().getX(), getPose().getY(), angle));
-    }
-
-    public void zeroRotation() {
-        setRotation(new Rotation2d());
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
