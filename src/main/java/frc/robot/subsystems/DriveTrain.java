@@ -5,10 +5,7 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -27,17 +24,35 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.swerve.*;
-import static frc.robot.Constants.*;
 
 public class DriveTrain extends SubsystemBase {
+    /**
+     * The left-to-right distance between the drivetrain wheels
+     *
+     * Should be measured from center to center.
+     */
+    private static final double TRACKWIDTH_METERS = Units.inchesToMeters(19.5625);
+
+    /**
+     * The front-to-back distance between the drivetrain wheels.
+     *
+     * Should be measured from center to center.
+     */
+    private static final double WHEELBASE_METERS = Units.inchesToMeters(24.625);
+
+    // P constants for controllin during trajectory following
+    private static final double X_PID_CONTROLLER_P = 2.0;
+    private static final double Y_PID_CONTROLLER_P = 2.0;
+    private static final double THETA_PID_CONTROLLER_P = 2.0;
 
     // the max velocity for drivetrain
     // adjusted when in precision driving mode
@@ -84,20 +99,20 @@ public class DriveTrain extends SubsystemBase {
     // Here we calculate the theoretical maximum angular velocity. You can also
     // replace this with a measured amount.
     private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
-            Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+            Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
 
     private static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE = 
             MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 6.0;
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
-            new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
             // Front right
-            new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0),
             // Back left
-            new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(-TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
             // Back right
-            new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
+            new Translation2d(-TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0));
 
     // NavX connected over MXP
     private final AHRS m_navx = new AHRS(Port.kMXP, (byte) 200);
@@ -122,24 +137,24 @@ public class DriveTrain extends SubsystemBase {
     public DriveTrain(Vision vision) {
 
         m_swerveModules[0] = new SwerveModule("frontLeft",
-                new frc.robot.swerve.NeoDriveController(FRONT_LEFT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(FRONT_LEFT_MODULE_STEER_MOTOR, FRONT_LEFT_MODULE_STEER_ENCODER,
-                        FRONT_LEFT_MODULE_STEER_OFFSET));
+                new frc.robot.swerve.NeoDriveController(Constants.FRONT_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(Constants.FRONT_LEFT_MODULE_STEER_MOTOR,
+                        Constants.FRONT_LEFT_MODULE_STEER_ENCODER, Constants.FRONT_LEFT_MODULE_STEER_OFFSET));
 
         m_swerveModules[1] = new frc.robot.swerve.SwerveModule("frontRight",
-                new frc.robot.swerve.NeoDriveController(FRONT_RIGHT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(FRONT_RIGHT_MODULE_STEER_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_ENCODER, FRONT_RIGHT_MODULE_STEER_OFFSET));
+                new frc.robot.swerve.NeoDriveController(Constants.FRONT_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(Constants.FRONT_RIGHT_MODULE_STEER_MOTOR,
+                        Constants.FRONT_RIGHT_MODULE_STEER_ENCODER, Constants.FRONT_RIGHT_MODULE_STEER_OFFSET));
 
         m_swerveModules[2] = new frc.robot.swerve.SwerveModule("backLeft",
-                new frc.robot.swerve.NeoDriveController(BACK_LEFT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(BACK_LEFT_MODULE_STEER_MOTOR, BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET));
+                new frc.robot.swerve.NeoDriveController(Constants.BACK_LEFT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(Constants.BACK_LEFT_MODULE_STEER_MOTOR,
+                        Constants.BACK_LEFT_MODULE_STEER_ENCODER, Constants.BACK_LEFT_MODULE_STEER_OFFSET));
 
         m_swerveModules[3] = new frc.robot.swerve.SwerveModule("backRight",
-                new frc.robot.swerve.NeoDriveController(BACK_RIGHT_MODULE_DRIVE_MOTOR),
-                new frc.robot.swerve.NeoSteerController(BACK_RIGHT_MODULE_STEER_MOTOR, BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET));
+                new frc.robot.swerve.NeoDriveController(Constants.BACK_RIGHT_MODULE_DRIVE_MOTOR),
+                new frc.robot.swerve.NeoSteerController(Constants.BACK_RIGHT_MODULE_STEER_MOTOR,
+                        Constants.BACK_RIGHT_MODULE_STEER_ENCODER, Constants.BACK_RIGHT_MODULE_STEER_OFFSET));
 
         // initialize the odometry class
         // needs to be done after the Modules are created and initialized
@@ -230,7 +245,8 @@ public class DriveTrain extends SubsystemBase {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
         for (int i = 0; i < 4; i++) {
-            m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+            m_swerveModules[i].set(
+                    states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * Constants.MAX_VOLTAGE,
                     states[i].angle.getRadians());
         }
     }
@@ -275,25 +291,13 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Rotation2d getYaw() {
-        // gets pitch of robot
+        // gets yaw of robot
         return Rotation2d.fromDegrees(m_navx.getYaw());
     }
 
     public Rotation2d getRoll() {
-        // gets pitch of robot
+        // gets roll of robot
         return Rotation2d.fromDegrees(m_navx.getRoll());
-    }
-
-    public PIDController getXController() { // gets the controller for x position of robot
-        return m_xController;
-    }
-
-    public PIDController getYController() { // gets controller for y position of bot
-        return m_yController;
-    }
-
-    public ProfiledPIDController getThetaController() { // gets controller for angle
-        return m_thetaController;
     }
 
     public Field2d getField2d(){
@@ -358,21 +362,21 @@ public class DriveTrain extends SubsystemBase {
                 this);
     }
 
-    // get the trajectory following autonomous command in PathPlanner using the name
-    public Command getTrajectoryFollowingCommand(String trajectoryName) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
-        return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    }
+    // // get the trajectory following autonomous command in PathPlanner using the name
+    // public Command getTrajectoryFollowingCommand(String trajectoryName) {
+    //     PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
+    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
+    // }
 
-    // find a trajectory from robot pose to a target pose
-    public Command trajectoryToPose(Pose2d targetPose) {
-        Pose2d currentPose = getPose(); //get robot current pose
-        PathPlannerTrajectory traj = PathPlanner.generatePath(
-                new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
-                new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-                new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-        );
+    // // find a trajectory from robot pose to a target pose
+    // public Command trajectoryToPose(Pose2d targetPose) {
+    //     Pose2d currentPose = getPose(); //get robot current pose
+    //     PathPlannerTrajectory traj = PathPlanner.generatePath(
+    //             new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
+    //             new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
+    //             new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
+    //     );
 
-        return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-     }
+    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
+    //  }
 }
