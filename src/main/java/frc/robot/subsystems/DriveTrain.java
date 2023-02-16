@@ -10,6 +10,8 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -203,15 +205,20 @@ public class DriveTrain extends SubsystemBase {
         ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
+            // if we are Red, field-cenric points the other way in absolute coordinates
+            // this is equivalent to flipping the X and Y joysticks
+            double redFlip = (DriverStation.getAlliance() == Alliance.Red) ? -1.0 : 1.0;
+
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    newInputX * m_maxVelocity,
-                    newInputY * m_maxVelocity,
+                    redFlip * newInputX * m_maxVelocity,
+                    redFlip * newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity,
                     getHeading());
         }
         // when in robot-centric mode
         else {
-            chassisSpeeds = new ChassisSpeeds(newInputX * m_maxVelocity,
+            chassisSpeeds = new ChassisSpeeds(
+                    newInputX * m_maxVelocity,
                     newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
