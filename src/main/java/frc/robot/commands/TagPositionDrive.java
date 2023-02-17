@@ -35,18 +35,18 @@ public class TagPositionDrive extends CommandBase {
         {
             // scoring transformations, change later
             // constant rotation offset of 180 so robot faces opposite direction as Apriltag (they both face each other)
-            put(Position.LEFT_TOP, new Pose2d(new Translation2d(2, -1), Rotation2d.fromDegrees(180)));
-            put(Position.CENTER_TOP, new Pose2d(new Translation2d(2, 0), Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_TOP, new Pose2d(new Translation2d(2, 1), Rotation2d.fromDegrees(180)));
-            put(Position.LEFT_MIDDLE, new Pose2d(new Translation2d(2, -1), Rotation2d.fromDegrees(180)));
-            put(Position.CENTER_MIDDLE, new Pose2d(new Translation2d(2, 0), Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_MIDDLE, new Pose2d(new Translation2d(2, 1), Rotation2d.fromDegrees(180)));
-            put(Position.LEFT_BOTTOM, new Pose2d(new Translation2d(2, -1), Rotation2d.fromDegrees(180)));
-            put(Position.CENTER_BOTTOM, new Pose2d(new Translation2d(2, 0), Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_BOTTOM, new Pose2d(new Translation2d(2, 1), Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_TOP, new Pose2d(2, -1, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_TOP, new Pose2d(2, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_TOP, new Pose2d(2, 1, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_MIDDLE, new Pose2d(2, -1, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_MIDDLE, new Pose2d(2, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_MIDDLE, new Pose2d(2, 1, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_BOTTOM, new Pose2d(2, -1, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_BOTTOM, new Pose2d(2, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_BOTTOM, new Pose2d(2, 1, Rotation2d.fromDegrees(180)));
             // substation positions, change later
-            put(Position.LEFT_SUBSTATION, new Pose2d(new Translation2d(100, 0), Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_SUBSTATION, new Pose2d(new Translation2d(100, 0), Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_SUBSTATION, new Pose2d(1, -1, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_SUBSTATION, new Pose2d(1, 1, Rotation2d.fromDegrees(180)));
         }
     };
 
