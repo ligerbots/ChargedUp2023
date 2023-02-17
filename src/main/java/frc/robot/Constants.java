@@ -38,9 +38,6 @@ public final class Constants {
     // CAN ID for the Reacher (arm extension system)
     public static final int REACHER_CAN_ID = 13; // TODO: Set CanID
 
-    // CAND IDs for the Shoulder motors
-    public static final int SHOULDER_CAN_ID[] = {14, 15}; // TODO: Set CANIDs
-
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
     // L Center R

@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
@@ -32,6 +34,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
+    // CAND IDs for the Shoulder motors
+    private static final int SHOULDER_CAN_ID_LEADER = 14;
+    private static final int SHOULDER_CAN_ID_FOLLWER = 15;
 
     // Feedforward constants for the shoulder
     private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
@@ -47,19 +52,20 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    private static final double SHOULDER_K_P = 10.0;
+    private static final double SHOULDER_K_P = 1.0;
     private static final double SHOULDER_K_I = 0.0;
     private static final double SHOULDER_K_D = 0.0;
     private static final double SHOULDER_K_FF = 0.0;
     private static final int kPIDLoopIdx = 0;
     private static final int kTimeoutMs = 0;
 
-    // TODO: calculate this
-    private static final double SHOULDER_ANGLE_PER_UNIT = 1.0;
+    private static final double SHOULDER_ANGLE_PER_UNIT = 2048;
 
     // Define the motor and encoders
-    private final WPI_TalonFX[] m_motor = new WPI_TalonFX[2];
-    private final TalonFXSensorCollection[] m_encoder = new TalonFXSensorCollection[2];
+    private final WPI_TalonFX m_motorLeader;
+    private final WPI_TalonFX m_motorFollower;
+    
+    private final TalonFXSensorCollection m_encoder;
     // private final EncoderSim m_encoderSim;
 
     // The P gain for the PID controller that drives this shoulder.
@@ -101,35 +107,29 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     public Shoulder() {
         super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RAD_PER_SEC, SHOULDER_MAX_ACC_RAD_PER_SEC_SQ));
 
-        // ***
-        // PAULR: I think this is wrong. One motor should be set as a Follower
-        for (int i = 0; i <= 1; i++) {
-            // Create the motor, PID Controller and encoder.
-            m_motor[i] = new WPI_TalonFX(Constants.SHOULDER_CAN_ID[i]);
-            m_encoder[i] = m_motor[i].getSensorCollection();
+        m_motorLeader = new WPI_TalonFX(SHOULDER_CAN_ID_LEADER);
+        m_motorFollower = new WPI_TalonFX(SHOULDER_CAN_ID_FOLLWER);
+        m_encoder = m_motorLeader.getSensorCollection();
+        // m_motorSim = new TalonFXSimCollection(m_motorLeader);
+        // m_encoderSim = new TalonFXSimCollection(m_encoder);
+        m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
+        // Set follower and invert
+        m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
+        m_motorLeader.config_kF(kPIDLoopIdx, SHOULDER_K_FF, kTimeoutMs);
+		m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
+		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
+		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
-            // m_motorSim = new TalonFXSimCollection(m_motorLeader);
-            // m_encoderSim = new TalonFXSimCollection(m_encoder);
-            m_motor[i].configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
-            // Set follower and invert
-            m_motor[i].config_kF(kPIDLoopIdx, SHOULDER_K_FF, kTimeoutMs);
-            m_motor[i].config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
-            m_motor[i].config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
-            m_motor[i].config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
-
-            // Set the position conversion factor. Note that the Trapezoidal control
-            // expects angles in radians.
-            // TODO: Set this based on shoulder gearbox gear ratio
-
-        }
+        m_encoder.setIntegratedSensorPosition(0.0, 0);
+        m_motorLeader.setSelectedSensorPosition(0.0);
 
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
-        SmartDashboard.putData("shoulder Sim", m_mech2d);
+        // SmartDashboard.putData("shoulder Sim", m_mech2d);
     }
 
     public void simulationPeriodic() {
         // First, we set our "inputs" (voltages)
-        m_shoulderSim.setInput(m_motor[0].get() * RobotController.getBatteryVoltage());
+        m_shoulderSim.setInput(m_motorLeader.get() * RobotController.getBatteryVoltage());
         // Next, we update it. The standard loop time is 20ms.
         m_shoulderSim.update(0.020);
 
@@ -148,9 +148,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     @Override
     public void periodic() {
         // Display current values on the SmartDashboard
-        SmartDashboard.putNumber("shoulder/Output", m_motor[0].get());
+        SmartDashboard.putNumber("shoulder/Output", m_motorLeader.get());
         SmartDashboard.putNumber("shoulder/Encoder", Math.toDegrees(getAngle()));
-        SmartDashboard.putNumber("shoulder/Goal", m_goal);
+        SmartDashboard.putNumber("shoulder/Goal", m_goal / 2048.0 * 360.0);
 
         // Execute the super class periodic method
         super.periodic();
@@ -176,11 +176,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
             m_resetShoulderPos = false;
         }
 
-        for(int i = 0; i <= 1; i++)
-            m_motor[i].set(ControlMode.Position, feedforward);
-            
+        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
         SmartDashboard.putNumber("shoulder/feedforward", feedforward);
-        SmartDashboard.putNumber("shoulder/setPoint", Units.metersToInches(setPoint.position));
+        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position);
         SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
     }
 
@@ -188,30 +186,24 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         double p = SmartDashboard.getNumber("shoulder/P Gain", 0);
         // if PID coefficients on SmartDashboard have changed, write new values to controller
         if ((p != m_kPShoulder)) {
-            // PAULR: is this right? Do we need to set the follower?
-            for(int i = 0; i <= 1; i++)
-                m_motor[i].config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
+            m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
             m_kPShoulder = p;
         }
     }
 
+    // return current shoulder angle in degrees
     public double getAngle() {
-        return (m_encoder[0].getIntegratedSensorAbsolutePosition() + 
-                m_encoder[1].getIntegratedSensorAbsolutePosition()) / 2.0;
+        return m_encoder.getIntegratedSensorAbsolutePosition() / 2048.0 * 360.0;
     }
 
     public void resetShoulderPos() {
-        super.setGoal(getAngle());
+        setAngle(getAngle());
         m_resetShoulderPos = true;
     }
 
-    public void setGoal(double goal) {
-        m_goal = goal;
-        super.setGoal(goal);
-    }
-
-    public double getEncoderDistance() {
-        return (m_motor[0].getSelectedSensorPosition() * SHOULDER_ANGLE_PER_UNIT + 
-                m_motor[1].getSelectedSensorPosition() * SHOULDER_ANGLE_PER_UNIT) / 2.0;
+    // set shoulder angle in degrees
+    public void setAngle(double angle) {
+        m_goal = angle;
+        super.setGoal(angle);
     }
 }
