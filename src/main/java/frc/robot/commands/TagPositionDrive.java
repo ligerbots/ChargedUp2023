@@ -15,8 +15,8 @@ import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -30,21 +30,29 @@ public class TagPositionDrive extends CommandBase {
     private Vision m_vision;
     private Position m_targetPosition;
 
-    // converted to Transform because cannot add two Poses together
+    // Dictionary of robot positions for a desired operation
+    // This is *relative* to the AprilTag pose, but left/right from the Driver's perspective
+
+    // distance in front of tag. Roughly 36cm + 1/2 of robot length
+    private static final double SCORE_OFFSET_X_METERS = 0.90;
+    // distance from center to cone pipe
+    private static final double SCORE_OFFSET_Y_METERS = Units.inchesToMeters(22.0);
+
     private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {
-            // scoring transformations, change later
+            // scoring transformations
             // constant rotation offset of 180 so robot faces opposite direction as Apriltag (they both face each other)
-            put(Position.LEFT_TOP, new Pose2d(2, -1, Rotation2d.fromDegrees(180)));
-            put(Position.CENTER_TOP, new Pose2d(2, 0, Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_TOP, new Pose2d(2, 1, Rotation2d.fromDegrees(180)));
-            put(Position.LEFT_MIDDLE, new Pose2d(2, -1, Rotation2d.fromDegrees(180)));
-            put(Position.CENTER_MIDDLE, new Pose2d(2, 0, Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_MIDDLE, new Pose2d(2, 1, Rotation2d.fromDegrees(180)));
-            put(Position.LEFT_BOTTOM, new Pose2d(2, -1, Rotation2d.fromDegrees(180)));
-            put(Position.CENTER_BOTTOM, new Pose2d(2, 0, Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_BOTTOM, new Pose2d(2, 1, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_TOP, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_TOP, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_TOP, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_MIDDLE, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_MIDDLE, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_MIDDLE, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
             // substation positions, change later
+            // NOTE substation left/right is flipped because we are going with the Driver's perspective
             put(Position.LEFT_SUBSTATION, new Pose2d(1, -1, Rotation2d.fromDegrees(180)));
             put(Position.RIGHT_SUBSTATION, new Pose2d(1, 1, Rotation2d.fromDegrees(180)));
         }
