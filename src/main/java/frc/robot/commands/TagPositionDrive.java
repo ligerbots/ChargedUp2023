@@ -31,22 +31,22 @@ public class TagPositionDrive extends CommandBase {
     private Position m_targetPosition;
 
     // converted to Transform because cannot add two Poses together
-    private static final Map<Position, Transform2d> ROBOT_POSITIONS = new HashMap<Position, Transform2d>() {
+    private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {
             // scoring transformations, change later
             // constant rotation offset of 180 so robot faces opposite direction as Apriltag (they both face each other)
-            put(Position.LEFT_TOP, new Transform2d(new Translation2d(2, -1), new Rotation2d(180))); // position1
-            put(Position.CENTER_TOP, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
-            put(Position.RIGHT_TOP, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
-            put(Position.LEFT_MIDDLE, new Transform2d(new Translation2d(2, -1), new Rotation2d(180)));
-            put(Position.CENTER_MIDDLE, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
-            put(Position.RIGHT_MIDDLE, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
-            put(Position.LEFT_BOTTOM, new Transform2d(new Translation2d(2, -1), new Rotation2d(180)));
-            put(Position.CENTER_BOTTOM, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
-            put(Position.RIGHT_BOTTOM, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
+            put(Position.LEFT_TOP, new Pose2d(new Translation2d(2, -1), new Rotation2d(180))); // position1
+            put(Position.CENTER_TOP, new Pose2d(new Translation2d(2, 0), new Rotation2d(180)));
+            put(Position.RIGHT_TOP, new Pose2d(new Translation2d(2, 1), new Rotation2d(180)));
+            put(Position.LEFT_MIDDLE, new Pose2d(new Translation2d(2, -1), new Rotation2d(180)));
+            put(Position.CENTER_MIDDLE, new Pose2d(new Translation2d(2, 0), new Rotation2d(180)));
+            put(Position.RIGHT_MIDDLE, new Pose2d(new Translation2d(2, 1), new Rotation2d(180)));
+            put(Position.LEFT_BOTTOM, new Pose2d(new Translation2d(2, -1), new Rotation2d(180)));
+            put(Position.CENTER_BOTTOM, new Pose2d(new Translation2d(2, 0), new Rotation2d(180)));
+            put(Position.RIGHT_BOTTOM, new Pose2d(new Translation2d(2, 1), new Rotation2d(180)));
             // substation positions, change later
-            put(Position.LEFT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
-            put(Position.RIGHT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
+            put(Position.LEFT_SUBSTATION, new Pose2d(new Translation2d(100, 0), new Rotation2d(180)));
+            put(Position.RIGHT_SUBSTATION, new Pose2d(new Translation2d(100, 0), new Rotation2d(180)));
         }
     };
 
@@ -74,7 +74,7 @@ public class TagPositionDrive extends CommandBase {
 
         // this is the transformation we want to translate from the target AprilTag by
         // can do this instead of if checks
-        Transform2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
+        Pose2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
 
         // to rotate universal coordinates so translation is correct direction
         Translation2d poseOffset = robotTransformation.getTranslation().rotateBy(tagPose.getRotation());
