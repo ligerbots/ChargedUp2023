@@ -72,6 +72,10 @@ public class TagPositionDrive extends CommandBase {
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
         System.out.println("Target Tag Pose" + tagPose.toString());
 
+        // get robot current pose
+        Pose2d currentPose = m_driveTrain.getPose();
+        System.out.println("Current Robot Pose" + currentPose.toString());
+
         // this is the transformation we want to translate from the target AprilTag by
         // can do this instead of if checks
         Transform2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
@@ -83,16 +87,19 @@ public class TagPositionDrive extends CommandBase {
         // add to get target rotation and translation for robot
         Translation2d robotTargetTranslation = tagPose.getTranslation().plus(poseOffset);
         System.out.println("Robot Target Pose Translation" + robotTargetTranslation.toString());
-        Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
-        System.out.println("Robot Target Pose Rotation" + robotTargetRotation.toString());
 
-        // get robot current pose
-        Pose2d currentPose = m_driveTrain.getPose();
-        System.out.println("Current Robot Pose" + currentPose.toString());
+        // subtract the robot's rotation from the tag's rotation
+        Rotation2d robotTargetHeading = tagPose.getRotation().minus(currentPose.getRotation());
+        System.out.println("Robot Target Pose Heading" + robotTargetHeading.toString());
+
+        Rotation2d robotTargetHolonomicRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
+        System.out.println("Robot Target Pose Holonomic Rotation" + robotTargetHolonomicRotation.toString());
+
+
 
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-                new PathPoint(robotTargetTranslation, robotTargetRotation) // position, heading
+                new PathPoint(robotTargetTranslation, robotTargetHeading, robotTargetHolonomicRotation) // position, heading, holonimc rotation
         );
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.schedule();
