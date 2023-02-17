@@ -88,18 +88,19 @@ public class TagPositionDrive extends CommandBase {
         Translation2d robotTargetTranslation = tagPose.getTranslation().plus(poseOffset);
         System.out.println("Robot Target Pose Translation" + robotTargetTranslation.toString());
 
-        // subtract the robot's rotation from the tag's rotation
-        Rotation2d robotTargetHeading = tagPose.getRotation().minus(currentPose.getRotation());
-        System.out.println("Robot Target Pose Heading" + robotTargetHeading.toString());
+        // subtract the robot's translation from the target position's translation to find the translation between the points (target-robot translation)
+        Translation2d robotTranslationHeading = robotTargetTranslation.minus(currentPose.getTranslation());
+        //get the angle of the translation, which is the robots heading
+        Rotation2d robotHeading = robotTranslationHeading.getAngle(); 
+        System.out.println("Robot Target Pose Heading" + robotHeading.toString());
 
         Rotation2d robotTargetHolonomicRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
         System.out.println("Robot Target Pose Holonomic Rotation" + robotTargetHolonomicRotation.toString());
 
 
-
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
-                new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-                new PathPoint(robotTargetTranslation, robotTargetHeading, robotTargetHolonomicRotation) // position, heading, holonimc rotation
+                new PathPoint(currentPose.getTranslation(), robotHeading, currentPose.getRotation()), // starting translation, heading, holonomic rotation
+                new PathPoint(robotTargetTranslation, robotHeading, robotTargetHolonomicRotation) // target translation, heading, holonimc rotation
         );
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.schedule();
