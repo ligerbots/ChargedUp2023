@@ -14,11 +14,11 @@ import edu.wpi.first.math.geometry.Translation3d;
 
 public class ChargeStationBalance extends CommandBase {
 
-    private static final Rotation2d BALANCED_ERROR = Rotation2d.fromDegrees(2.5); //error for what counts as balanced
+    private static final double BALANCED_ERROR_DEGREES = 2.5; // max error for what counts as balanced
     private static final double BALANCED_DEGREES = 0;
-    private static final double BALANCE_KP = 0.02; //change to control how fast robot drives during balancing
+    private static final double BALANCE_KP = 0.02; // change to control how fast robot drives during balancing
     private static final double MAX_MPS = 1.0;
-    private static final double BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
+    private static final double BALANCE_SECONDS = 1; // how many seconds the robot has to be balanced before stopping
 
     private DriveTrain m_driveTrain;
     private final Timer m_timer = new Timer();
@@ -28,6 +28,7 @@ public class ChargeStationBalance extends CommandBase {
         m_driveTrain = driveTrain;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
+
         SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
         SmartDashboard.putNumber("balanceCommand/error", 0.0);
     }
@@ -42,31 +43,28 @@ public class ChargeStationBalance extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        //uses angle of robot to set its speed
-        // *current robot has Roll
-        Rotation2d currentAngle = Rotation2d.fromDegrees(m_driveTrain.getTiltDegrees());
-        Rotation2d error = Rotation2d.fromDegrees(currentAngle.getDegrees() - BALANCED_DEGREES);
-        double driveMPS = error.getDegrees() * BALANCE_KP;
+        // uses angle of robot to set its speed
+        double errorDegrees = m_driveTrain.getTiltDegrees() - BALANCED_DEGREES;
+        double driveMPS = errorDegrees * BALANCE_KP;
     
         // cap max speed
         if (Math.abs(driveMPS) > MAX_MPS) {
             driveMPS = Math.copySign(MAX_MPS, driveMPS);
         }
         SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
-        SmartDashboard.putNumber("balanceCommand/error", error.getDegrees());
-        SmartDashboard.putNumber("balanceCommand/currentAngle", currentAngle.getDegrees());
+        SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
 
         Rotation2d driveAngle = m_driveTrain.getTiltDirection().plus(Rotation2d.fromDegrees(180));
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-                driveMPS * driveAngle.getCos(),
-                driveMPS * driveAngle.getSin(),
-                0
+            driveMPS * driveAngle.getCos(),
+            driveMPS * driveAngle.getSin(),
+            0
         );
 
         m_driveTrain.drive(chassisSpeeds);
         
-        //if not balanced, resets timer
-        if (Math.abs(error.getDegrees()) >= BALANCED_ERROR.getDegrees()){
+        // if not balanced, resets timer
+        if (Math.abs(errorDegrees) >= BALANCED_ERROR_DEGREES){
             m_timer.reset();
         }
     }
@@ -74,7 +72,7 @@ public class ChargeStationBalance extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.stop();
+        m_driveTrain.lockWheels();
         m_timer.stop();
     }
 

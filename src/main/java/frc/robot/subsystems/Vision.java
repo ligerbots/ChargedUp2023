@@ -25,11 +25,11 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 
 public class Vision {
     // Values for the Shed in late January
-    private static final double CUSTOM_FIELD_LENGTH = 8.780;    // meters
-    private static final double CUSTOM_FIELD_WIDTH = 6.0;       // meters
+
     private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = 
             new AprilTagFieldLayout(new ArrayList<AprilTag>() {
                 {
@@ -41,16 +41,16 @@ public class Vision {
                     add(constructTag(21, 8.780, 1.373, 0.895, 180));
                     add(constructTag(20, 8.780, 2.392, 0.946, 180));
                 }
-            }, CUSTOM_FIELD_LENGTH, CUSTOM_FIELD_WIDTH);
+            }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
 
     private final PhotonCamera m_aprilTagCamera = new PhotonCamera("ApriltagCamera");
     private final AprilTagFieldLayout m_aprilTagFieldLayout;
-    
+
     // Forward B&W camera for Apriltags
     // relative position of the camera on the robot ot the robot center
     private final Transform3d m_robotToAprilTagCam = new Transform3d(
-        new Translation3d(Units.inchesToMeters(31.25 / 2.0), 0.0, Units.inchesToMeters(21.0)),
-        new Rotation3d(0.0, 0.0, 0.0)); 
+            new Translation3d(Units.inchesToMeters(3.5), -0.136, Units.inchesToMeters(22.5)),
+            new Rotation3d(0.0, 0.0, 0.0));
 
     private final PhotonPoseEstimator m_photonPoseEstimator;
 
@@ -80,13 +80,13 @@ public class Vision {
         var targetResult = m_aprilTagCamera.getLatestResult();
         double curImageTimeStamp = targetResult.getTimestampSeconds();
 
-        if (curImageTimeStamp <= m_lastImageTimeStamp) 
+        if (curImageTimeStamp <= m_lastImageTimeStamp)
             return;
 
         m_lastImageTimeStamp = curImageTimeStamp;
 
         SmartDashboard.putBoolean("vision/hasTargets", targetResult.hasTargets());
-        if (!targetResult.hasTargets()) 
+        if (!targetResult.hasTargets())
             return;
 
         // Get the current best target.
@@ -99,7 +99,7 @@ public class Vision {
 
         if (m_aprilTagFieldLayout == null)
             return;
-        
+
         // Estimate the robot pose.
         // If successful, update the odometry using the timestamp of the measurement
         Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
@@ -118,18 +118,42 @@ public class Vision {
         }
     }
 
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    private Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return m_photonPoseEstimator.update();
     }
 
-    // private Optional<Pose2d> getTagPose(int tagID){
-    //     // This can fail if the tagID is not part of the map. 
-    //     // Need to check before converting to Pose2d
-    //     return Optional.of(m_aprilTagFieldLayout.getTagPose(tagID).get().toPose2d());
-    // }
+    public Optional<Pose2d> getCentralTagPose() { // gets target closets to center of camera
+        var targetResult = m_aprilTagCamera.getLatestResult();
+        if (!targetResult.hasTargets()) {
+            return Optional.empty();
+        }
+        // make a temp holder var for least Y translation, set to first tags translation
+        double minY = 1.0e6; // big number
+        int targetID = -1;
+        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera
+            // get transformation to target
+            Transform3d tagTransform = tag.getBestCameraToTarget();
+            // get abs translation to target from transformation
+            double tagY = Math.abs(tagTransform.getY());
 
-    private static AprilTag constructTag(int id, double x, double y, double z, double angle){
+            // looking for smallest absolute relative to camera Y
+            // if abs Y translation of new tag is less then holder tag, it becomes holder tag
+            if (tagY < minY) {
+                minY = tagY;
+                targetID = tag.getFiducialId(); // set targetID
+            }
+        }
+        
+        //optional in case no target is found
+        Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(targetID);
+        if(tagPose.isEmpty()){
+            return Optional.empty(); //returns an empty optional
+        }
+        return Optional.of(tagPose.get().toPose2d());
+    }
+
+    private static AprilTag constructTag(int id, double x, double y, double z, double angle) {
         return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
     }
 }
