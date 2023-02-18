@@ -33,7 +33,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // These need to be set for this robot.
 
     // CAND IDs for the Shoulder motors
-    private static final int SHOULDER_CAN_ID_LEADER = 14;
+    private static final int SHOULDER_CAN_ID_LEADER = 1;
     private static final int SHOULDER_CAN_ID_FOLLWER = 15;
 
     // Feedforward constants for the shoulder
@@ -44,8 +44,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_KA = 0.08;
 
     // Constants to limit the shoulder rotation speed
-    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 200.0;
-    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 200.0;
+    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 2048.0;
+    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 2048.0;
     private static final double SHOULDER_OFFSET_DEGREE = 0.0;
 
     // PID Constants for the shoulder PID controller

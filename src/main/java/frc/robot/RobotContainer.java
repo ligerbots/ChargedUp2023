@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Drive;
+import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
 import frc.robot.subsystems.Arm;
 import frc.robot.commands.TagPositionDrive;
@@ -65,7 +66,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
 
         JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
-        xboxAButton.onTrue(new SetArmLengthTest(m_arm));
+        xboxAButton.onTrue(new SetArmAngleTest(m_arm));
 
         // // when button A is pressed, toggle field-centric drive mode
         // JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
