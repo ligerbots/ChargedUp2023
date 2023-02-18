@@ -11,7 +11,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 
@@ -20,10 +19,10 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // CAN ID for the Reacher (arm extension system)
     private static final int REACHER_CAN_ID = 7; // TODO: Set CanID
 
-    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(100.0);
-    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(30.0);
+    private static final double REACHER_MAX_VEL_INCH_PER_SEC = 100.0;
+    private static final double REACHER_MAX_ACC_INCH_PER_SEC_SQ = 30.0;
 
-    private static final double REACHER_INCHES_PER_REVOLUTION = Units.inchesToMeters(0.7);
+    private static final double REACHER_INCH_PER_REVOLUTION = 0.7;
 
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
@@ -39,7 +38,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     private static final double REACHER_K_I = 0.0;
     private static final double REACHER_K_D = 0.0;
     private static final double REACHER_K_FF = 0.0;
-    private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
+    private static final double REACHER_OFFSET_INCH = 0.0;
 
 
     /** Creates a new Reacher. */
@@ -58,8 +57,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     /** Creates a new Reacher. */
     public Reacher() {
-        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_METER_PER_SEC,
-        REACHER_MAX_ACC_METER_PER_SEC_SQ));
+        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_INCH_PER_SEC,
+        REACHER_MAX_ACC_INCH_PER_SEC_SQ));
 
         m_kPReacher = REACHER_K_P;
 
@@ -76,9 +75,9 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_encoder = m_motor.getEncoder();
 
         // Set the position conversion factor.
-        m_encoder.setPositionConversionFactor(REACHER_INCHES_PER_REVOLUTION);
+        m_encoder.setPositionConversionFactor(REACHER_INCH_PER_REVOLUTION);
 
-        m_encoder.setPosition(REACHER_OFFSET_METER);
+        m_encoder.setPosition(REACHER_OFFSET_INCH);
 
         SmartDashboard.putNumber("Reacher/P Gain", m_kPReacher);
     }
@@ -86,7 +85,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     @Override
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
-        SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/Encoder", encoderValue);
         SmartDashboard.putNumber("Reacher/m_goal", m_goal);
         
         super.periodic();

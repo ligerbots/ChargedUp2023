@@ -44,9 +44,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_KA = 0.08;
 
     // Constants to limit the shoulder rotation speed
-    private static final double SHOULDER_MAX_VEL_RAD_PER_SEC = Math.toRadians(200.0);
-    private static final double SHOULDER_MAX_ACC_RAD_PER_SEC_SQ = Math.toRadians(200.0);
-    private static final double SHOULDER_OFFSET_ANGLE = 0.0;
+    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 200.0;
+    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 200.0;
+    private static final double SHOULDER_OFFSET_DEGREE = 0.0;
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
@@ -57,7 +57,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final int kPIDLoopIdx = 0;
     private static final int kTimeoutMs = 0;
 
-    private static final double SHOULDER_ANGLE_PER_UNIT = 360.0 / 2048.0;
+    private static final double SHOULDER_DEGREE_PER_UNIT = 360.0 / 2048.0;
 
     private final ArmFeedforward m_feedForward = new ArmFeedforward(SHOULDER_KS, SHOULDER_KG,
     SHOULDER_KV, SHOULDER_KA);
@@ -107,7 +107,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Construct a new Shoulder subsystem
     public Shoulder() {
-        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RAD_PER_SEC, SHOULDER_MAX_ACC_RAD_PER_SEC_SQ));
+        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ));
 
         m_motorLeader = new WPI_TalonFX(SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(SHOULDER_CAN_ID_FOLLWER);
@@ -122,7 +122,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
-        m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_ANGLE / SHOULDER_ANGLE_PER_UNIT, 0);
+        m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_DEGREE / SHOULDER_DEGREE_PER_UNIT, 0);
         // m_motorLeader.setSelectedSensorPosition(0.0);
 
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
@@ -184,7 +184,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
         SmartDashboard.putNumber("shoulder/feedforward", feedforward);
-        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position * SHOULDER_ANGLE_PER_UNIT);
+        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position * SHOULDER_DEGREE_PER_UNIT);
         // SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
     }
 
@@ -199,7 +199,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // return current shoulder angle in degrees
     public double getAngle() {
-        return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_ANGLE_PER_UNIT;
+        return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_DEGREE_PER_UNIT;
     }
 
     public void resetShoulderPos() {
@@ -210,6 +210,6 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // set shoulder angle in degrees
     public void setAngle(double angle) {
         m_goal = angle;
-        super.setGoal(angle / SHOULDER_ANGLE_PER_UNIT);
+        super.setGoal(angle / SHOULDER_DEGREE_PER_UNIT);
     }
 }

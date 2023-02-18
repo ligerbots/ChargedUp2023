@@ -42,8 +42,8 @@ public class RobotContainer {
     private final XboxController m_controller = new XboxController(0);
 
     // The robot's subsystems and commands are defined here...
-    private final Vision m_vision = new Vision();
-    private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
+    // private final Vision m_vision = new Vision();
+    // private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
 	private final Arm m_arm = new Arm();
 
     /**
@@ -51,7 +51,7 @@ public class RobotContainer {
      */
     public RobotContainer() {
         configureButtonBindings();
-        m_driveTrain.setDefaultCommand(getDriveCommand());
+        // m_driveTrain.setDefaultCommand(getDriveCommand());
     }
 
     /**
@@ -88,7 +88,7 @@ public class RobotContainer {
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
 
         // testing if the command works by passing in a position, we need more buttons for all 11
-        xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
+        // xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
         
         // // when button Y is pressed, attempt to balance on the Charging Station
         // // assumes that the robot is already mostly up on the Station
@@ -112,14 +112,14 @@ public class RobotContainer {
         */
     }
 
-	public Command getDriveCommand() {
-		// The controls are for field-oriented driving:
-		// Left stick Y axis -> forward and backwards movement
-		// Left stick X axis -> left and right movement
-		// Right stick X axis -> rotation
-		return new Drive(m_driveTrain, () -> -modifyAxis(m_controller.getLeftY()),
-				() -> -modifyAxis(m_controller.getLeftX()), () -> -modifyAxis(m_controller.getRightX()));
-	}
+	// public Command getDriveCommand() {
+	// 	// The controls are for field-oriented driving:
+	// 	// Left stick Y axis -> forward and backwards movement
+	// 	// Left stick X axis -> left and right movement
+	// 	// Right stick X axis -> rotation
+	// 	return new Drive(m_driveTrain, () -> -modifyAxis(m_controller.getLeftY()),
+	// 			() -> -modifyAxis(m_controller.getLeftX()), () -> -modifyAxis(m_controller.getRightX()));
+	// }
 
 	private static double deadband(double value, double deadband) {
 		if (Math.abs(value) > deadband) {
@@ -143,7 +143,7 @@ public class RobotContainer {
 		return value;
 	}
 
-	public DriveTrain getDriveTrain() {
-		return m_driveTrain;
-	}
+	// public DriveTrain getDriveTrain() {
+	// 	return m_driveTrain;
+	// }
 }

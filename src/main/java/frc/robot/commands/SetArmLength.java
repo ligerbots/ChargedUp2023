@@ -9,7 +9,7 @@ import frc.robot.subsystems.Arm;
 
 public class SetArmLength extends CommandBase {
 
-    public static final double REACHER_OFFSET_TOLERANCE_INCHES = 1.0;
+    public static final double REACHER_OFFSET_TOLERANCE_INCHES = 0.5;
 
     /** Creates a new SetArmLength. */
     Arm m_arm;
