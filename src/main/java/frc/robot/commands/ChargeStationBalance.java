@@ -45,8 +45,8 @@ public class ChargeStationBalance extends CommandBase {
         //uses angle of robot to set its speed
         // *current robot has Roll
         Rotation2d currentAngle = Rotation2d.fromDegrees(m_driveTrain.getTiltDegrees());
-        Rotation2d error = Rotation2d.fromDegrees(BALANCED_DEGREES - currentAngle.getDegrees());
-        double driveMPS = -error.getDegrees() * BALANCE_KP;
+        Rotation2d error = Rotation2d.fromDegrees(currentAngle.getDegrees() - BALANCED_DEGREES);
+        double driveMPS = error.getDegrees() * BALANCE_KP;
     
         // cap max speed
         if (Math.abs(driveMPS) > MAX_MPS) {
@@ -54,8 +54,16 @@ public class ChargeStationBalance extends CommandBase {
         }
         SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
         SmartDashboard.putNumber("balanceCommand/error", error.getDegrees());
+        SmartDashboard.putNumber("balanceCommand/currentAngle", currentAngle.getDegrees());
 
-        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getHeading()));
+        Rotation2d driveAngle = m_driveTrain.getTiltDirection().plus(Rotation2d.fromDegrees(180));
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+                driveMPS * driveAngle.getCos(),
+                driveMPS * driveAngle.getSin(),
+                0
+        );
+
+        m_driveTrain.drive(chassisSpeeds);
         
         //if not balanced, resets timer
         if (Math.abs(error.getDegrees()) >= BALANCED_ERROR.getDegrees()){
