@@ -123,7 +123,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
         m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_DEGREE / SHOULDER_DEGREE_PER_UNIT, 0);
-        // m_motorLeader.setSelectedSensorPosition(0.0);
+        m_motorLeader.setSelectedSensorPosition(0.0);
 
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
         SmartDashboard.putData("shoulder Sim", m_mech2d);
