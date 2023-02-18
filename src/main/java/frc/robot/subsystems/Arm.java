@@ -27,7 +27,7 @@ public class Arm extends SubsystemBase {
 
     // rotates the arm to a certain angle
     public void setArmAngle(double degree) {
-        m_shoulder.setGoal(degree);
+        m_shoulder.setAngle(degree);
     }
 
     // returns the currrent length of the arm

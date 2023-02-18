@@ -27,8 +27,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 
-import frc.robot.Constants;
-
 public class Shoulder extends TrapezoidProfileSubsystem {
 
     // TODO: The following constants came from the 2022 robot.
@@ -59,7 +57,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final int kPIDLoopIdx = 0;
     private static final int kTimeoutMs = 0;
 
-    private static final double SHOULDER_ANGLE_PER_UNIT = 2048;
+    private static final double SHOULDER_ANGLE_PER_UNIT = 360.0 / 2048.0;
 
     // Define the motor and encoders
     private final WPI_TalonFX m_motorLeader;
@@ -71,7 +69,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // The P gain for the PID controller that drives this shoulder.
     private static double m_kPShoulder = 1.0;
 
-    private boolean m_resetShoulderPos;
+    private boolean m_resetShoulderPos = false;
+
+    // current goal in degrees
     private double m_goal;
 
     // *********************Simulation Stuff************************
@@ -124,7 +124,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_motorLeader.setSelectedSensorPosition(0.0);
 
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
-        // SmartDashboard.putData("shoulder Sim", m_mech2d);
+        SmartDashboard.putData("shoulder Sim", m_mech2d);
     }
 
     public void simulationPeriodic() {
@@ -149,8 +149,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     public void periodic() {
         // Display current values on the SmartDashboard
         SmartDashboard.putNumber("shoulder/Output", m_motorLeader.get());
-        SmartDashboard.putNumber("shoulder/Encoder", Math.toDegrees(getAngle()));
-        SmartDashboard.putNumber("shoulder/Goal", m_goal / 2048.0 * 360.0);
+        SmartDashboard.putNumber("shoulder/Encoder", getAngle());
+        SmartDashboard.putNumber("shoulder/Goal", m_goal);
 
         // Execute the super class periodic method
         super.periodic();
@@ -178,7 +178,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
         SmartDashboard.putNumber("shoulder/feedforward", feedforward);
-        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position);
+        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position * SHOULDER_ANGLE_PER_UNIT);
         SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
     }
 
@@ -186,14 +186,14 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         double p = SmartDashboard.getNumber("shoulder/P Gain", 0);
         // if PID coefficients on SmartDashboard have changed, write new values to controller
         if ((p != m_kPShoulder)) {
-            m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
+            m_motorLeader.config_kP(kPIDLoopIdx, p, kTimeoutMs);
             m_kPShoulder = p;
         }
     }
 
     // return current shoulder angle in degrees
     public double getAngle() {
-        return m_encoder.getIntegratedSensorAbsolutePosition() / 2048.0 * 360.0;
+        return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_ANGLE_PER_UNIT;
     }
 
     public void resetShoulderPos() {
@@ -204,6 +204,6 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // set shoulder angle in degrees
     public void setAngle(double angle) {
         m_goal = angle;
-        super.setGoal(angle);
+        super.setGoal(angle / SHOULDER_ANGLE_PER_UNIT);
     }
 }
