@@ -35,9 +35,6 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.2);
 
-    // CAN ID for the Reacher (arm extension system)
-    public static final int REACHER_CAN_ID = 13; // TODO: Set CanID
-
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
     // L Center R

@@ -56,6 +56,9 @@ public class Robot extends TimedRobot {
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
+        SmartDashboard.getNumber("Testing/SetArmLengthTest", 0.0);
+        SmartDashboard.getNumber("Testing/SetArmAngleTest", 0.0);
+
         m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
     }
 

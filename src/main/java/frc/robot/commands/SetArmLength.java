@@ -4,60 +4,42 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import frc.robot.subsystems.Arm;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class SetArmLength extends CommandBase {
-    
-    public static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(100.0);
-    public static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(30.0);
 
+    public static final double REACHER_OFFSET_TOLERANCE_INCHES = 1.0;
+
+    /** Creates a new SetArmLength. */
     Arm m_arm;
-    double m_height;
+    double m_length;
 
-    double m_maxVel;
-    double m_maxAcc;
-
-    Command m_command;
-
-    public SetArmLength(Arm arm, double height) {
-        this(arm, height, REACHER_MAX_VEL_METER_PER_SEC,
-                REACHER_MAX_ACC_METER_PER_SEC_SQ);
-    }
-
-    public SetArmLength(Arm arm, double height, final double MAX_VEL_METER_PER_SEC,
-            final double MAX_ACC_METER_PER_SEC) {
-        m_maxAcc = MAX_ACC_METER_PER_SEC;
-        m_maxVel = MAX_VEL_METER_PER_SEC;
+    public SetArmLength(Arm arm, double length) {
+        // Use addRequirements() here to declare subsystem dependencies.
         m_arm = arm;
-        m_height = height;
+        m_length = length;
     }
 
+    // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_command = new TrapezoidProfileCommand(new TrapezoidProfile(
-                // Limit the max acceleration and velocity
-                new TrapezoidProfile.Constraints(m_maxVel, m_maxAcc),
-                // End at desired position in meters; implicitly starts at 0
-                new TrapezoidProfile.State(m_height, 0),
-                // initial position state
-                new TrapezoidProfile.State(m_arm.getArmLength(), 0)),
-                // Pipe the profile state to the drive
-                setpointState -> m_arm.setReacherExtent(setpointState));
-
-        CommandScheduler.getInstance().schedule(m_command);
+        m_arm.setArmLength(m_length);
     }
 
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+    }
+
+    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_command != null && m_command.isFinished();
+        return Math.abs(m_arm.getArmLength() - m_length) < REACHER_OFFSET_TOLERANCE_INCHES;
     }
 }

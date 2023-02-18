@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Drive;
+import frc.robot.commands.SetArmLengthTest;
 import frc.robot.subsystems.Arm;
 import frc.robot.commands.TagPositionDrive;
 import frc.robot.subsystems.DriveTrain;
@@ -62,22 +63,26 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        // when button A is pressed, toggle field-centric drive mode
+
         JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
-        xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
+        xboxAButton.onTrue(new SetArmLengthTest(m_arm));
 
-        // when button B is pressed, lock wheels
-        JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
-        xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
+        // // when button A is pressed, toggle field-centric drive mode
+        // JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
+        // xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-        // when button X is pressed, toggle precision (slow) drive mode
-        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+        // // when button B is pressed, lock wheels
+        // JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
+        // xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
 
-        // when button START is pressed, reset the robot heading
-        // whichever way the robot is facing becomes the forward direction
-        JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
-        xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
+        // // when button X is pressed, toggle precision (slow) drive mode
+        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        // xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+
+        // // when button START is pressed, reset the robot heading
+        // // whichever way the robot is facing becomes the forward direction
+        // JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
+        // xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);

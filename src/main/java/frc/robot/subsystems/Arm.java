@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
@@ -21,21 +20,22 @@ public class Arm extends SubsystemBase {
     public void periodic() {
     }
 
-    public void setReacherExtent(TrapezoidProfile.State extent) {
-        m_reacher.setSetPoint(extent);
+    // set arm length in inches
+    public void setArmLength(double length) {
+        m_reacher.setLength(length);
     }
 
-    // rotates the arm to a certain angle
+    // rotates the arm to a certain angle in degrees
     public void setArmAngle(double degree) {
         m_shoulder.setAngle(degree);
     }
 
-    // returns the currrent length of the arm
+    // returns the currrent length of the arm in inches
     public double getArmLength() {
         return m_reacher.getLength();
     }
 
-    // returns the current angle of the arm
+    // returns the current angle of the arm in degrees
     public double getArmAngle() {
         return m_shoulder.getAngle();
     }

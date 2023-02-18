@@ -13,11 +13,17 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 
-import frc.robot.Constants;
+public class Reacher extends TrapezoidProfileSubsystem {
 
-public class Reacher extends SubsystemBase {
+    // CAN ID for the Reacher (arm extension system)
+    private static final int REACHER_CAN_ID = 7; // TODO: Set CanID
+
+    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(100.0);
+    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(30.0);
+
+    private static final double REACHER_INCHES_PER_REVOLUTION = Units.inchesToMeters(0.7);
 
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
@@ -28,12 +34,12 @@ public class Reacher extends SubsystemBase {
 
     // PID Constants for the reacher PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    private static final double REACHER_K_P0 = 100;
+    private static final double REACHER_K_P = 1.0;
     // private static final double REACHER_K_P1 = 100;
     private static final double REACHER_K_I = 0.0;
     private static final double REACHER_K_D = 0.0;
     private static final double REACHER_K_FF = 0.0;
-    private static final double REACHER_OFFSET_METER = Units.inchesToMeters(1.5);
+    private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
 
 
     /** Creates a new Reacher. */
@@ -47,17 +53,22 @@ public class Reacher extends SubsystemBase {
 
     private double m_kPReacher;
     private boolean m_resetReacherPos = false;
+    private boolean m_coastMode = false;
+    private double m_goal = 0;
 
     /** Creates a new Reacher. */
     public Reacher() {
-        m_kPReacher = REACHER_K_P0;
+        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_METER_PER_SEC,
+        REACHER_MAX_ACC_METER_PER_SEC_SQ));
+
+        m_kPReacher = REACHER_K_P;
 
         // Create the motor, PID Controller and encoder.
-        m_motor = new CANSparkMax(Constants.REACHER_CAN_ID, MotorType.kBrushless);
+        m_motor = new CANSparkMax(REACHER_CAN_ID, MotorType.kBrushless);
         m_motor.restoreFactoryDefaults();
 
         m_PIDController = m_motor.getPIDController();
-        m_PIDController.setP(m_kPReacher);
+        m_PIDController.setP(REACHER_K_P);
         m_PIDController.setI(REACHER_K_I);
         m_PIDController.setD(REACHER_K_D);
         m_PIDController.setFF(REACHER_K_FF);
@@ -65,7 +76,7 @@ public class Reacher extends SubsystemBase {
         m_encoder = m_motor.getEncoder();
 
         // Set the position conversion factor.
-        m_encoder.setPositionConversionFactor((12.0 / 72.0) * Units.inchesToMeters((7.0 / 8.0) * Math.PI)); // was 5/8
+        m_encoder.setPositionConversionFactor(REACHER_INCHES_PER_REVOLUTION);
 
         m_encoder.setPosition(REACHER_OFFSET_METER);
 
@@ -76,12 +87,16 @@ public class Reacher extends SubsystemBase {
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
         SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/m_goal", m_goal);
+        
+        super.periodic();
 
         // update the PID val
         checkPIDVal();
     }
 
-    protected void setSetPoint(TrapezoidProfile.State setPoint) {
+    @Override
+    protected void useState(TrapezoidProfile.State setPoint) {
         // Calculate the feedforward from the setPoint
         double feedforward = m_Feedforward.calculate(setPoint.position, setPoint.velocity);
 
@@ -92,8 +107,8 @@ public class Reacher extends SubsystemBase {
             setPoint.position = m_encoder.getPosition();
             m_resetReacherPos = false;
         }
-        m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0, feedforward / 12.0);
-        SmartDashboard.putNumber("Reacher/setPoint", Units.metersToInches(setPoint.position));
+        m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0); // , feedforward / 12.0);
+        SmartDashboard.putNumber("Reacher/setPoint", setPoint.position);
     }
 
     private void checkPIDVal() {
@@ -110,11 +125,17 @@ public class Reacher extends SubsystemBase {
     }
 
     public void resetLength() {
-        setSetPoint(new TrapezoidProfile.State(m_encoder.getPosition(), 0.0));
+        setGoal(getLength());
         m_resetReacherPos = true;
     }
 
     public void setBrakeMode(boolean brake) {
         m_motor.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
+    }
+
+    // set reacher length in inches
+    public void setLength(double goal) {
+        m_goal = goal;
+        super.setGoal(goal);
     }
 }
