@@ -15,10 +15,11 @@ import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
@@ -29,24 +30,31 @@ public class TagPositionDrive extends CommandBase {
     private Vision m_vision;
     private Position m_targetPosition;
 
-    // converted to Transform because cannot add two Poses together
-    private static final Map<Position, Transform2d> ROBOT_POSITIONS = new HashMap<Position, Transform2d>() {
-        {
-            // scoring transformations, change later
-            // constant rotation offset of 180 so robot faces opposite direction as Apriltag (they both face each other)
-            put(Position.LEFT_TOP, new Transform2d(new Translation2d(2, -1), new Rotation2d(180))); // position1
-            put(Position.CENTER_TOP, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
-            put(Position.RIGHT_TOP, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
-            put(Position.LEFT_MIDDLE, new Transform2d(new Translation2d(2, -1), new Rotation2d(180)));
-            put(Position.CENTER_MIDDLE, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
-            put(Position.RIGHT_MIDDLE, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
-            put(Position.LEFT_BOTTOM, new Transform2d(new Translation2d(2, -1), new Rotation2d(180)));
-            put(Position.CENTER_BOTTOM, new Transform2d(new Translation2d(2, 0), new Rotation2d(180)));
-            put(Position.RIGHT_BOTTOM, new Transform2d(new Translation2d(2, 1), new Rotation2d(180)));
-            // substation positions, change later
-            put(Position.LEFT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
-            put(Position.RIGHT_SUBSTATION, new Transform2d(new Translation2d(100, 0), new Rotation2d(180)));
+    // Dictionary of robot positions for a desired operation
+    // This is *relative* to the AprilTag pose, but left/right from the Driver's perspective
 
+    // distance in front of tag. Roughly 36cm + 1/2 of robot length
+    private static final double SCORE_OFFSET_X_METERS = 0.90;
+    // distance from center to cone pipe
+    private static final double SCORE_OFFSET_Y_METERS = Units.inchesToMeters(22.0);
+
+    private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
+        {
+            // scoring transformations
+            // constant rotation offset of 180 so robot faces opposite direction as Apriltag (they both face each other)
+            put(Position.LEFT_TOP, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_TOP, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_TOP, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_MIDDLE, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_MIDDLE, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_MIDDLE, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.CENTER_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            // substation positions, change later
+            // NOTE substation left/right is flipped because we are going with the Driver's perspective
+            put(Position.LEFT_SUBSTATION, new Pose2d(1, -1, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_SUBSTATION, new Pose2d(1, 1, Rotation2d.fromDegrees(180)));
         }
     };
 
@@ -70,29 +78,34 @@ public class TagPositionDrive extends CommandBase {
         }
         // get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
-        System.out.println("Target Tag Pose" + tagPose.toString());
+        System.out.println("Target Tag Pose " + tagPose.toString());
 
         // this is the transformation we want to translate from the target AprilTag by
         // can do this instead of if checks
-        Transform2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
+        Pose2d robotTransformation = ROBOT_POSITIONS.get(m_targetPosition);
 
         // to rotate universal coordinates so translation is correct direction
         Translation2d poseOffset = robotTransformation.getTranslation().rotateBy(tagPose.getRotation());
-        System.out.println("Pose Offset Translation" + poseOffset.toString());
+        System.out.println("Pose Offset Translation " + poseOffset.toString());
 
         // add to get target rotation and translation for robot
         Translation2d robotTargetTranslation = tagPose.getTranslation().plus(poseOffset);
-        System.out.println("Robot Target Pose Translation" + robotTargetTranslation.toString());
+        System.out.println("Robot Target Pose Translation " + robotTargetTranslation.toString());
         Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
-        System.out.println("Robot Target Pose Rotation" + robotTargetRotation.toString());
+        System.out.println("Robot Target Pose Rotation " + robotTargetRotation.toString());
 
         // get robot current pose
         Pose2d currentPose = m_driveTrain.getPose();
-        System.out.println("Current Robot Pose" + currentPose.toString());
+        System.out.println("Current Robot Pose " + currentPose.toString());
+
+        // we need a heading for the trajectory
+        // use the angle of the straight line between the 2 points
+        Rotation2d heading = robotTargetTranslation.minus(currentPose.getTranslation()).getAngle();
+        System.out.println("Heading angle " + heading.getDegrees());
 
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
-                new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-                new PathPoint(robotTargetTranslation, robotTargetRotation) // position, heading
+                new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
+                new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.schedule();
