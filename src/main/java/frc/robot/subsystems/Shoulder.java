@@ -34,7 +34,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // CAND IDs for the Shoulder motors
     private static final int SHOULDER_CAN_ID_LEADER = 1;
-    private static final int SHOULDER_CAN_ID_FOLLWER = 15;
+    private static final int SHOULDER_CAN_ID_FOLLOWER = 15;
 
     // Feedforward constants for the shoulder
     private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
@@ -110,7 +110,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ));
 
         m_motorLeader = new WPI_TalonFX(SHOULDER_CAN_ID_LEADER);
-        m_motorFollower = new WPI_TalonFX(SHOULDER_CAN_ID_FOLLWER);
+        m_motorFollower = new WPI_TalonFX(SHOULDER_CAN_ID_FOLLOWER);
         m_encoder = m_motorLeader.getSensorCollection();
         // m_motorSim = new TalonFXSimCollection(m_motorLeader);
         // m_encoderSim = new TalonFXSimCollection(m_encoder);
