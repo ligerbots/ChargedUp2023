@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
@@ -15,6 +16,9 @@ public class Arm extends SubsystemBase {
         // Construct the shoulder and reacher trapezoid subsystems
         m_shoulder = new Shoulder();
         m_reacher = new Reacher();
+    
+        SmartDashboard.putNumber("Testing/SetArmLengthTest", 0.0);
+        SmartDashboard.putNumber("Testing/SetArmAngleTest", 0.0);
     }
 
     public void periodic() {

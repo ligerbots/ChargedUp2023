@@ -51,16 +51,12 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
 
         // Initialize the list of available Autonomous routines
-        // TODO: comment out this for arm testing
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_1m"));
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
-        SmartDashboard.putNumber("Testing/SetArmLengthTest", 0.0);
-        SmartDashboard.putNumber("Testing/SetArmAngleTest", 0.0);
-
-        // m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
+        m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
     }
 
     /**
@@ -93,19 +89,19 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        // m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
+        m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
 
-        // // auto trajectory plotter
-        // AutoCommandInterface autoCommandInterface = m_chosenTrajectory.getSelected();
-        // if (autoCommandInterface != null && autoCommandInterface != m_prevAutoCommand) {
-        //     m_robotContainer.getDriveTrain().setPose(autoCommandInterface.getInitialPose());
-        //     m_prevAutoCommand = autoCommandInterface;
+        // auto trajectory plotter
+        AutoCommandInterface autoCommandInterface = m_chosenTrajectory.getSelected();
+        if (autoCommandInterface != null && autoCommandInterface != m_prevAutoCommand) {
+            m_robotContainer.getDriveTrain().setPose(autoCommandInterface.getInitialPose());
+            m_prevAutoCommand = autoCommandInterface;
 
-        //     if (Robot.isSimulation()) {
-        //         m_plotter.clear();
-        //         autoCommandInterface.plotTrajectory(m_plotter);
-        //     }
-        // }
+            if (Robot.isSimulation()) {
+                m_plotter.clear();
+                autoCommandInterface.plotTrajectory(m_plotter);
+            }
+        }
     }
 
     /**
@@ -116,7 +112,7 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         m_autonomousCommand = m_chosenTrajectory.getSelected();
 
-        // schedule the autonomous command (example)
+        // schedule the autonomous command
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
@@ -136,8 +132,7 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-        // m_robotContainer.getDriveCommand().schedule();
-
+        m_robotContainer.getDriveCommand().schedule();
     }
 
     /** This function is called periodically during operator control. */

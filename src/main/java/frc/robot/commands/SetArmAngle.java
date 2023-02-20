@@ -9,7 +9,7 @@ import frc.robot.subsystems.Arm;
 
 public class SetArmAngle extends CommandBase {
 
-    public static final double SHOULDER_ANGLE_TOLERANCE_DEGREE = 1.0;
+    private static final double SHOULDER_ANGLE_TOLERANCE_DEGREE = 1.0;
 
     /** Creates a new SetArmAngle. */
     Arm m_arm;
