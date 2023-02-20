@@ -14,6 +14,11 @@ package frc.robot;
  * reduce verbosity.
  */
 public final class Constants {
+    // Reminder: all CAN IDs of the same device/motor type need to be unique.
+    // You don't actually need SparkMax IDs to be different from Falcon IDs
+
+    // CAN IDs and swerve angle offsets for the drivetrain
+    // These controllers are all SparkMaxes, so need to be unique
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 9;
@@ -33,6 +38,12 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.2);
+
+    // CAN ID and channels for the Claw subsystem
+    public static final int PNEUMATIC_HUB_PORT = 2;
+    public static final int DOUBLE_SOLENOID_MODULE_NUMBER = 1;
+    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
+    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;
 
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
@@ -55,6 +66,15 @@ public final class Constants {
 
     public static final double CUSTOM_FIELD_LENGTH = 8.780; // meters
     public static final double CUSTOM_FIELD_WIDTH = 6.0; // meters
+
+    // CAN ID for the Reacher (arm extension system)
+    // This is a SparkMax
+    public static final int REACHER_CAN_ID = 10; // TODO: Set CanID
+
+    // CAND IDs for the Shoulder motors
+    // These are Falcons
+    public static final int SHOULDER_CAN_ID_LEADER = 1;
+    public static final int SHOULDER_CAN_ID_FOLLOWER = 2;
 
     // max voltages
     /**
