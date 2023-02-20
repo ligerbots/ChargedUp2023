@@ -39,6 +39,12 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.2);
 
+    // CAN ID and channels for the Claw subsystem
+    public static final int PNEUMATIC_HUB_PORT = 2;
+    public static final int DOUBLE_SOLENOID_MODULE_NUMBER = 1;
+    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
+    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;
+
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
     // L Center R
