@@ -42,8 +42,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_KA = 0.08;
 
     // Constants to limit the shoulder rotation speed
-    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 2048.0;
-    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 2048.0;
+    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 360.0;
+    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 360.0;
     private static final double SHOULDER_OFFSET_DEGREE = 0.0;
 
     // PID Constants for the shoulder PID controller
@@ -105,7 +105,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Construct a new Shoulder subsystem
     public Shoulder() {
-        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ));
+        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC / SHOULDER_DEGREE_PER_UNIT, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ / SHOULDER_DEGREE_PER_UNIT));
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
