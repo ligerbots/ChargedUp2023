@@ -7,7 +7,26 @@
       "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
-      "/SmartDashboard/Chosen Trajectory": "String Chooser"
+      "/SmartDashboard/Chosen Trajectory": "String Chooser",
+      "/SmartDashboard/Field": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/Chosen Trajectory": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Field": {
+        "trajectory": {
+          "arrowSize": 100,
+          "length": 0.20000000298023224,
+          "weight": 0.0,
+          "width": 0.10000000149011612
+        },
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
