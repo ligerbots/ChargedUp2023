@@ -57,6 +57,13 @@ public final class Constants {
     public static final double CUSTOM_FIELD_LENGTH = 8.780; // meters
     public static final double CUSTOM_FIELD_WIDTH = 6.0; // meters
 
+    // CAN ID for the Reacher (arm extension system)
+    public static final int REACHER_CAN_ID = 7; // TODO: Set CanID
+
+    // CAND IDs for the Shoulder motors
+    public static final int SHOULDER_CAN_ID_LEADER = 1;
+    public static final int SHOULDER_CAN_ID_FOLLOWER = 15;
+
     // max voltages
     /**
      * The maximum voltage that will be delivered to the drive motors.

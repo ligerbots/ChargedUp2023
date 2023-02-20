@@ -13,11 +13,10 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
+import frc.robot.Constants;
 
 public class Reacher extends TrapezoidProfileSubsystem {
 
-    // CAN ID for the Reacher (arm extension system)
-    private static final int REACHER_CAN_ID = 7; // TODO: Set CanID
 
     private static final double REACHER_MAX_VEL_INCH_PER_SEC = 100.0;
     private static final double REACHER_MAX_ACC_INCH_PER_SEC_SQ = 30.0;
@@ -47,7 +46,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     private final RelativeEncoder m_encoder;
     private final SparkMaxPIDController m_PIDController;
 
-    private final ElevatorFeedforward m_Feedforward = new ElevatorFeedforward(REACHER_KS,
+    private final ElevatorFeedforward m_feedForward = new ElevatorFeedforward(REACHER_KS,
                     REACHER_KG, REACHER_KV, REACHER_KA);
 
     private double m_kPReacher;
@@ -63,7 +62,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_kPReacher = REACHER_K_P;
 
         // Create the motor, PID Controller and encoder.
-        m_motor = new CANSparkMax(REACHER_CAN_ID, MotorType.kBrushless);
+        m_motor = new CANSparkMax(Constants.REACHER_CAN_ID, MotorType.kBrushless);
         m_motor.restoreFactoryDefaults();
 
         m_PIDController = m_motor.getPIDController();
@@ -97,7 +96,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     @Override
     protected void useState(TrapezoidProfile.State setPoint) {
         // Calculate the feedforward from the setPoint
-        double feedforward = m_Feedforward.calculate(setPoint.position, setPoint.velocity);
+        double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
 
         // Add the feedforward to the PID output to get the motor output
         // Remember that the encoder was already set to account for the gear ratios.

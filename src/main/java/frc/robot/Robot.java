@@ -51,9 +51,10 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
 
         // Initialize the list of available Autonomous routines
-        // m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_1m"));
-        // m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
-        // m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
+        // TODO: comment out this for arm testing
+        m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_1m"));
+        m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
+        m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
         SmartDashboard.putNumber("Testing/SetArmLengthTest", 0.0);

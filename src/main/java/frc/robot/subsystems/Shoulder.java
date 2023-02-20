@@ -26,15 +26,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
+import frc.robot.Constants;
 
 public class Shoulder extends TrapezoidProfileSubsystem {
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
-    // CAND IDs for the Shoulder motors
-    private static final int SHOULDER_CAN_ID_LEADER = 1;
-    private static final int SHOULDER_CAN_ID_FOLLOWER = 15;
 
     // Feedforward constants for the shoulder
     private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
@@ -109,8 +107,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     public Shoulder() {
         super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ));
 
-        m_motorLeader = new WPI_TalonFX(SHOULDER_CAN_ID_LEADER);
-        m_motorFollower = new WPI_TalonFX(SHOULDER_CAN_ID_FOLLOWER);
+        m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
+        m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
         m_encoder = m_motorLeader.getSensorCollection();
         // m_motorSim = new TalonFXSimCollection(m_motorLeader);
         // m_encoderSim = new TalonFXSimCollection(m_encoder);
