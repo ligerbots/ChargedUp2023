@@ -6,17 +6,20 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
+import frc.robot.commands.SetArmAngleTest;
+import frc.robot.commands.SetArmLengthTest;
 import frc.robot.commands.TagPositionDrive;
 import frc.robot.commands.ChargeStationBalance;
-import frc.robot.subsystems.Claw;
+
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -50,6 +53,7 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
+    // private final Arm m_arm = new Arm();
 
     private final Claw m_claw = new Claw();
 
@@ -71,26 +75,30 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // when button A is pressed, toggle field-centric drive mode
-        // JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
-        // xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
+        JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
+        xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-        // // when button B is pressed, lock wheels
-        // JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
-        // xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
+        // when button B is pressed, lock wheels
+        JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
+        xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
 
-        // // when button X is pressed, toggle precision (slow) drive mode
-        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+        // when button X is pressed, toggle precision (slow) drive mode
+        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
-        // // when button START is pressed, reset the robot heading
-        // // whichever way the robot is facing becomes the forward direction
-        // JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
-        // xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
+        // when button START is pressed, reset the robot heading
+        // whichever way the robot is facing becomes the forward direction
+        JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
+        xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
+
+        // xboxYButton.onTrue(new InstantCommand(m_claw::close));
+        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
+
         // testing if the command works by passing in a position, we need more buttons for all 11
-        xboxYButton.onTrue(new InstantCommand(m_claw::close));
+        // xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
         
         // // when button Y is pressed, attempt to balance on the Charging Station
         // // assumes that the robot is already mostly up on the Station
