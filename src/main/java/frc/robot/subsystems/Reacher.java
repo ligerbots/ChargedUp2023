@@ -30,6 +30,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // TODO: See if this is close enough. Or do we need a more exact measurement?
     private static final double REACHER_METER_PER_REVOLUTION = Units.inchesToMeters(0.7);
 
+    private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
+
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/linear
@@ -44,10 +46,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     private static final double REACHER_K_I = 0.0;
     private static final double REACHER_K_D = 0.0;
     private static final double REACHER_K_FF = 0.0;
-    private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
 
-
-    /** Creates a new Reacher. */
     // Define the motor and encoders
     private final CANSparkMax m_motor;
     private final RelativeEncoder m_encoder;
@@ -63,8 +62,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     /** Creates a new Reacher. */
     public Reacher() {
-        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_METER_PER_SEC,
-        REACHER_MAX_ACC_METER_PER_SEC_SQ));
+        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_METER_PER_SEC, REACHER_MAX_ACC_METER_PER_SEC_SQ));
 
         m_kPReacher = REACHER_K_P;
 
@@ -91,8 +89,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
     @Override
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
-        SmartDashboard.putNumber("Reacher/Encoder", encoderValue);
-        SmartDashboard.putNumber("Reacher/m_goal", m_goal);
+        SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/m_goal", Units.metersToInches(m_goal));
         
         super.periodic();
 
@@ -113,7 +111,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
             m_resetReacherPos = false;
         }
         m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0); // , feedforward / 12.0);
-        SmartDashboard.putNumber("Reacher/setPoint", setPoint.position);
+        SmartDashboard.putNumber("Reacher/setPoint", Units.metersToInches(setPoint.position));
     }
 
     private void checkPIDVal() {

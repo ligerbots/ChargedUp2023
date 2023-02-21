@@ -47,7 +47,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // We can update them as we get more confidence.
     private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(5.0); // 5 deg/sec
     // Let's give it 2 seconds to get to max velocity.
-    // Once tuned, I expect we will want this to be equal to SHOULDER_MAX_VEL_DEGREE_PER_SEC
+    // Once tuned, I expect we will want this to be equal to SHOULDER_MAX_VEL_RADIAN_PER_SEC
     // so it will get to max velocity in one second.
     private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(2.5); // 2.5 deg/sec^2
     private static final double SHOULDER_OFFSET_RADIAN = Units.degreesToRadians(0.0);
@@ -68,8 +68,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // There are 2048 ticks per revolution. Need to account for the gear ratio.
     private static final double SHOULDER_RADIAN_PER_UNIT = 2 * Math.PI / (2048.0 * SHOULDER_GEAR_RATIO);
 
-    private final ArmFeedforward m_feedForward = new ArmFeedforward(SHOULDER_KS, SHOULDER_KG,
-    SHOULDER_KV, SHOULDER_KA);
+    private final ArmFeedforward m_feedForward = new ArmFeedforward(SHOULDER_KS, SHOULDER_KG, SHOULDER_KV, SHOULDER_KA);
 
     // Define the motor and encoders
     private final WPI_TalonFX m_motorLeader;
@@ -89,20 +88,17 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // *********************Simulation Stuff************************
 
-    // distance per pulse = (angle per revolution) / (pulses per revolution)
-    // = (2 * PI rads) / (4096 pulses)
-    private static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / (2048.0 * SHOULDER_GEAR_RATIO);
-    // The arm gearbox represents a gearbox containing two Vex 775pro motors.
+    // The arm gearbox represents a gearbox containing two Falcon motors.
     private final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
 
     // Simulation classes help us simulate what's going on, including gravity.
-    private static final double m_shoulderMass = 10; // Kilograms
-    private static final double m_shoulderLength = Units.inchesToMeters(30);
+    private static final double SHOULDER_MASS = 10; // Kilograms
+    private static final double SHOULDER_LENGTH = Units.inchesToMeters(30);
 
-    private TalonFXSimCollection m_motorSim;
+    // private TalonFXSimCollection m_motorSim;
 
     private final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, SHOULDER_GEAR_RATIO,
-            SingleJointedArmSim.estimateMOI(m_shoulderLength, m_shoulderMass), m_shoulderLength,
+            SingleJointedArmSim.estimateMOI(SHOULDER_LENGTH, SHOULDER_MASS), SHOULDER_LENGTH,
             Units.degreesToRadians(-75), Units.degreesToRadians(120), true);
 
     // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
@@ -115,16 +111,17 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Construct a new Shoulder subsystem
     public Shoulder() {
-        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RADIAN_PER_SEC / SHOULDER_RADIAN_PER_UNIT, SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ / SHOULDER_RADIAN_PER_UNIT));
+        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RADIAN_PER_SEC / SHOULDER_RADIAN_PER_UNIT,
+                SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ / SHOULDER_RADIAN_PER_UNIT));
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
         m_encoder = m_motorLeader.getSensorCollection();
-        // m_motorSim = new TalonFXSimCollection(m_motorLeader);
-        // m_encoderSim = new TalonFXSimCollection(m_encoder);
+
         m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
-        // Set follower and invert
+        // Set follower
         m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
+
         m_motorLeader.config_kF(kPIDLoopIdx, SHOULDER_K_FF, kTimeoutMs);
 		m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
 		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
@@ -132,6 +129,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_RADIAN / SHOULDER_RADIAN_PER_UNIT, 0);
         m_motorLeader.setSelectedSensorPosition(0.0);
+
+        // m_motorSim = new TalonFXSimCollection(m_motorLeader);
+        // m_encoderSim = new TalonFXSimCollection(m_encoder);
 
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
         SmartDashboard.putData("shoulder Sim", m_mech2d);
