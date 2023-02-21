@@ -4,12 +4,13 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 
 public class SetArmLength extends CommandBase {
 
-    private static final double REACHER_OFFSET_TOLERANCE_INCHES = 0.5;
+    private static final double REACHER_OFFSET_TOLERANCE_METERS = Units.inchesToMeters(0.5);
 
     /** Creates a new SetArmLength. */
     Arm m_arm;
@@ -40,6 +41,6 @@ public class SetArmLength extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(m_arm.getArmLength() - m_length) < REACHER_OFFSET_TOLERANCE_INCHES;
+        return Math.abs(m_arm.getArmLength() - m_length) < REACHER_OFFSET_TOLERANCE_METERS;
     }
 }

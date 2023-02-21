@@ -24,22 +24,22 @@ public class Arm extends SubsystemBase {
     public void periodic() {
     }
 
-    // set arm length in inches
+    // set arm length in meters
     public void setArmLength(double length) {
         m_reacher.setLength(length);
     }
 
-    // rotates the arm to a certain angle in degrees
-    public void setArmAngle(double degree) {
-        m_shoulder.setAngle(degree);
+    // rotates the arm to a certain angle in radians
+    public void setArmAngle(double radian) {
+        m_shoulder.setAngle(radian);
     }
 
-    // returns the currrent length of the arm in inches
+    // returns the currrent length of the arm in meters
     public double getArmLength() {
         return m_reacher.getLength();
     }
 
-    // returns the current angle of the arm in degrees
+    // returns the current angle of the arm in radians
     public double getArmAngle() {
         return m_shoulder.getAngle();
     }

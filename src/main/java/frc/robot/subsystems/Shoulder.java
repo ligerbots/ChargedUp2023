@@ -33,18 +33,27 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
+    // All units are MKS with angles in Radians
 
     // Feedforward constants for the shoulder
     private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm
-    private static final double SHOULDER_KG = 2.07;
-    private static final double SHOULDER_KV = 1.83;
-    private static final double SHOULDER_KA = 0.08;
+    private static final double SHOULDER_KG = 0.09; // V
+    private static final double SHOULDER_KV = 6.60; // V*sec/red
+    private static final double SHOULDER_KA = 0.01; // V*sec^2/rad
 
     // Constants to limit the shoulder rotation speed
-    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 360.0;
-    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 360.0;
-    private static final double SHOULDER_OFFSET_DEGREE = 0.0;
+    // For initial testing, these should be very slow.
+    // We can update them as we get more confidence.
+    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(5.0); // 5 deg/sec
+    // Let's give it 2 seconds to get to max velocity.
+    // Once tuned, I expect we will want this to be equal to SHOULDER_MAX_VEL_DEGREE_PER_SEC
+    // so it will get to max velocity in one second.
+    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(2.5); // 2.5 deg/sec^2
+    private static final double SHOULDER_OFFSET_RADIAN = Units.degreesToRadians(0.0);
+
+    // The Shoulder gear ratio is ~395.77, but let's get it exactly.
+    private static final double SHOULDER_GEAR_RATIO = (84.0 / 12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 16.0);
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
@@ -55,7 +64,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final int kPIDLoopIdx = 0;
     private static final int kTimeoutMs = 0;
 
-    private static final double SHOULDER_DEGREE_PER_UNIT = 360.0 / 2048.0;
+    // The TalonFX, the integrated motor controller for the Falcon, uses ticks as it's noative unit.
+    // There are 2048 ticks per revolution. Need to account for the gear ratio.
+    private static final double SHOULDER_RADIAN_PER_UNIT = 2 * Math.PI / (2048.0 * SHOULDER_GEAR_RATIO);
 
     private final ArmFeedforward m_feedForward = new ArmFeedforward(SHOULDER_KS, SHOULDER_KG,
     SHOULDER_KV, SHOULDER_KA);
@@ -80,18 +91,17 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // distance per pulse = (angle per revolution) / (pulses per revolution)
     // = (2 * PI rads) / (4096 pulses)
-    private static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / 4096;
+    private static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / (2048.0 * SHOULDER_GEAR_RATIO);
     // The arm gearbox represents a gearbox containing two Vex 775pro motors.
     private final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
 
     // Simulation classes help us simulate what's going on, including gravity.
-    private static final double m_shoulderReduction = 395.77;
     private static final double m_shoulderMass = 10; // Kilograms
     private static final double m_shoulderLength = Units.inchesToMeters(30);
 
     private TalonFXSimCollection m_motorSim;
 
-    private final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, m_shoulderReduction,
+    private final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, SHOULDER_GEAR_RATIO,
             SingleJointedArmSim.estimateMOI(m_shoulderLength, m_shoulderMass), m_shoulderLength,
             Units.degreesToRadians(-75), Units.degreesToRadians(120), true);
 
@@ -105,7 +115,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Construct a new Shoulder subsystem
     public Shoulder() {
-        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC / SHOULDER_DEGREE_PER_UNIT, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ / SHOULDER_DEGREE_PER_UNIT));
+        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RADIAN_PER_SEC / SHOULDER_RADIAN_PER_UNIT, SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ / SHOULDER_RADIAN_PER_UNIT));
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
@@ -120,7 +130,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
-        m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_DEGREE / SHOULDER_DEGREE_PER_UNIT, 0);
+        m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_RADIAN / SHOULDER_RADIAN_PER_UNIT, 0);
         m_motorLeader.setSelectedSensorPosition(0.0);
 
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
@@ -141,7 +151,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // Update the Mechanism Arm angle based on the simulated arm angle
         m_shoulder.setAngle(Units.radiansToDegrees(m_shoulderSim.getAngleRads()));
-        SmartDashboard.putNumber("Simulated Shoulder Angle", m_shoulderSim.getAngleRads());
+        SmartDashboard.putNumber("Simulated Shoulder Angle", Units.radiansToDegrees(m_shoulderSim.getAngleRads()));
         SmartDashboard.putNumber("Sim Battery voltage", RobotController.getBatteryVoltage());
     }
 
@@ -149,8 +159,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     public void periodic() {
         // Display current values on the SmartDashboard
         SmartDashboard.putNumber("shoulder/Output", m_motorLeader.get());
-        SmartDashboard.putNumber("shoulder/Encoder", getAngle());
-        SmartDashboard.putNumber("shoulder/Goal", m_goal);
+        SmartDashboard.putNumber("shoulder/Encoder", Units.radiansToDegrees(getAngle()));
+        SmartDashboard.putNumber("shoulder/Goal", Units.radiansToDegrees(m_goal));
         SmartDashboard.putBoolean("shoulder/CoastMode", m_coastMode);
 
         if (m_coastMode)
@@ -182,7 +192,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
         SmartDashboard.putNumber("shoulder/feedforward", feedforward);
-        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position * SHOULDER_DEGREE_PER_UNIT);
+        SmartDashboard.putNumber("shoulder/setPoint", Units.radiansToDegrees(setPoint.position * SHOULDER_RADIAN_PER_UNIT));
         // SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
     }
 
@@ -195,9 +205,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         }
     }
 
-    // return current shoulder angle in degrees
+    // return current shoulder angle in radians
     public double getAngle() {
-        return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_DEGREE_PER_UNIT;
+        return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_RADIAN_PER_UNIT;
     }
 
     public void resetShoulderPos() {
@@ -205,9 +215,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_resetShoulderPos = true;
     }
 
-    // set shoulder angle in degrees
+    // set shoulder angle in radians
     public void setAngle(double angle) {
         m_goal = angle;
-        super.setGoal(angle / SHOULDER_DEGREE_PER_UNIT);
+        super.setGoal(angle / SHOULDER_RADIAN_PER_UNIT);
     }
 }
