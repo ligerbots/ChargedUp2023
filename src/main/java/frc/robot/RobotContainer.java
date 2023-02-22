@@ -14,7 +14,7 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
 import frc.robot.commands.TagPositionDrive;
-import frc.robot.commands.driveOverChargeStation;
+import frc.robot.commands.DriveOverChargeStation;
 import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
@@ -94,7 +94,7 @@ public class RobotContainer {
         // ---- TESTING  ----
         // button test drive over charge station
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        xboxYButton.onTrue(new driveOverChargeStation(m_driveTrain));
+        xboxYButton.onTrue(new DriveOverChargeStation(m_driveTrain));
 
         // xboxYButton.onTrue(new InstantCommand(m_claw::close));
         // xboxYButton.onTrue(new SetArmAngleTest(m_arm));

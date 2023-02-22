@@ -14,34 +14,29 @@ import frc.robot.subsystems.DriveTrain;
 
 // routine for auto that drives the robot over the charge station and into the middle area, picks up a cone,
 // then drives back onto the charge station
-public class driveOverChargeStation extends SequentialCommandGroup {
-    //goal angle for driving onto chargestation from community area
+// might be used in other routines
+public class DriveOverChargeStation extends SequentialCommandGroup {
+    // goal angle for driving onto chargestation from community area
     private static final Rotation2d FRONT_ANGLE_GOAL = Rotation2d.fromDegrees(-10); 
-    //goal angle for driving onto chargestation from middle area
+    // goal angle for driving onto chargestation from middle area
     private static final Rotation2d BACK_ANGLE_GOAL = Rotation2d.fromDegrees(10); 
-    private static final double angleDriveSpeed = 1.0;
+    private static final double ANGLE_DRIVE_MPS = 1.5; 
+    private static final double CHARGESTATION_CONE_DISTANCE = 85.13/12; // in feet
+    private static final double ROBOT_LENGTH = 3; // in feet // TODO: find actual length of robot
 
     private DriveTrain m_driveTrain;
 
     /** Creates a new driveOverChargeStation. */
-    public driveOverChargeStation(DriveTrain driveTrain) {
+    public DriveOverChargeStation(DriveTrain driveTrain) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         m_driveTrain = driveTrain;
-
         addCommands(
-            new AngleDrive(m_driveTrain, angleDriveSpeed, FRONT_ANGLE_GOAL), // drive onto charge station
-            new AngleDrive(m_driveTrain, angleDriveSpeed, Rotation2d.fromDegrees(0.0)), // drive over charge station
-
-            // TODO drive foward 85.13 inches - length of robot in inches
-            // new Drive(
-            // m_driveTrain, 
-            // () -> 0.0, 
-            // () -> 0.0, 
-            // () -> 0.0), 
-            
-            // TODO command to pick up cone
-            new AngleDrive(m_driveTrain, -angleDriveSpeed, BACK_ANGLE_GOAL), // drive backwards onto charge station
+            new AngleDrive(m_driveTrain, ANGLE_DRIVE_MPS, FRONT_ANGLE_GOAL), // drive onto charge station
+            new AngleDrive(m_driveTrain, ANGLE_DRIVE_MPS, Rotation2d.fromDegrees(0.0)), // drive over chargestation onto floor
+            new DriveDistance(m_driveTrain, ANGLE_DRIVE_MPS, CHARGESTATION_CONE_DISTANCE-ROBOT_LENGTH),
+            // TODO command to pick up cone when it is made
+            new AngleDrive(m_driveTrain, -ANGLE_DRIVE_MPS, BACK_ANGLE_GOAL), // drive backwards onto charge station
             new ChargeStationBalance(driveTrain)); // balance onto charge station
     }
 }

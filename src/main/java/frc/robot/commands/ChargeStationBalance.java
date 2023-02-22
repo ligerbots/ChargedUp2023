@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+//command to balance when on charge station
 public class ChargeStationBalance extends CommandBase {
 
     private static final Rotation2d BALANCED_ERROR = Rotation2d.fromDegrees(2.5); //error for what counts as balanced

@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+// drives until robot is near certain roll angle 
 public class AngleDrive extends CommandBase {
     private static final double MAX_MPS = 5;
     
@@ -19,7 +20,6 @@ public class AngleDrive extends CommandBase {
     private Rotation2d m_angleGoal;
 
     /** Creates a new ChargeStationDrive. */
-    // drives until robot is near certain roll angle 
     public AngleDrive(DriveTrain driveTrain, double driveMPS, Rotation2d angleGoal) {
         m_driveTrain = driveTrain;
         m_angleGoal = angleGoal;
@@ -61,9 +61,9 @@ public class AngleDrive extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        if (m_angleGoal.getDegrees() == 0){
+        if (m_angleGoal.getDegrees() == 0.0){
             // stops when robot is close to 0 degrees 
-            return (Math.abs(m_currentAngle.getDegrees()) <= 0.01);
+            return (Math.abs(m_currentAngle.getDegrees()) <= 0.1);
         } else if (m_angleGoal.getDegrees() < 0){
             // stops when robot is on community side of charge station
             return (m_currentAngle.getDegrees() <= m_angleGoal.getDegrees());
