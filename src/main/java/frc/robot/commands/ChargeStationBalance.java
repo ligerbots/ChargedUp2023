@@ -55,6 +55,9 @@ public class ChargeStationBalance extends CommandBase {
         SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
 
         Rotation2d driveAngle = m_driveTrain.getTiltDirection().plus(Rotation2d.fromDegrees(180));
+
+        SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
             driveMPS * driveAngle.getCos(),
             driveMPS * driveAngle.getSin(),
