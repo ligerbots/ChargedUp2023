@@ -4,61 +4,43 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxLimitSwitch;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
 
-  public Shoulder m_shoulder;
+    private Shoulder m_shoulder;
+    private Reacher m_reacher;
 
-  public Elevator m_elevator;
-
-  public CANSparkMax m_elevatorMotor;
-  
-  public SparkMaxLimitSwitch m_limitSwitch;
-
-
-  public Arm() {
-    // Construct the arm trapezoid subsystems
-    m_shoulder = new Shoulder();
-   
-    m_elevatorMotor = new CANSparkMax(Constants.ELEVATOR_CAN_ID, MotorType.kBrushless);
-
-    m_elevator = new Elevator(m_elevatorMotor);
-   
-  }
-
-  public void periodic() {
+    public Arm() {
+        // Construct the shoulder and reacher trapezoid subsystems
+        m_shoulder = new Shoulder();
+        m_reacher = new Reacher();
     
-  }
+        SmartDashboard.putNumber("Testing/SetArmLengthTest", 0.0);
+        SmartDashboard.putNumber("Testing/SetArmAngleTest", 0.0);
+    }
 
-  public void setElevatorExtent(TrapezoidProfile.State extent){
-    m_elevator.setSetPoint(extent);
-  }
+    public void periodic() {
+    }
 
-  // rotates the arms to a certain angle
-  public void setShoulderAngle(double degree) {
-      m_shoulder.setGoal(degree);
-  }
+    // set arm length in inches
+    public void setArmLength(double length) {
+        m_reacher.setLength(length);
+    }
 
-  // returns the currrent height of the elevator
-  public double getElevatorExtent() {
-    return m_elevator.getExtent();
-  }
+    // rotates the arm to a certain angle in degrees
+    public void setArmAngle(double degree) {
+        m_shoulder.setAngle(degree);
+    }
 
-  // returns the current angle of the arm
-  public double[] getArmAngle() {
-    return new double[] {m_shoulder.getEncoder().getPosition()};
-  }
+    // returns the currrent length of the arm in inches
+    public double getArmLength() {
+        return m_reacher.getLength();
+    }
 
-  // Set idle mode of all motors
-  public void setBrakeMode(boolean brake) {
-    m_shoulder.setBrakeMode(brake);
-    m_elevator.setBrakeMode(brake);
-  }
+    // returns the current angle of the arm in degrees
+    public double getArmAngle() {
+        return m_shoulder.getAngle();
+    }
 }
