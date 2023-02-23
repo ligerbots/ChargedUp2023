@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -17,17 +18,17 @@ public class StowArm extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       //set arm star position
-      new SetArmAngle(arm, Constants.);
-      new SetArmLength(arm, 0);
+      new SetArmAngle(arm, Constants.STARTING_ARM_ANGLE),
+      new SetArmLength(arm, Constants.STARTING_ARM_LENGTH),
       // arm comands for low grid
-      new SetArmAngle(arm, 0);
-      new SetArmLength(arm, 0);
+      new SetArmAngle(arm, Constants.LOW_GIRD_ARM_ANGLE),
+      new SetArmLength(arm, Constants.LOW_GIRD_ARM_LENGTH ),
       // arm comand for middle gird
-      new SetArmAngle(arm, 0);
-      new SetArmLength(arm, 0);
+      new SetArmAngle(arm, Constants.MIDDLE_GRID_ARM_ANGLE),
+      new SetArmLength(arm, Constants.MIDDLE_GRID_ARM_LENGTH),
       // arm comand for high grid
-      new SetArmAngle(arm, 0);
-      new SetArmLength(arm, 0);
+      new SetArmAngle(arm, Constants.HIGH_GRID_ARM_ANGLE),
+      new SetArmLength(arm, Constants.HIGH_GRID_ARM_LENGTH),
     )
   }
 }
