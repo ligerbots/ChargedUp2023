@@ -32,8 +32,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
 
-    private static final double REACHER_MAX_ANGLE = Units.inchesToMeters(35.0);
-    private static final double REACHER_MIN_ANGLE = Units.degreesToRadians(0.0);
+
 
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
@@ -95,6 +94,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         double encoderValue = m_encoder.getPosition();
         SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
         SmartDashboard.putNumber("Reacher/m_goal", Units.metersToInches(m_goal));
+        SmartDashboard.putBoolean("Reacher/m_resetReacherPos", m_resetReacherPos);
         
         super.periodic();
 
@@ -131,8 +131,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
         return m_encoder.getPosition();
     }
 
-    public void resetLength() {
-        setGoal(getLength());
+    public void resetReacherPos() {
+        setLength(getLength());
         m_resetReacherPos = true;
     }
 
@@ -145,7 +145,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_goal = goal;
         super.setGoal(goal);
     }
-    //TODO Add encoder changing code to fix it 
+
     public void resetGoal(){
         setLength(getLength());
     }

@@ -55,9 +55,6 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_POSITION_OFFSET = 242.0/360.0;
     private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;
 
-    private static final double SHOULDER_MAX_ANGLE = Units.degreesToRadians(20.0);
-    private static final double SHOULDER_MIN_ANGLE = Units.degreesToRadians(-65.0);
-
     // The Shoulder gear ratio is ~395.77, but let's get it exactly.
     private static final double SHOULDER_GEAR_RATIO = (84.0 / 12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 12.0);
 
@@ -190,6 +187,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putBoolean("shoulder/CoastMode", m_coastMode);
         // SmartDashboard.putNumber("shoulder/absolute Encoder", m_Duty_Encoder.getDistance() / 1024.0 * 360.0);        
         SmartDashboard.putNumber("shoulder/absolute Encoder", Math.toDegrees(-m_Duty_Encoder.getDistance()));
+        SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
         if (m_coastMode)
             return;
 
@@ -213,7 +211,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // TODO: if the "12.0" is volts, should use RobotController.getBatteryVoltage()
         if (m_resetShoulderPos) {
-            setPoint.position = m_encoder.getIntegratedSensorAbsolutePosition();
+            setPoint.position = m_encoder.getIntegratedSensorPosition();
             m_resetShoulderPos = false;
         }
 

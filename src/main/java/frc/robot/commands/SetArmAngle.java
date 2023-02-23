@@ -9,7 +9,9 @@ import frc.robot.subsystems.Arm;
 
 public class SetArmAngle extends CommandBase {
 
-    private static final double SHOULDER_ANGLE_TOLERANCE_DEGREE = 1.0;
+    private static final double SHOULDER_MAX_ANGLE = Math.toRadians(20.0);
+    private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
+    private static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(1.0);
 
     /** Creates a new SetArmAngle. */
     Arm m_arm;
@@ -40,6 +42,11 @@ public class SetArmAngle extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(m_arm.getArmAngle() - m_angle) < SHOULDER_ANGLE_TOLERANCE_DEGREE;
+        double curAngle = m_arm.getArmAngle();
+        if(curAngle < SHOULDER_MIN_ANGLE || curAngle > SHOULDER_MAX_ANGLE){
+            m_arm.resetShoulderPos();
+            return true;
+        }
+        return Math.abs(curAngle - m_angle) < SHOULDER_ANGLE_TOLERANCE_RADIAN;
     }
 }

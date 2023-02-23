@@ -45,8 +45,17 @@ public class Arm extends SubsystemBase {
     public double getArmAngle() {
         return m_shoulder.getAngle();
     }
+    
     public void resetGoal(){
         m_shoulder.resetGoal();
         // m_reacher.resetGoal();
+    }
+
+    public void resetShoulderPos(){
+        m_shoulder.resetShoulderPos();
+    }
+
+    public void resetReacherPos(){
+        m_reacher.resetReacherPos();
     }
 }
