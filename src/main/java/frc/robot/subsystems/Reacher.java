@@ -21,16 +21,19 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // Constants to limit the shoulder rotation speed
     // For initial testing, these should be very slow.
     // We can update them as we get more confidence.
-    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(2.0);
+    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(20.0);
     // Let's give it 2 seconds to get to max velocity.
     // Once tuned, I expect we will want this to be equal to REACHER_MAX_VEL_METER_PER_SEC
     // so it will get to max velocity in one second.
-    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(1.0);
+    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(20.0);
 
     // TODO: See if this is close enough. Or do we need a more exact measurement?
     private static final double REACHER_METER_PER_REVOLUTION = Units.inchesToMeters(0.7);
 
     private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
+
+    private static final double REACHER_MAX_ANGLE = Units.inchesToMeters(35.0);
+    private static final double REACHER_MIN_ANGLE = Units.degreesToRadians(0.0);
 
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
@@ -75,6 +78,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_PIDController.setI(REACHER_K_I);
         m_PIDController.setD(REACHER_K_D);
         m_PIDController.setFF(REACHER_K_FF);
+        m_motor.setInverted(true);
 
         m_encoder = m_motor.getEncoder();
 
@@ -140,5 +144,9 @@ public class Reacher extends TrapezoidProfileSubsystem {
     public void setLength(double goal) {
         m_goal = goal;
         super.setGoal(goal);
+    }
+    //TODO Add encoder changing code to fix it 
+    public void resetGoal(){
+        setLength(getLength());
     }
 }
