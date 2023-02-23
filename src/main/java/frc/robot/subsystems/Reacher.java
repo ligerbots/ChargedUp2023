@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -17,6 +18,9 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 
 public class Reacher extends TrapezoidProfileSubsystem {
+
+    public static final double REACHER_MAX_LENGTH = Units.inchesToMeters(35.0);
+    public static final double REACHER_MIN_LENGTH = Units.inchesToMeters(0.0);
 
     // Constants to limit the shoulder rotation speed
     // For initial testing, these should be very slow.
@@ -95,7 +99,10 @@ public class Reacher extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
         SmartDashboard.putNumber("Reacher/m_goal", Units.metersToInches(m_goal));
         SmartDashboard.putBoolean("Reacher/m_resetReacherPos", m_resetReacherPos);
+        SmartDashboard.putBoolean("Reacher/m_coastMode", m_coastMode);
         
+        if (m_coastMode)
+            return;
         super.periodic();
 
         // update the PID val
@@ -148,5 +155,11 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     public void resetGoal(){
         setLength(getLength());
+    }
+
+    public void setCoastMode(boolean coastMode){
+        m_motor.setIdleMode(coastMode ? IdleMode.kCoast : IdleMode.kBrake);
+        m_coastMode = coastMode;
+        m_motor.stopMotor();
     }
 }

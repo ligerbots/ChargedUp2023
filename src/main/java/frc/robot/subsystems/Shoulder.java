@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
@@ -30,6 +31,9 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 
 public class Shoulder extends TrapezoidProfileSubsystem {
+
+    public static final double SHOULDER_MAX_ANGLE = Math.toRadians(20.0);
+    public static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
@@ -184,7 +188,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("shoulder/Encoder", Units.radiansToDegrees(getAngle()));
         // SmartDashboard.putNumber("shoulder/Encoder", getAngle());
         SmartDashboard.putNumber("shoulder/Goal", Units.radiansToDegrees(m_goal));
-        SmartDashboard.putBoolean("shoulder/CoastMode", m_coastMode);
+        SmartDashboard.putBoolean("shoulder/m_coastMode", m_coastMode);
         // SmartDashboard.putNumber("shoulder/absolute Encoder", m_Duty_Encoder.getDistance() / 1024.0 * 360.0);        
         SmartDashboard.putNumber("shoulder/absolute Encoder", Math.toDegrees(-m_Duty_Encoder.getDistance()));
         SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
@@ -251,5 +255,11 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         setAngle(getAngle());
         // super.disable();
         // m_superEnabled = false;
+    }
+
+    public void setCoastMode(boolean coastMode){
+        m_motorLeader.setNeutralMode(coastMode ? NeutralMode.Coast : NeutralMode.Brake);
+        m_coastMode = coastMode;
+        m_motorLeader.stopMotor();
     }
 }

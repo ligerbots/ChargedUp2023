@@ -6,11 +6,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Shoulder;
 
 public class SetArmAngle extends CommandBase {
 
-    private static final double SHOULDER_MAX_ANGLE = Math.toRadians(20.0);
-    private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
+
     private static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(1.0);
 
     /** Creates a new SetArmAngle. */
@@ -43,7 +43,7 @@ public class SetArmAngle extends CommandBase {
     @Override
     public boolean isFinished() {
         double curAngle = m_arm.getArmAngle();
-        if(curAngle < SHOULDER_MIN_ANGLE || curAngle > SHOULDER_MAX_ANGLE){
+        if(curAngle < Shoulder.SHOULDER_MIN_ANGLE || curAngle > Shoulder.SHOULDER_MAX_ANGLE){
             m_arm.resetShoulderPos();
             return true;
         }

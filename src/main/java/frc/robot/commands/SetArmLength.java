@@ -7,11 +7,10 @@ package frc.robot.commands;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Reacher;
 
 public class SetArmLength extends CommandBase {
 
-    private static final double REACHER_MAX_LENGTH = Units.inchesToMeters(35.0);
-    private static final double REACHER_MIN_LENGTH = Units.inchesToMeters(0.0);
     private static final double REACHER_OFFSET_TOLERANCE_METERS = Units.inchesToMeters(0.5);
 
     /** Creates a new SetArmLength. */
@@ -44,8 +43,8 @@ public class SetArmLength extends CommandBase {
     @Override
     public boolean isFinished() {
         double curLength = m_arm.getArmLength();
-        if(curLength < REACHER_MIN_LENGTH || curLength > REACHER_MAX_LENGTH){
-            m_arm.resetShoulderPos();
+        if(curLength < Reacher.REACHER_MIN_LENGTH || curLength > Reacher.REACHER_MAX_LENGTH){
+            m_arm.resetReacherPos();
             return true;
         }
         return Math.abs(curLength - m_length) < REACHER_OFFSET_TOLERANCE_METERS;
