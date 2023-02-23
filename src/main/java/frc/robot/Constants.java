@@ -45,6 +45,17 @@ public final class Constants {
     public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
     public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;
 
+    // Constants for the Arm, place holder
+    public static final double STARTING_ARM_ANGLE = 0;
+    public static final double STARTING_ARM_LENGTH = 0;
+    public static final double LOW_GIRD_ARM_ANGLE = 0;
+    public static final double LOW_GIRD_ARM_LENGTH = 0;
+    public static final double MIDDLE_GRID_ARM_ANGLE = 0;
+    public static final double MIDDLE_GRID_ARM_LENGTH = 0;
+    public static final double HIGH_GRID_ARM_ANGLE = 0;
+    public static final double HIGH_GRID_ARM_LENGTH = 0;
+
+
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
     // L Center R
