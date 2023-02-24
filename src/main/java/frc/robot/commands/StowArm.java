@@ -20,15 +20,6 @@ public class StowArm extends SequentialCommandGroup {
       //set arm star position
       new SetArmAngle(arm, Constants.STARTING_ARM_ANGLE),
       new SetArmLength(arm, Constants.STARTING_ARM_LENGTH),
-      // arm comands for low grid
-      new SetArmAngle(arm, Constants.LOW_GIRD_ARM_ANGLE),
-      new SetArmLength(arm, Constants.LOW_GIRD_ARM_LENGTH ),
-      // arm comand for middle gird
-      new SetArmAngle(arm, Constants.MIDDLE_GRID_ARM_ANGLE),
-      new SetArmLength(arm, Constants.MIDDLE_GRID_ARM_LENGTH),
-      // arm comand for high grid
-      new SetArmAngle(arm, Constants.HIGH_GRID_ARM_ANGLE),
-      new SetArmLength(arm, Constants.HIGH_GRID_ARM_LENGTH),
-    )
+    );
   }
 }
