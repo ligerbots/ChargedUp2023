@@ -54,7 +54,7 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    // private final Claw m_claw = new Claw();
+    private final Claw m_claw = new Claw();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -94,7 +94,7 @@ public class RobotContainer {
         leftBumper.onTrue(new InstantCommand(m_claw::open));
 
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
-        leftBumper.onTrue(new InstantCommand(m_claw::close));
+        rightBumper.onTrue(new InstantCommand(m_claw::close));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
