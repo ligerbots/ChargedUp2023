@@ -125,6 +125,12 @@ public class DriveTrain extends SubsystemBase {
 
     private final Vision m_vision;
 
+	private final Field2d m_fieldSim = new Field2d();
+
+	private double m_simX = 0.0;
+	private double m_simY = 0.0;
+	private Rotation2d m_yaw = new Rotation2d(0.0);
+	private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
     private final Field2d m_field = new Field2d();
 
     // PID controller for swerve
@@ -179,14 +185,25 @@ public class DriveTrain extends SubsystemBase {
         setPose(newPose);
     }
 
-    public Pose2d getPose() {
-        return m_odometry.getEstimatedPosition();
-    }
+	public Pose2d getPose() {
+		if(Robot.isSimulation()){
+			return new Pose2d(m_simX, m_simY, m_yaw);
+		}
+		return m_odometry.getEstimatedPosition();
+	}
 
-    // sets the odometry to the specified pose
-    public void setPose(Pose2d pose) {
-        m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
-    }
+	// sets the odometry to the specified pose
+	public void setPose(Pose2d pose) {
+		if(Robot.isSimulation()){
+			m_simX = pose.getX();
+			m_simY = pose.getY();
+			m_yaw = pose.getRotation();
+			m_chassisSpeeds = new ChassisSpeeds();
+			return ;
+		}
+
+		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);		
+	}
 
     public Rotation2d getHeading() {
         return m_odometry.getEstimatedPosition().getRotation();
@@ -241,15 +258,15 @@ public class DriveTrain extends SubsystemBase {
         drive(chassisSpeeds);
     }
 
-    public void drive(ChassisSpeeds chassisSpeeds) {
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
-        for (int i = 0; i < 4; i++) {
-            m_swerveModules[i].set(
-                    states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * Constants.MAX_VOLTAGE,
-                    states[i].angle.getRadians());
-        }
-    }
+	public void drive(ChassisSpeeds chassisSpeeds) {
+		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+		m_chassisSpeeds = m_kinematics.toChassisSpeeds(states);
+		for (int i = 0; i < 4; i++) {
+			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+					states[i].angle.getRadians());
+		}
+	}
 
     public void stop() {
         for (int i = 0; i < 4; i++) {
@@ -321,9 +338,10 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    @Override
-    public void periodic() {
-        Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+	@Override
+	public void periodic() {
+		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		simulationPeriodic();
 
         // Have the vision system update based on the Apriltags, if seen
         // Comment out for now so we don't get exceptions
@@ -340,10 +358,25 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-        for (SwerveModule mod : m_swerveModules) {
-            mod.updateSmartDashboard();
-        }
-    }
+		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
+		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
+		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
+		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
+	}
+
+	@Override
+	public void simulationPeriodic(){
+		m_simX += m_chassisSpeeds.vxMetersPerSecond * 0.02;
+		m_simY += m_chassisSpeeds.vyMetersPerSecond * 0.02;
+		m_yaw = m_yaw.plus(Rotation2d.fromRadians(m_chassisSpeeds.omegaRadiansPerSecond * 0.02));
+
+		m_fieldSim.setRobotPose(new Pose2d(m_simX, m_simY, m_yaw));
+		SmartDashboard.putNumber("simX", m_simX);
+		SmartDashboard.putNumber("simY", m_simY);
+		SmartDashboard.putNumber("m_yaw", m_yaw.getDegrees());
+
+		SmartDashboard.putNumber("rotationSpeed", m_chassisSpeeds.omegaRadiansPerSecond);
+	}
 
     // Make a command to follow a given trajectory
     // Note this does NOT include stopping at the end
