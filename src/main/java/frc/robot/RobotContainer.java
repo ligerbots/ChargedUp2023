@@ -38,8 +38,8 @@ public class RobotContainer {
     private static final int XBOX_Y = 4;
 
     // left and right bumpers
-    // private static final int XBOX_LB = 5;
-    // private static final int XBOX_RB = 6;
+    private static final int XBOX_LB = 5;
+    private static final int XBOX_RB = 6;
     
     // private static final int XBOX_BACK = 7;
     private static final int XBOX_START = 8;
@@ -89,6 +89,12 @@ public class RobotContainer {
         // whichever way the robot is facing becomes the forward direction
         JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
         xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
+
+        JoystickButton leftBumper = new JoystickButton(m_controller, XBOX_LB);
+        leftBumper.onTrue(new InstantCommand(m_claw::open));
+
+        JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
+        leftBumper.onTrue(new InstantCommand(m_claw::close));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
