@@ -31,6 +31,7 @@ public class ChargeStationBalance extends CommandBase {
 
         SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
         SmartDashboard.putNumber("balanceCommand/error", 0.0);
+        SmartDashboard.putNumber("balanceCommand/driveAngle", 0);
     }
 
     // Called when the command is initially scheduled.
@@ -54,7 +55,7 @@ public class ChargeStationBalance extends CommandBase {
         SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
         SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
 
-        Rotation2d driveAngle = m_driveTrain.getTiltDirection().plus(Rotation2d.fromDegrees(180));
+        Rotation2d driveAngle = m_driveTrain.getTiltDirection(); //.plus(Rotation2d.fromDegrees(180));
 
         SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
 

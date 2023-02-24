@@ -101,7 +101,7 @@ public class RobotContainer {
         
         // // when button Y is pressed, attempt to balance on the Charging Station
         // // assumes that the robot is already mostly up on the Station
-        // xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
+        xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
 
         // when button Y is pressed, attempt to drive up onto the Charging Station
         // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
