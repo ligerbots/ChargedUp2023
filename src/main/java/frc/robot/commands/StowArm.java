@@ -19,7 +19,7 @@ public class StowArm extends SequentialCommandGroup {
     addCommands(
       //set arm star position
       new SetArmAngle(arm, Constants.STARTING_ARM_ANGLE),
-      new SetArmLength(arm, Constants.STARTING_ARM_LENGTH),
+      new SetArmLength(arm, Constants.STARTING_ARM_LENGTH)
     );
   }
 }

@@ -13,8 +13,7 @@ import frc.robot.Constants.Position;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ScoreArm extends SequentialCommandGroup {
-  public 
-  
+
   private static final Map<Position, Map.Entry<Double, Double>> SCORE_POSITIONS = new HashMap<Position, Map.Entry<Double, Double>>() {
     {
         // scoring transformations
