@@ -9,10 +9,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import frc.robot.commands.AutoBottomGrid;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
+import frc.robot.commands.AutoTopGrid;
 import frc.robot.commands.TrajectoryPlotter;
+import frc.robot.subsystems.DriveTrain;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -51,12 +53,14 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();
 
+        DriveTrain driveTrain = m_robotContainer.getDriveTrain();
         // Initialize the list of available Autonomous routines
-        m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_1m"));
-        m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
-        m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
-        m_chosenTrajectory.addOption("c_forward_balance", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("c_forward_balance"));
-        m_chosenTrajectory.addOption("l_1piece", m_robotContainer.getDriveTrain().getTrajectoryFollowingCommand("l_1piece"));
+        m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
+        m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
+        m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
+        m_chosenTrajectory.addOption("c_forward_balance", driveTrain.getTrajectoryFollowingCommand("c_forward_balance"));
+        m_chosenTrajectory.addOption("AutoTopGrid", new AutoTopGrid(driveTrain));
+        m_chosenTrajectory.addOption("AutoBottomGrid", new AutoBottomGrid(driveTrain));
 
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
