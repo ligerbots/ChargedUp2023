@@ -7,10 +7,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 // This has a SteerController and a DriveController
 
 public class SwerveModule {
+    private final String m_moduleName;
     private final NeoDriveController m_driveController;
     private final NeoSteerController m_steerController;
 
-    public SwerveModule(NeoDriveController driveController, NeoSteerController steerController) {
+    public SwerveModule(String moduleName, NeoDriveController driveController, NeoSteerController steerController) {
+        m_moduleName = moduleName;
         m_driveController = driveController;
         m_steerController = steerController;
     }
@@ -59,6 +61,11 @@ public class SwerveModule {
         m_steerController.setReferenceAngle(steerAngle);
     }
 
+    // stops individual module
+    public void stopWheel() {
+        m_driveController.setReferenceVoltage(0.0);
+    }
+
     // get the swerve module position 
     public SwerveModulePosition getSwerveModulePosition(){
         return new SwerveModulePosition(m_driveController.getWheelDistance(), m_steerController.getStateAngle() );
@@ -68,8 +75,8 @@ public class SwerveModule {
         return m_driveController.getWheelDistance();
     }
 
-    public void updateSmartDashboard(String prefix) {
-        m_steerController.updateSmartDashboard(prefix + "_steer");
+    public void updateSmartDashboard() {
+        m_steerController.updateSmartDashboard(String.format("drivetrain/%s/steer", m_moduleName));
     }
 
     public void syncAngleEncoders(boolean dontCheckTimer) {

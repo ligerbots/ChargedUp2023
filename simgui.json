@@ -1,12 +1,62 @@
 {
+  "HALProvider": {
+    "DIO": {
+      "window": {
+        "visible": true
+      }
+    },
+    "Other Devices": {
+      "DutyCycleEncoder[0]": {
+        "header": {
+          "open": true
+        }
+      }
+    },
+    "RoboRIO": {
+      "6V Rail": {
+        "open": true
+      },
+      "RoboRIO Input": {
+        "open": true
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Chosen Trajectory": "String Chooser",
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/shoulder Sim": "Mechanism2d"
+    },
+    "windows": {
+      "/SmartDashboard/Chosen Trajectory": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Field": {
+        "trajectory": {
+          "arrowSize": 100,
+          "length": 0.20000000298023224,
+          "weight": 0.0,
+          "width": 0.10000000149011612
+        },
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/shoulder Sim": {
+        "window": {
+          "visible": true
+        }
+      }
       "/SmartDashboard/Chosen Trajectory": "String Chooser",
       "/SmartDashboard/Field": "Field2d"
     },
@@ -24,6 +74,9 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "Retained Values": {
       "open": false
     },
@@ -31,14 +84,21 @@
       "LiveWindow": {
         "open": true
       },
+      "Shuffleboard": {
+        "open": true
+      },
       "SmartDashboard": {
+        "Arm Sim": {
+          "open": true
+        },
+        "Reacher": {
+          "open": true
+        },
+        "arm0": {
+          "open": true
+        },
         "open": true
       }
-    }
-  },
-  "NetworkTables Info": {
-    "Clients": {
-      "open": true
     }
   }
 }
