@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -263,7 +264,7 @@ public class DriveTrain extends SubsystemBase {
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		m_chassisSpeeds = m_kinematics.toChassisSpeeds(states);
 		for (int i = 0; i < 4; i++) {
-			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * Constants.MAX_VOLTAGE,
 					states[i].angle.getRadians());
 		}
 	}
@@ -358,10 +359,10 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		m_swerveModules[0].updateSmartDashboard("drivetrain/frontLeft");
-		m_swerveModules[1].updateSmartDashboard("drivetrain/frontRight");
-		m_swerveModules[2].updateSmartDashboard("drivetrain/backLeft");
-		m_swerveModules[3].updateSmartDashboard("drivetrain/backRight");
+		m_swerveModules[0].updateSmartDashboard();
+		m_swerveModules[1].updateSmartDashboard();
+		m_swerveModules[2].updateSmartDashboard();
+		m_swerveModules[3].updateSmartDashboard();
 	}
 
 	@Override
