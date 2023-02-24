@@ -61,6 +61,11 @@ public class SwerveModule {
         m_steerController.setReferenceAngle(steerAngle);
     }
 
+    // stops individual module
+    public void stopWheel() {
+        m_driveController.setReferenceVoltage(0.0);
+    }
+
     // get the swerve module position 
     public SwerveModulePosition getSwerveModulePosition(){
         return new SwerveModulePosition(m_driveController.getWheelDistance(), m_steerController.getStateAngle() );
