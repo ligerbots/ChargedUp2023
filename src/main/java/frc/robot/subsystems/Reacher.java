@@ -81,7 +81,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_PIDController.setI(REACHER_K_I);
         m_PIDController.setD(REACHER_K_D);
         m_PIDController.setFF(REACHER_K_FF);
-        m_motor.setInverted(true);
+        // m_motor.setInverted(true);
 
         m_encoder = m_motor.getEncoder();
 

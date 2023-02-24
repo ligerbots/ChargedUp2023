@@ -43,9 +43,8 @@ public final class Constants {
 
     // CAN ID and channels for the Claw subsystem
     public static final int PNEUMATIC_HUB_PORT = 2;
-    public static final int DOUBLE_SOLENOID_MODULE_NUMBER = 1;
-    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
-    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;
+    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
+    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
 
     // Constants for the Arm, place holder
     public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
