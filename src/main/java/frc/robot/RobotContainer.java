@@ -53,7 +53,7 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
-    // private final Arm m_arm = new Arm();
+    private final Arm m_arm = new Arm();
     // private final Claw m_claw = new Claw();
 
     /**
@@ -82,8 +82,8 @@ public class RobotContainer {
         xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
 
         // when button X is pressed, toggle precision (slow) drive mode
-        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        // xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
         // when button START is pressed, reset the robot heading
         // whichever way the robot is facing becomes the forward direction
@@ -92,10 +92,10 @@ public class RobotContainer {
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-
+        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
         // xboxYButton.onTrue(new InstantCommand(m_claw::close));
-        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
-
+        xboxYButton.onTrue(new SetArmAngleTest(m_arm));
+        xboxXButton.onTrue(new SetArmLengthTest(m_arm));
         // testing if the command works by passing in a position, we need more buttons for all 11
         // xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
         
@@ -157,5 +157,8 @@ public class RobotContainer {
 
     public DriveTrain getDriveTrain() {
         return m_driveTrain;
+    }
+    public Arm getArm(){
+        return m_arm;
     }
 }

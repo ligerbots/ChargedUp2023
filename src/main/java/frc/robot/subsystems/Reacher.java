@@ -8,27 +8,42 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 
 public class Reacher extends TrapezoidProfileSubsystem {
 
+    private static final double REACHER_MAX_LENGTH = Units.inchesToMeters(35.0);
+    private static final double REACHER_MIN_LENGTH = Units.inchesToMeters(0.5);
 
-    private static final double REACHER_MAX_VEL_INCH_PER_SEC = 100.0;
-    private static final double REACHER_MAX_ACC_INCH_PER_SEC_SQ = 30.0;
+    // Constants to limit the shoulder rotation speed
+    // For initial testing, these should be very slow.
+    // We can update them as we get more confidence.
+    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(20.0);
+    // Let's give it 2 seconds to get to max velocity.
+    // Once tuned, I expect we will want this to be equal to REACHER_MAX_VEL_METER_PER_SEC
+    // so it will get to max velocity in one second.
+    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(20.0);
 
-    private static final double REACHER_INCH_PER_REVOLUTION = 0.7;
+    // TODO: See if this is close enough. Or do we need a more exact measurement?
+    private static final double REACHER_METER_PER_REVOLUTION = Units.inchesToMeters(0.7);
+
+    private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
+
+
 
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned
-    // The following constants are computed from https://www.reca.lc/arm
-    private static final double REACHER_KG = 1.19;
-    private static final double REACHER_KV = 7.67;
-    private static final double REACHER_KA = 0.19;
+    // The following constants are computed from https://www.reca.lc/linear
+    private static final double REACHER_KG = 0.16; // Volts
+    private static final double REACHER_KV = 3.07; // V*sec/meter
+    private static final double REACHER_KA = 0.03; // V*sec^2/meter
 
     // PID Constants for the reacher PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
@@ -37,10 +52,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     private static final double REACHER_K_I = 0.0;
     private static final double REACHER_K_D = 0.0;
     private static final double REACHER_K_FF = 0.0;
-    private static final double REACHER_OFFSET_INCH = 0.0;
 
-
-    /** Creates a new Reacher. */
     // Define the motor and encoders
     private final CANSparkMax m_motor;
     private final RelativeEncoder m_encoder;
@@ -56,8 +68,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     /** Creates a new Reacher. */
     public Reacher() {
-        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_INCH_PER_SEC,
-        REACHER_MAX_ACC_INCH_PER_SEC_SQ));
+        super(new TrapezoidProfile.Constraints(REACHER_MAX_VEL_METER_PER_SEC, REACHER_MAX_ACC_METER_PER_SEC_SQ));
 
         m_kPReacher = REACHER_K_P;
 
@@ -70,13 +81,17 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_PIDController.setI(REACHER_K_I);
         m_PIDController.setD(REACHER_K_D);
         m_PIDController.setFF(REACHER_K_FF);
+        m_motor.setInverted(true);
 
         m_encoder = m_motor.getEncoder();
 
         // Set the position conversion factor.
-        m_encoder.setPositionConversionFactor(REACHER_INCH_PER_REVOLUTION);
+        m_encoder.setPositionConversionFactor(REACHER_METER_PER_REVOLUTION);
 
-        m_encoder.setPosition(REACHER_OFFSET_INCH);
+        m_encoder.setPosition(REACHER_OFFSET_METER);
+
+        setCoastMode(false);
+        SmartDashboard.putBoolean("Reacher/m_coastMode", m_coastMode);
 
         SmartDashboard.putNumber("Reacher/P Gain", m_kPReacher);
     }
@@ -84,9 +99,18 @@ public class Reacher extends TrapezoidProfileSubsystem {
     @Override
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
-        SmartDashboard.putNumber("Reacher/Encoder", encoderValue);
-        SmartDashboard.putNumber("Reacher/m_goal", m_goal);
+        SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/m_goal", Units.metersToInches(m_goal));
+        SmartDashboard.putBoolean("Reacher/m_resetReacherPos", m_resetReacherPos);
         
+        m_coastMode = SmartDashboard.getBoolean("Reacher/m_coastMode", m_coastMode);
+        if(m_coastMode)
+            setCoastMode(m_coastMode);
+        
+        // Jack: I dont think we need this check because we are only going to set to coast mode during disabled and the motor won't be moved by super.periodic() or useState() anyway
+        // And we want the setPoint to follow the current encoder reading in disabled mode
+        // if (m_coastMode)
+        //     return;
         super.periodic();
 
         // update the PID val
@@ -106,7 +130,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
             m_resetReacherPos = false;
         }
         m_PIDController.setReference(setPoint.position, ControlType.kPosition, 0); // , feedforward / 12.0);
-        SmartDashboard.putNumber("Reacher/setPoint", setPoint.position);
+        SmartDashboard.putNumber("Reacher/setPoint", Units.metersToInches(setPoint.position));
     }
 
     private void checkPIDVal() {
@@ -122,18 +146,30 @@ public class Reacher extends TrapezoidProfileSubsystem {
         return m_encoder.getPosition();
     }
 
-    public void resetLength() {
-        setGoal(getLength());
+    public void resetReacherPos() {
+        setLength(getLength());
         m_resetReacherPos = true;
     }
 
-    public void setBrakeMode(boolean brake) {
-        m_motor.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
+    public static double limitReacherLength(double length){
+        return Math.min(REACHER_MAX_LENGTH, Math.max(REACHER_MIN_LENGTH, length));
     }
 
     // set reacher length in inches
     public void setLength(double goal) {
-        m_goal = goal;
-        super.setGoal(goal);
+        m_goal = limitReacherLength(goal);
+        super.setGoal(m_goal);
+    }
+
+    public void resetGoal(){
+        setLength(getLength());
+    }
+
+    public void setCoastMode(boolean coastMode){
+        if(coastMode){
+            m_motor.setIdleMode(IdleMode.kCoast);
+            m_motor.stopMotor();
+        }else
+            m_motor.setIdleMode(IdleMode.kBrake);
     }
 }
