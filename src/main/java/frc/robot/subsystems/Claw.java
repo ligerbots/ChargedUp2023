@@ -48,10 +48,12 @@ public class Claw extends SubsystemBase {
     }
 
     public void open(){
+        System.out.println("Setting Claw to OPEN");
         m_clawSolenoid.set(Value.kForward);
     }
 
     public void close(){
+        System.out.println("Setting Claw to CLOSED");
         m_clawSolenoid.set(Value.kReverse);
     }
 }

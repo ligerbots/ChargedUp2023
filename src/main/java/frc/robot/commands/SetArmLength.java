@@ -11,7 +11,6 @@ import frc.robot.subsystems.Reacher;
 
 public class SetArmLength extends CommandBase {
 
-    private static final double REACHER_OFFSET_TOLERANCE_METERS = Units.inchesToMeters(0.5);
 
     /** Creates a new SetArmLength. */
     Arm m_arm;
@@ -43,6 +42,6 @@ public class SetArmLength extends CommandBase {
     @Override
     public boolean isFinished() {
         double curLength = m_arm.getArmLength();
-        return Math.abs(curLength - m_length) < REACHER_OFFSET_TOLERANCE_METERS;
+        return Math.abs(curLength - m_length) < Reacher.REACHER_OFFSET_TOLERANCE_METERS;
     }
 }

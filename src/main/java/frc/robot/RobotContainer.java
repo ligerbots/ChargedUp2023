@@ -161,6 +161,10 @@ public class RobotContainer {
 
         JoystickButton farm11 = new JoystickButton(m_farm, 11);
         farm11.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_SUBSTATION));
+
+        // TODO: use trigger to do this as a button
+        JoystickButton farm22 = new JoystickButton(m_farm, 22);
+        farm22.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP));
     }
 
     public Command getDriveCommand() {

@@ -35,6 +35,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_MAX_ANGLE = Math.toRadians(30.0);  
     private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
 
+    public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(1.0);
+
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 

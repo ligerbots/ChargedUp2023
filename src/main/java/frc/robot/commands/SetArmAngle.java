@@ -10,9 +10,6 @@ import frc.robot.subsystems.Shoulder;
 
 public class SetArmAngle extends CommandBase {
 
-
-    private static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(1.0);
-
     /** Creates a new SetArmAngle. */
     Arm m_arm;
     double m_angle;
@@ -43,6 +40,6 @@ public class SetArmAngle extends CommandBase {
     @Override
     public boolean isFinished() {
         double curAngle = m_arm.getArmAngle();
-        return Math.abs(curAngle - m_angle) < SHOULDER_ANGLE_TOLERANCE_RADIAN;
+        return Math.abs(curAngle - m_angle) < Shoulder.SHOULDER_ANGLE_TOLERANCE_RADIAN;
     }
 }

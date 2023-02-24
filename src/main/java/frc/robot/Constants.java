@@ -42,7 +42,7 @@ public final class Constants {
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.2);
 
     // CAN ID and channels for the Claw subsystem
-    public static final int PNEUMATIC_HUB_PORT = 2;
+    public static final int PNEUMATIC_HUB_PORT = 1;
     public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
     public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
 
@@ -85,7 +85,8 @@ public final class Constants {
         LEFT_MIDDLE, CENTER_MIDDLE, RIGHT_MIDDLE, 
         LEFT_BOTTOM, CENTER_BOTTOM, RIGHT_BOTTOM,
         // for the two substations/pick up stations
-        LEFT_SUBSTATION, RIGHT_SUBSTATION
+        LEFT_SUBSTATION, RIGHT_SUBSTATION,
+        PICK_UP
     }
 
     public static final double TRAJ_MAX_VEL = 2.0;
