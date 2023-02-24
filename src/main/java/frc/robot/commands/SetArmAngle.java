@@ -6,10 +6,12 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Shoulder;
 
 public class SetArmAngle extends CommandBase {
 
-    private static final double SHOULDER_ANGLE_TOLERANCE_DEGREE = 1.0;
+
+    private static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(1.0);
 
     /** Creates a new SetArmAngle. */
     Arm m_arm;
@@ -18,7 +20,7 @@ public class SetArmAngle extends CommandBase {
     public SetArmAngle(Arm arm, double angle) {
         // Use addRequirements() here to declare subsystem dependencies.
         m_arm = arm;
-        m_angle = angle;
+        m_angle = Shoulder.limitShoulderAngle(angle);
     }
 
     // Called when the command is initially scheduled.
@@ -40,6 +42,7 @@ public class SetArmAngle extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(m_arm.getArmAngle() - m_angle) < SHOULDER_ANGLE_TOLERANCE_DEGREE;
+        double curAngle = m_arm.getArmAngle();
+        return Math.abs(curAngle - m_angle) < SHOULDER_ANGLE_TOLERANCE_RADIAN;
     }
 }
