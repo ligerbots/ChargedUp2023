@@ -19,8 +19,8 @@ import frc.robot.Constants;
 
 public class Reacher extends TrapezoidProfileSubsystem {
 
-    public static final double REACHER_MAX_LENGTH = Units.inchesToMeters(35.0);
-    public static final double REACHER_MIN_LENGTH = Units.inchesToMeters(0.0);
+    private static final double REACHER_MAX_LENGTH = Units.inchesToMeters(35.0);
+    private static final double REACHER_MIN_LENGTH = Units.inchesToMeters(0.5);
 
     // Constants to limit the shoulder rotation speed
     // For initial testing, these should be very slow.
@@ -147,10 +147,14 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_motor.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
     }
 
+    public static double limitReacherLength(double length){
+        return Math.min(REACHER_MAX_LENGTH, Math.max(REACHER_MIN_LENGTH, length));
+    }
+
     // set reacher length in inches
     public void setLength(double goal) {
-        m_goal = goal;
-        super.setGoal(goal);
+        m_goal = limitReacherLength(goal);
+        super.setGoal(m_goal);
     }
 
     public void resetGoal(){

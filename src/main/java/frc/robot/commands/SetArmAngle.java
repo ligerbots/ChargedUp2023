@@ -20,7 +20,7 @@ public class SetArmAngle extends CommandBase {
     public SetArmAngle(Arm arm, double angle) {
         // Use addRequirements() here to declare subsystem dependencies.
         m_arm = arm;
-        m_angle = angle;
+        m_angle = Shoulder.limitShoulderAngle(angle);
     }
 
     // Called when the command is initially scheduled.
@@ -43,10 +43,6 @@ public class SetArmAngle extends CommandBase {
     @Override
     public boolean isFinished() {
         double curAngle = m_arm.getArmAngle();
-        if(curAngle < Shoulder.SHOULDER_MIN_ANGLE || curAngle > Shoulder.SHOULDER_MAX_ANGLE){
-            m_arm.resetShoulderPos();
-            return true;
-        }
         return Math.abs(curAngle - m_angle) < SHOULDER_ANGLE_TOLERANCE_RADIAN;
     }
 }

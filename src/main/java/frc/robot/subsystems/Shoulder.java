@@ -32,8 +32,8 @@ import frc.robot.Constants;
 
 public class Shoulder extends TrapezoidProfileSubsystem {
 
-    public static final double SHOULDER_MAX_ANGLE = Math.toRadians(20.0);
-    public static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
+    private static final double SHOULDER_MAX_ANGLE = Math.toRadians(20.0);
+    private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
@@ -245,10 +245,14 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_resetShoulderPos = true;
     }
 
+    public static double limitShoulderAngle(double angle){
+        return Math.min(SHOULDER_MAX_ANGLE, Math.max(SHOULDER_MIN_ANGLE, angle));
+    }
+
     // set shoulder angle in radians
     public void setAngle(double angle) {
-        m_goal = angle;
-        super.setGoal(angle / SHOULDER_RADIAN_PER_UNIT);
+        m_goal = limitShoulderAngle(angle);
+        super.setGoal(m_goal / SHOULDER_RADIAN_PER_UNIT);
     }
     public void resetGoal(){
         // m_encoder.setIntegratedSensorPosition(getAngle()/SHOULDER_RADIAN_PER_UNIT, kTimeoutMs);

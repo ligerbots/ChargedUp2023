@@ -20,7 +20,7 @@ public class SetArmLength extends CommandBase {
     public SetArmLength(Arm arm, double length) {
         // Use addRequirements() here to declare subsystem dependencies.
         m_arm = arm;
-        m_length = length;
+        m_length = Reacher.limitReacherLength(length);
     }
 
     // Called when the command is initially scheduled.
@@ -43,10 +43,6 @@ public class SetArmLength extends CommandBase {
     @Override
     public boolean isFinished() {
         double curLength = m_arm.getArmLength();
-        if(curLength < Reacher.REACHER_MIN_LENGTH || curLength > Reacher.REACHER_MAX_LENGTH){
-            m_arm.resetReacherPos();
-            return true;
-        }
         return Math.abs(curLength - m_length) < REACHER_OFFSET_TOLERANCE_METERS;
     }
 }
