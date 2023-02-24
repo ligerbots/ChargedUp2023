@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
  * class should not be used for any other purpose. All constants should be declared globally (i.e. public static). Do
@@ -41,9 +43,34 @@ public final class Constants {
 
     // CAN ID and channels for the Claw subsystem
     public static final int PNEUMATIC_HUB_PORT = 2;
-    public static final int DOUBLE_SOLENOID_MODULE_NUMBER = 1;
-    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
-    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;
+    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
+    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
+
+    // Constants for the Arm, place holder
+    public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
+    public static final double STARTING_ARM_LENGTH = Units.inchesToMeters(0.0);
+
+    public static final double LOW_GIRD_ARM_ANGLE = Math.toRadians(-45.0);
+    public static final double LOW_GIRD_ARM_LENGTH = Units.inchesToMeters(8.0);
+
+    public static final double MIDDLE_GRID_CUBE_ARM_ANGLE = Math.toRadians(-7.0);
+    public static final double MIDDLE_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(12.0);
+    public static final double MIDDLE_GRID_CONE_ARM_ANGLE = Math.toRadians(15.0);
+    public static final double MIDDLE_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(12.0);
+
+    public static final double HIGH_GRID_CUBE_ARM_ANGLE = Math.toRadians(10.0);
+    public static final double HIGH_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(31.0);
+    public static final double HIGH_GRID_CONE_ARM_ANGLE = Math.toRadians(22.0);
+    public static final double HIGH_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(33.0) ;
+
+    public static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-56.0);
+    public static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(8.0);
+    public static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
+    public static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(8.0);
+
+
+
+
 
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
