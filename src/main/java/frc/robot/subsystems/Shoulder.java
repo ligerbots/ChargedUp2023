@@ -158,6 +158,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("shoulder/absolute Encoder", Math.toDegrees(-m_Duty_Encoder.getDistance()));
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
         SmartDashboard.putData("shoulder Sim", m_mech2d);
+
+        setCoastMode(false);
+        SmartDashboard.putBoolean("shoulder/m_coastMode", m_coastMode);
+
         // m_motorLeader.set(ControlMode.Position, )
         // m_motorLeader.set(ControlMode.Position, m_encoder.getIntegratedSensorPosition(), DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
         // setAngle(m_encoder.getIntegratedSensorPosition() * SHOULDER_RADIAN_PER_UNIT);
@@ -188,12 +192,18 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("shoulder/Encoder", Units.radiansToDegrees(getAngle()));
         // SmartDashboard.putNumber("shoulder/Encoder", getAngle());
         SmartDashboard.putNumber("shoulder/Goal", Units.radiansToDegrees(m_goal));
-        SmartDashboard.putBoolean("shoulder/m_coastMode", m_coastMode);
         // SmartDashboard.putNumber("shoulder/absolute Encoder", m_Duty_Encoder.getDistance() / 1024.0 * 360.0);        
         SmartDashboard.putNumber("shoulder/absolute Encoder", Math.toDegrees(-m_Duty_Encoder.getDistance()));
         SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
-        if (m_coastMode)
-            return;
+        
+        m_coastMode = SmartDashboard.getBoolean("shoulder/m_coastMode", m_coastMode);
+        if(m_coastMode)
+            setCoastMode(m_coastMode);
+        
+        // Jack: I dont think we need this check because we are only going to set to coast mode during disabled and the motor won't be moved by super.periodic() or useState() anyway
+        // And we want the setPoint to follow the current encoder reading in disabled mode
+        // if (m_coastMode)
+        //     return;
 
         // Execute the super class periodic method
         super.periodic();
@@ -262,8 +272,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     }
 
     public void setCoastMode(boolean coastMode){
-        m_motorLeader.setNeutralMode(coastMode ? NeutralMode.Coast : NeutralMode.Brake);
-        m_coastMode = coastMode;
-        m_motorLeader.stopMotor();
+        if(coastMode){
+            m_motorLeader.setNeutralMode(NeutralMode.Coast);
+            m_motorLeader.stopMotor();
+        }else
+            m_motorLeader.setNeutralMode(NeutralMode.Brake);
     }
 }

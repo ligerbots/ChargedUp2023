@@ -90,6 +90,9 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
         m_encoder.setPosition(REACHER_OFFSET_METER);
 
+        setCoastMode(false);
+        SmartDashboard.putBoolean("Reacher/m_coastMode", m_coastMode);
+
         SmartDashboard.putNumber("Reacher/P Gain", m_kPReacher);
     }
 
@@ -99,10 +102,15 @@ public class Reacher extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
         SmartDashboard.putNumber("Reacher/m_goal", Units.metersToInches(m_goal));
         SmartDashboard.putBoolean("Reacher/m_resetReacherPos", m_resetReacherPos);
-        SmartDashboard.putBoolean("Reacher/m_coastMode", m_coastMode);
         
-        if (m_coastMode)
-            return;
+        m_coastMode = SmartDashboard.getBoolean("Reacher/m_coastMode", m_coastMode);
+        if(m_coastMode)
+            setCoastMode(m_coastMode);
+        
+        // Jack: I dont think we need this check because we are only going to set to coast mode during disabled and the motor won't be moved by super.periodic() or useState() anyway
+        // And we want the setPoint to follow the current encoder reading in disabled mode
+        // if (m_coastMode)
+        //     return;
         super.periodic();
 
         // update the PID val
@@ -143,10 +151,6 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_resetReacherPos = true;
     }
 
-    public void setBrakeMode(boolean brake) {
-        m_motor.setIdleMode(brake ? CANSparkMax.IdleMode.kBrake : CANSparkMax.IdleMode.kCoast);
-    }
-
     public static double limitReacherLength(double length){
         return Math.min(REACHER_MAX_LENGTH, Math.max(REACHER_MIN_LENGTH, length));
     }
@@ -162,8 +166,10 @@ public class Reacher extends TrapezoidProfileSubsystem {
     }
 
     public void setCoastMode(boolean coastMode){
-        m_motor.setIdleMode(coastMode ? IdleMode.kCoast : IdleMode.kBrake);
-        m_coastMode = coastMode;
-        m_motor.stopMotor();
+        if(coastMode){
+            m_motor.setIdleMode(IdleMode.kCoast);
+            m_motor.stopMotor();
+        }else
+            m_motor.setIdleMode(IdleMode.kBrake);
     }
 }
