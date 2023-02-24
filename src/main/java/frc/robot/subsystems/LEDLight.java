@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDLight extends SubsystemBase {
     /** Creates a new LEDLight. */
-    I2C m_led = new I2C(I2C.Port.kOnboard, 0);
+    I2C m_led = new I2C(I2C.Port.kOnboard, 0x04);
 
     public LEDLight() {
     }
@@ -19,8 +19,7 @@ public class LEDLight extends SubsystemBase {
         // This method will be called once per scheduler run
     }
 
-    public void setColor(byte color){
-        byte[] data = new byte[] {color};
-        m_led.writeBulk(data);
+    public void setColor(int color){
+        m_led.write(0x04, color);
     }
 }
