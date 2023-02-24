@@ -2,56 +2,33 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.commands;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.Arm;
 
-public class Claw extends SubsystemBase {
-    PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
-    DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
-    private CANSparkMax m_motor;
-    private RelativeEncoder m_encoder;
-    private double m_speed = 0;
+// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
+// information, see:
+// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+public class SetArmLengthTest extends InstantCommand {
+    Command m_command;
 
-    /** Creates a new Claw. */
-    public Claw() {
-        SmartDashboard.putBoolean("claw/isCompressorEnabled", m_pH.getCompressor());
+    Arm m_arm;
+
+    public SetArmLengthTest(Arm arm) {
+        // Use addRequirements() here to declare subsystem dependencies.
+        m_arm = arm;
     }
 
-    // This method will be called once per scheduler run
+    // Called when the command is initially scheduled.
     @Override
-    public void periodic() {
+    public void initialize() {
+        m_command = new SetArmLength(m_arm,
+                SmartDashboard.getNumber("Testing/SetArmLengthTest", 0.0));
 
-        // TODO: this does not make sense. Testing the compressor does not test if something is in the claw
-        // SmartDashboard.putBoolean("claw/not full?", m_phCompressor.getPressureSwitchValue());
-        SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
-        SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
-        if(SmartDashboard.getBoolean("claw/isCompressorEnabled", false))
-            m_pH.enableCompressorDigital();
-        else
-            m_pH.disableCompressor();
-    }
-
-    public void toggleClaw(){
-        m_clawSolenoid.toggle();
-    }
-
-    public void open(){
-        m_clawSolenoid.set(Value.kForward);
-    }
-
-    public void close(){
-        m_clawSolenoid.set(Value.kReverse);
+        CommandScheduler.getInstance().schedule(m_command);
     }
 }

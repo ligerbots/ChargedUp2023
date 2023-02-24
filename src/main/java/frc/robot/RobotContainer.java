@@ -54,7 +54,7 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     // private final Arm m_arm = new Arm();
-    // private final Claw m_claw = new Claw();
+    private final Claw m_claw = new Claw();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
