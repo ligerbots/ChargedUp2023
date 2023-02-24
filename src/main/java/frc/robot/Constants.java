@@ -51,10 +51,8 @@ public final class Constants {
     public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
     public static final double STARTING_ARM_LENGTH = Units.inchesToMeters(0.0);
 
-    public static final double LOW_GIRD_CUBE_ARM_ANGLE = Math.toRadians(-45.0);
-    public static final double LOW_GIRD_CUBE_ARM_LENGTH = Units.inchesToMeters(8.0);
-    public static final double LOW_GIRD_CONE_ARM_ANGLE = Math.toRadians(-45.0);
-    public static final double LOW_GIRD_CONE_ARM_LENGTH = Units.inchesToMeters(8.0);
+    public static final double LOW_GIRD_ARM_ANGLE = Math.toRadians(-45.0);
+    public static final double LOW_GIRD_ARM_LENGTH = Units.inchesToMeters(8.0);
 
     public static final double MIDDLE_GRID_CUBE_ARM_ANGLE = Math.toRadians(-7.0);
     public static final double MIDDLE_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(12.0);
