@@ -5,12 +5,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
+import frc.robot.commands.ScoreArm;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
 import frc.robot.commands.TagPositionDrive;
@@ -49,6 +51,7 @@ public class RobotContainer {
     // private static final int XBOX_JR = 10;
 
     private final XboxController m_controller = new XboxController(0);
+    private final Joystick m_farm = new Joystick(1);
 
     // The robot's subsystems and commands are defined here...
     private final Vision m_vision = new Vision();
@@ -119,6 +122,39 @@ public class RobotContainer {
         // inline command to create trajectory from robot pose to right of the best apriltag
         xboxYButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, true))));
         */
+
+        JoystickButton farm1 = new JoystickButton(m_farm, 1);
+        farm1.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_TOP));
+        
+        JoystickButton farm2 = new JoystickButton(m_farm, 2);
+        farm2.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_TOP));
+
+        JoystickButton farm3 = new JoystickButton(m_farm, 3);
+        farm3.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_TOP));
+
+        JoystickButton farm4 = new JoystickButton(m_farm, 4);
+        farm4.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_MIDDLE));
+
+        JoystickButton farm5 = new JoystickButton(m_farm, 5);
+        farm5.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_MIDDLE));
+
+        JoystickButton farm6 = new JoystickButton(m_farm, 6);
+        farm6.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_MIDDLE));
+
+        JoystickButton farm7 = new JoystickButton(m_farm, 7);
+        farm7.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_BOTTOM));
+
+        JoystickButton farm8 = new JoystickButton(m_farm, 8);
+        farm8.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_BOTTOM));
+
+        JoystickButton farm9 = new JoystickButton(m_farm, 9);
+        farm9.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_BOTTOM));
+
+        JoystickButton farm10 = new JoystickButton(m_farm, 10);
+        farm10.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_SUBSTATION));
+
+        JoystickButton farm11 = new JoystickButton(m_farm, 11);
+        farm11.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_SUBSTATION));
     }
 
     public Command getDriveCommand() {
