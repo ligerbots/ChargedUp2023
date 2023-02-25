@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
@@ -102,6 +104,13 @@ public class RobotContainer {
 
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
         rightBumper.onTrue(new InstantCommand(m_claw::close));
+                
+        //Turns analog triggers into buttons that actuate when it is half pressed 
+        Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
+        rightTriggerButton.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::open)));
+        
+        Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
+        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).andThen()));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
@@ -168,12 +177,7 @@ public class RobotContainer {
         farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION));
 
         // TODO: use trigger to do this as a button
-        JoystickButton farm22 = new JoystickButton(m_farm, 22);
-        farm22.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::open)));
-
-        JoystickButton farm23 = new JoystickButton(m_farm, 23);
-        farm23.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).andThen()));
-
+        
 
     }
 
