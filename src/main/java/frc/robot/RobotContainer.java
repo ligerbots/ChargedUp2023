@@ -162,12 +162,25 @@ public class RobotContainer {
         JoystickButton farm5 = new JoystickButton(m_farm, 5);
         farm5.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_SUBSTATION));
 
+
+        JoystickButton farm12 = new JoystickButton(m_farm, 12);
+        farm12.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
+
+        JoystickButton farm14 = new JoystickButton(m_farm, 14);
+        farm14.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.CENTER_TOP));
+
+        JoystickButton farm16 = new JoystickButton(m_farm, 16);
+        farm16.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.RIGHT_TOP));
+
+
         // TODO: use trigger to do this as a button
         JoystickButton farm22 = new JoystickButton(m_farm, 22);
-        farm22.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP));
+        farm22.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::open)));
 
         JoystickButton farm23 = new JoystickButton(m_farm, 23);
-        farm23.onTrue(new ScoreArm(m_arm, Constants.Position.STOW_ARM));
+        farm23.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).andThen()));
+
+
     }
 
     public Command getDriveCommand() {
