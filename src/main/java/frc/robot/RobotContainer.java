@@ -23,7 +23,7 @@ import frc.robot.commands.TagPositionDrive;
 import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.LEDLight;
+import frc.robot.subsystems.LedLight;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -63,6 +63,7 @@ public class RobotContainer {
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
     private final Claw m_claw = new Claw();
+    private final LedLight m_ledLight = new LedLight();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -167,6 +168,14 @@ public class RobotContainer {
 
         JoystickButton farm5 = new JoystickButton(m_farm, 5);
         farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION));
+
+        // LED Lights
+        JoystickButton farm9 = new JoystickButton(m_farm, 9);
+        farm9.onTrue(new InstantCommand(()->m_ledLight.setColor(LedLight.Color.ORANGE)));
+
+        JoystickButton farm10 = new JoystickButton(m_farm, 10);
+        farm10.onTrue(new InstantCommand(()->m_ledLight.setColor(LedLight.Color.PURPLE)));
+
 
         // TODO: use trigger to do this as a button
         JoystickButton farm22 = new JoystickButton(m_farm, 22);

@@ -7,7 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class LEDLight extends SubsystemBase {
+public class LedLight extends SubsystemBase {
     public enum Color {
         OFF(0),
         PURPLE(1),
@@ -22,10 +22,12 @@ public class LEDLight extends SubsystemBase {
         }
     }
 
+    private Color m_currentColor = Color.OFF;
+
     /** Creates a new LEDLight. */
     I2C m_led = new I2C(I2C.Port.kOnboard, 0x04);
 
-    public LEDLight() {
+    public LedLight() {
     }
 
     @Override
@@ -34,6 +36,14 @@ public class LEDLight extends SubsystemBase {
     }
 
     public void setColor(Color color) {
-        m_led.write(0x04, color.value);
+
+        // If the requested color is on, then turn it off
+        if (color == m_currentColor) {
+            m_currentColor = Color.OFF;
+        }
+        else {
+            m_currentColor = color;
+        }
+        m_led.write(0x04, m_currentColor.value);
     }
 }
