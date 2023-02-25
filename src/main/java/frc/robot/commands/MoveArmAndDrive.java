@@ -20,7 +20,7 @@ public class MoveArmAndDrive extends SequentialCommandGroup {
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
                 // set arm start position
-                new ScoreArm(arm, targetPosition),
+                new ScoreArm(arm, targetPosition).withTimeout(5),
                 new TagPositionDrive(driveTrain, vision, targetPosition)
         );
     }
