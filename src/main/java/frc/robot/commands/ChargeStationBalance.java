@@ -16,7 +16,7 @@ public class ChargeStationBalance extends CommandBase {
 
     private static final double BALANCED_ERROR_DEGREES = 2.5; // max error for what counts as balanced
     private static final double BALANCED_DEGREES = 0;
-    private static final double BALANCE_KP = 0.02; // change to control how fast robot drives during balancing
+    private static final double BALANCE_KP = 0.03; // change to control how fast robot drives during balancing
     private static final double MAX_MPS = 1.0;
     private static final double BALANCE_SECONDS = 1; // how many seconds the robot has to be balanced before stopping
     private static final double ANGLE_KP = Units.degreesToRadians(1); 
@@ -46,31 +46,39 @@ public class ChargeStationBalance extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        // uses angle of robot to set its speed
-        double errorDegrees = m_driveTrain.getTiltDegrees() - BALANCED_DEGREES;
-        double driveMPS = errorDegrees * BALANCE_KP;
-
-        // cap max speed
-        if (Math.abs(driveMPS) > MAX_MPS) {
-            driveMPS = Math.copySign(MAX_MPS, driveMPS);
-        }
-        SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
-        SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
-
+        double tiltAngle = m_driveTrain.getTiltDegrees();
+        double driveMPS, angleSpeed;
+        double errorDegrees = tiltAngle - BALANCED_DEGREES;
         Rotation2d driveAngle = m_driveTrain.getTiltDirection(); //.plus(Rotation2d.fromDegrees(180));
 
-        SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
-        double angleError = driveAngle.getRadians();
-        if (Math.abs(angleError) > Math.PI/2) {
-            angleError = angleError - Math.PI;
-        }
-        double angleSpeed = angleError * ANGLE_KP;
-        if (Math.abs(angleSpeed) > MAX_ANGLE_SPEED) {
-            angleSpeed = Math.copySign(MAX_ANGLE_SPEED, angleSpeed);
-        }
-        SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
+        if(Math.abs(tiltAngle) < 7.5){
+            driveMPS = 0.0;
+            angleSpeed = 0.0;
+        }else{
+            // uses angle of robot to set its speed
+            driveMPS = errorDegrees * BALANCE_KP;
+
+            // cap max speed
+            if (Math.abs(driveMPS) > MAX_MPS) {
+                driveMPS = Math.copySign(MAX_MPS, driveMPS);
+            }
+            SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
+            SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
 
 
+            SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+            double angleError = driveAngle.getRadians();
+            if (Math.abs(angleError) > Math.PI/2) {
+                angleError = angleError - Math.PI;
+            }
+            angleSpeed = angleError * ANGLE_KP;
+            if (Math.abs(angleSpeed) > MAX_ANGLE_SPEED) {
+                angleSpeed = Math.copySign(MAX_ANGLE_SPEED, angleSpeed);
+            }
+            SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
+        }
+
+        
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
             driveMPS * driveAngle.getCos(),
             driveMPS * driveAngle.getSin(),
