@@ -127,6 +127,8 @@ public class DriveTrain extends SubsystemBase {
 
     private final Field2d m_field = new Field2d();
 
+    ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
+
     // PID controller for swerve
     private final PIDController m_xController = new PIDController(X_PID_CONTROLLER_P, 0, 0);
     private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
@@ -217,7 +219,7 @@ public class DriveTrain extends SubsystemBase {
             return;
         } 
 
-        ChassisSpeeds chassisSpeeds;
+        // ChassisSpeeds chassisSpeeds;
         // when in field-relative mode
         if (m_fieldCentric) {
             // if we are Red, field-cenric points the other way in absolute coordinates
@@ -237,6 +239,9 @@ public class DriveTrain extends SubsystemBase {
                     newInputY * m_maxVelocity,
                     newInputRotation * m_maxAngularVelocity);
         }
+
+        // Test code. Display Chassis Speeds
+      
 
         drive(chassisSpeeds);
     }
@@ -333,7 +338,10 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
         SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
         SmartDashboard.putNumber("drivetrain/gyro", m_navx.getYaw());
-    
+        SmartDashboard.putNumber("drivetrain/chassisX", chassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("drivetrain/chassisY", chassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("drivetrain/chassisAngle", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+
         // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
         // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
         // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
