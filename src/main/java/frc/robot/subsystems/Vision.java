@@ -44,7 +44,7 @@ public class Vision {
             }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
 
     private final PhotonCamera m_aprilTagCamera = new PhotonCamera("ApriltagCamera");
-    private final AprilTagFieldLayout m_aprilTagFieldLayout;
+    private AprilTagFieldLayout m_aprilTagFieldLayout;
 
     // Forward B&W camera for Apriltags
     // relative position of the camera on the robot ot the robot center
@@ -57,14 +57,14 @@ public class Vision {
     private double m_lastImageTimeStamp = -1.0;
 
     public Vision() {
-        // try{
-        // 	m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-        // } catch(IOException e){
-        // 	System.out.println("Unable to load AprilTag layout" + e.getMessage());
-        // 	m_aprilTagFieldLayout = null;
-        // }
-        m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
-        System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
+        try{
+        	m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+        } catch(IOException e){
+        	System.out.println("Unable to load AprilTag layout" + e.getMessage());
+        	m_aprilTagFieldLayout = null;
+        }
+        // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
+        // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
         m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
                 m_aprilTagCamera, m_robotToAprilTagCam);
