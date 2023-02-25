@@ -12,7 +12,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
+import frc.robot.commands.DriveAndMoveArm;
+import frc.robot.commands.MoveArmAndDrive;
 import frc.robot.commands.ScoreArm;
+import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
 import frc.robot.commands.TagPositionDrive;
@@ -130,48 +133,38 @@ public class RobotContainer {
         */
 
         JoystickButton farm1 = new JoystickButton(m_farm, 1);
-        farm1.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_BOTTOM));
+        farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM));
         
         JoystickButton farm2 = new JoystickButton(m_farm, 2);
-        farm2.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_BOTTOM));
+        farm2.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_BOTTOM));
 
         JoystickButton farm3 = new JoystickButton(m_farm, 3);
-        farm3.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_BOTTOM));
+        farm3.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_BOTTOM));
 
         JoystickButton farm6 = new JoystickButton(m_farm, 6);
-        farm6.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_MIDDLE));
+        farm6.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_MIDDLE));
 
         JoystickButton farm7 = new JoystickButton(m_farm, 7);
-        farm7.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_MIDDLE));
+        farm7.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_MIDDLE));
 
         JoystickButton farm8 = new JoystickButton(m_farm, 8);
-        farm8.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_MIDDLE));
+        farm8.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_MIDDLE));
 
         JoystickButton farm11 = new JoystickButton(m_farm, 11);
-        farm11.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_TOP));
+        farm11.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
 
         JoystickButton farm13 = new JoystickButton(m_farm, 13);
-        farm13.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_TOP));
+        farm13.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_TOP));
 
         JoystickButton farm15 = new JoystickButton(m_farm, 15);
-        farm15.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_TOP));
+        farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP));
 
+        //Feeder Stations 
         JoystickButton farm4 = new JoystickButton(m_farm, 4);
-        farm4.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_SUBSTATION));
+        farm4.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_SUBSTATION));
 
         JoystickButton farm5 = new JoystickButton(m_farm, 5);
-        farm5.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_SUBSTATION));
-
-
-        JoystickButton farm12 = new JoystickButton(m_farm, 12);
-        farm12.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
-
-        JoystickButton farm14 = new JoystickButton(m_farm, 14);
-        farm14.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.CENTER_TOP));
-
-        JoystickButton farm16 = new JoystickButton(m_farm, 16);
-        farm16.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.RIGHT_TOP));
-
+        farm5.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_SUBSTATION));
 
         // TODO: use trigger to do this as a button
         JoystickButton farm22 = new JoystickButton(m_farm, 22);
