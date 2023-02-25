@@ -35,7 +35,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_MAX_ANGLE = Math.toRadians(30.0);  
     private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
 
-    public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(1.0);
+    public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(3.0);
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
@@ -53,11 +53,11 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // Constants to limit the shoulder rotation speed
     // For initial testing, these should be very slow.
     // We can update them as we get more confidence.
-    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(20.0); // 5 deg/sec
+    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(120.0); // 5 deg/sec
     // Let's give it 2 seconds to get to max velocity.
     // Once tuned, I expect we will want this to be equal to SHOULDER_MAX_VEL_RADIAN_PER_SEC
     // so it will get to max velocity in one second.
-    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(20.0); // 2.5 deg/sec^2
+    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(60.0); // 2.5 deg/sec^2
     private static final double SHOULDER_POSITION_OFFSET = 62.0/360.0;
     private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;
 
@@ -86,7 +86,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     // private final EncoderSim m_encoderSim;
     DutyCycleEncoder m_Duty_Encoder;
     // The P gain for the PID controller that drives this shoulder.
-    private static double m_kPShoulder = SHOULDER_K_P;
+    private double m_kPShoulder = SHOULDER_K_P;
+    private double m_kFeedForward = SHOULDER_K_FF;
 
     private boolean m_resetShoulderPos = false;
     private boolean m_coastMode = false;
@@ -163,6 +164,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         setCoastMode(false);
         SmartDashboard.putBoolean("shoulder/m_coastMode", m_coastMode);
+        SmartDashboard.putNumber("shoulder/kFeadForward", m_kFeedForward);
 
         // m_motorLeader.set(ControlMode.Position, )
         // m_motorLeader.set(ControlMode.Position, m_encoder.getIntegratedSensorPosition(), DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
@@ -219,7 +221,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     @Override
     protected void useState(TrapezoidProfile.State setPoint) {
         // Calculate the feedforward from the setPoint
-        double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
+        // double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
 
         // Add the feedforward to the PID output to get the motor output
         // The ArmFeedForward computes in radians. We need to convert back to degrees.
@@ -231,8 +233,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
             m_resetShoulderPos = false;
         }
 
-        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0); //, feedforward / 12.0);
-        SmartDashboard.putNumber("shoulder/feedforward", feedforward);
+        m_kFeedForward = SmartDashboard.getNumber("shoulder/kFeadForward", m_kFeedForward);
+
+        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, m_kFeedForward); //, feedforward / 12.0);
+        // SmartDashboard.putNumber("shoulder/feedforward", feedforward);
         SmartDashboard.putNumber("shoulder/setPoint", Units.radiansToDegrees(setPoint.position * SHOULDER_RADIAN_PER_UNIT));
         // SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
     }

@@ -55,18 +55,18 @@ public final class Constants {
 
     public static final double MIDDLE_GRID_CUBE_ARM_ANGLE = Math.toRadians(-7.0);
     public static final double MIDDLE_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(12.0);
-    public static final double MIDDLE_GRID_CONE_ARM_ANGLE = Math.toRadians(15.0);
+    public static final double MIDDLE_GRID_CONE_ARM_ANGLE = Math.toRadians(10.0);
     public static final double MIDDLE_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(12.0);
 
     public static final double HIGH_GRID_CUBE_ARM_ANGLE = Math.toRadians(10.0);
     public static final double HIGH_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(31.0);
     public static final double HIGH_GRID_CONE_ARM_ANGLE = Math.toRadians(19.0);
-    public static final double HIGH_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(33.0) ;
+    public static final double HIGH_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(29.0) ;
 
     public static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-56.0);
-    public static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(8.0);
+    public static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(6.0);
     public static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
-    public static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(8.0);
+    public static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
 
     public static final double SUBSTATION_ANGLE = Math.toRadians(15.0);
     public static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);

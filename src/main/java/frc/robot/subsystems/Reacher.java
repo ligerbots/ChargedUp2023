@@ -27,11 +27,11 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // Constants to limit the shoulder rotation speed
     // For initial testing, these should be very slow.
     // We can update them as we get more confidence.
-    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(20.0);
+    private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(100.0);
     // Let's give it 2 seconds to get to max velocity.
     // Once tuned, I expect we will want this to be equal to REACHER_MAX_VEL_METER_PER_SEC
     // so it will get to max velocity in one second.
-    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(20.0);
+    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(100.0);
 
     // TODO: See if this is close enough. Or do we need a more exact measurement?
     private static final double REACHER_METER_PER_REVOLUTION = Units.inchesToMeters(0.7);
@@ -49,7 +49,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     // PID Constants for the reacher PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    private static final double REACHER_K_P = 1.0;
+    private static final double REACHER_K_P = 10.0;
     // private static final double REACHER_K_P1 = 100;
     private static final double REACHER_K_I = 0.0;
     private static final double REACHER_K_D = 0.0;
