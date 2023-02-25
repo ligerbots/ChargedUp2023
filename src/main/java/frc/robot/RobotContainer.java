@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
 import frc.robot.commands.DriveAndMoveArm;
+import frc.robot.commands.FeederPickup;
 import frc.robot.commands.MoveArmAndDrive;
 import frc.robot.commands.ScoreArm;
 import frc.robot.commands.DriveAndMoveArm;
@@ -161,10 +162,10 @@ public class RobotContainer {
 
         //Feeder Stations 
         JoystickButton farm4 = new JoystickButton(m_farm, 4);
-        farm4.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_SUBSTATION));
+        farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION));
 
         JoystickButton farm5 = new JoystickButton(m_farm, 5);
-        farm5.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_SUBSTATION));
+        farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION));
 
         // TODO: use trigger to do this as a button
         JoystickButton farm22 = new JoystickButton(m_farm, 22);
