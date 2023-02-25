@@ -56,4 +56,8 @@ public class Claw extends SubsystemBase {
         System.out.println("Setting Claw to CLOSED");
         m_clawSolenoid.set(Value.kReverse);
     }
+
+    public void enableCompressor(){
+        m_pH.enableCompressorDigital();
+    }
 }

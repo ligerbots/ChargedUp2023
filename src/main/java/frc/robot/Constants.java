@@ -60,7 +60,7 @@ public final class Constants {
 
     public static final double HIGH_GRID_CUBE_ARM_ANGLE = Math.toRadians(10.0);
     public static final double HIGH_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(31.0);
-    public static final double HIGH_GRID_CONE_ARM_ANGLE = Math.toRadians(22.0);
+    public static final double HIGH_GRID_CONE_ARM_ANGLE = Math.toRadians(19.0);
     public static final double HIGH_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(33.0) ;
 
     public static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-56.0);
@@ -68,7 +68,11 @@ public final class Constants {
     public static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
     public static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(8.0);
 
+    public static final double SUBSTATION_ANGLE = Math.toRadians(15.0);
+    public static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);
 
+    public static final double STOW_ARM_ANGLE = Math.toRadians(-65.0);
+    public static final double STOW_ARM_LENGTH = Units.inchesToMeters(1.0);
 
 
 
@@ -86,7 +90,7 @@ public final class Constants {
         LEFT_BOTTOM, CENTER_BOTTOM, RIGHT_BOTTOM,
         // for the two substations/pick up stations
         LEFT_SUBSTATION, RIGHT_SUBSTATION,
-        PICK_UP
+        PICK_UP, STOW_ARM
     }
 
     public static final double TRAJ_MAX_VEL = 2.0;

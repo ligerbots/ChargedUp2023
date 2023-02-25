@@ -22,7 +22,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     private static final double REACHER_MAX_LENGTH = Units.inchesToMeters(35.0);
     private static final double REACHER_MIN_LENGTH = Units.inchesToMeters(0.5);
 
-    public static final double REACHER_OFFSET_TOLERANCE_METERS = Units.inchesToMeters(0.5);
+    public static final double REACHER_OFFSET_TOLERANCE_METERS = Units.inchesToMeters(1.0);
 
     // Constants to limit the shoulder rotation speed
     // For initial testing, these should be very slow.

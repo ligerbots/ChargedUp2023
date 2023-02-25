@@ -9,6 +9,7 @@ import java.util.Map;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
@@ -40,10 +41,11 @@ public class ScoreArm extends CommandBase{
             // NOTE substation left/right is flipped because we are going with the Driver's perspective
             
             //TODO: get constants for the substations
-            put(Position.LEFT_SUBSTATION, new Pair<>(Constants.HIGH_GRID_CONE_ARM_ANGLE, Constants.HIGH_GRID_CONE_ARM_LENGTH));
-            put(Position.RIGHT_SUBSTATION, new Pair<>(Constants.HIGH_GRID_CONE_ARM_ANGLE, Constants.HIGH_GRID_CONE_ARM_LENGTH));
+            put(Position.LEFT_SUBSTATION, new Pair<>(Constants.SUBSTATION_ANGLE, Constants.SUBSTATION_LENGTH));
+            put(Position.RIGHT_SUBSTATION, new Pair<>(Constants.SUBSTATION_ANGLE, Constants.SUBSTATION_LENGTH));
 
             put(Position.PICK_UP, new Pair<>(Constants.FLOOR_PICK_UP_CONE_ANGLE, Constants.FLOOR_PICK_UP_CONE_LENGTH));
+            put(Position.STOW_ARM, new Pair<>(Constants.STOW_ARM_ANGLE, Constants.STOW_ARM_LENGTH));            
         }
     };
 
@@ -52,17 +54,22 @@ public class ScoreArm extends CommandBase{
 
     double m_desiredAngle;
     double m_desiredLength;
+
+    Constants.Position m_position;
     /** Creates a new ScoreArm. */
     public ScoreArm(Arm arm, Constants.Position position) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         m_arm = arm;
+        m_position = position;
         m_desiredAngle = Shoulder.limitShoulderAngle(SCORE_POSITIONS.get(position).getFirst());
         m_desiredLength = Reacher.limitReacherLength(SCORE_POSITIONS.get(position).getSecond());
     }
 
     @Override
     public void initialize() {
+        SmartDashboard.putString("armCommands/CommandName", m_position.toString());
+        SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
         m_goingDown = m_desiredAngle < m_arm.getArmAngle();
 
         if(m_goingDown)
@@ -89,6 +96,7 @@ public class ScoreArm extends CommandBase{
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        SmartDashboard.putBoolean("armCommands/isCommandFinished", true);
     }
 
     @Override

@@ -57,6 +57,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
         m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
+
+        m_robotContainer.getClaw().enableCompressor();
     }
 
     /**

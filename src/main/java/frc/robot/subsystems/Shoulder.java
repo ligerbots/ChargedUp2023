@@ -231,7 +231,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
             m_resetShoulderPos = false;
         }
 
-        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, feedforward / 12.0);
+        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0); //, feedforward / 12.0);
         SmartDashboard.putNumber("shoulder/feedforward", feedforward);
         SmartDashboard.putNumber("shoulder/setPoint", Units.radiansToDegrees(setPoint.position * SHOULDER_RADIAN_PER_UNIT));
         // SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));

@@ -130,41 +130,44 @@ public class RobotContainer {
         */
 
         JoystickButton farm1 = new JoystickButton(m_farm, 1);
-        farm1.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_TOP));
+        farm1.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_BOTTOM));
         
         JoystickButton farm2 = new JoystickButton(m_farm, 2);
-        farm2.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_TOP));
+        farm2.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_BOTTOM));
 
         JoystickButton farm3 = new JoystickButton(m_farm, 3);
-        farm3.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_TOP));
-
-        JoystickButton farm4 = new JoystickButton(m_farm, 4);
-        farm4.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_MIDDLE));
-
-        JoystickButton farm5 = new JoystickButton(m_farm, 5);
-        farm5.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_MIDDLE));
+        farm3.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_BOTTOM));
 
         JoystickButton farm6 = new JoystickButton(m_farm, 6);
-        farm6.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_MIDDLE));
+        farm6.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_MIDDLE));
 
         JoystickButton farm7 = new JoystickButton(m_farm, 7);
-        farm7.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_BOTTOM));
+        farm7.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_MIDDLE));
 
         JoystickButton farm8 = new JoystickButton(m_farm, 8);
-        farm8.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_BOTTOM));
-
-        JoystickButton farm9 = new JoystickButton(m_farm, 9);
-        farm9.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_BOTTOM));
-
-        JoystickButton farm10 = new JoystickButton(m_farm, 10);
-        farm10.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_SUBSTATION));
+        farm8.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_MIDDLE));
 
         JoystickButton farm11 = new JoystickButton(m_farm, 11);
-        farm11.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_SUBSTATION));
+        farm11.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_TOP));
+
+        JoystickButton farm13 = new JoystickButton(m_farm, 13);
+        farm13.onTrue(new ScoreArm(m_arm, Constants.Position.CENTER_TOP));
+
+        JoystickButton farm15 = new JoystickButton(m_farm, 15);
+        farm15.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_TOP));
+
+        JoystickButton farm4 = new JoystickButton(m_farm, 4);
+        farm4.onTrue(new ScoreArm(m_arm, Constants.Position.LEFT_SUBSTATION));
+
+        JoystickButton farm5 = new JoystickButton(m_farm, 5);
+        farm5.onTrue(new ScoreArm(m_arm, Constants.Position.RIGHT_SUBSTATION));
 
         // TODO: use trigger to do this as a button
         JoystickButton farm22 = new JoystickButton(m_farm, 22);
         farm22.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP));
+
+        JoystickButton farm23 = new JoystickButton(m_farm, 23);
+        farm23.onTrue(new ScoreArm(m_arm, Constants.Position.STOW_ARM));
     }
 
     public Command getDriveCommand() {
@@ -206,5 +209,8 @@ public class RobotContainer {
     }
     public Arm getArm(){
         return m_arm;
+    }
+    public Claw getClaw(){
+        return m_claw;
     }
 }
