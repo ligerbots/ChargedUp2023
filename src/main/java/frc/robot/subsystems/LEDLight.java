@@ -10,16 +10,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class LEDLight extends SubsystemBase {
     public enum Color {
         OFF(0),
-
-        PURPLE_GREEN(1),
-
-        PURPLE_RED(3),
-
-        YELLOW_GREEN(5),
-
-        YELLOW_RED(7),
-
-        ORANGE(9);
+        PURPLE(1),
+        YELLOW(2),
+        ORANGE(3),
+        PULSE(4);
 
         public int value;
 

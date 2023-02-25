@@ -17,6 +17,7 @@ import frc.robot.commands.TagPositionDrive;
 import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.LEDLight;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -53,6 +54,7 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
+    private final LEDLight m_LEDLight = new LEDLight();
     // private final Arm m_arm = new Arm();
     // private final Claw m_claw = new Claw();
 
