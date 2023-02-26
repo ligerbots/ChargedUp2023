@@ -184,11 +184,6 @@ public class RobotContainer {
 
         JoystickButton farm10 = new JoystickButton(m_farm, 10);
         farm10.onTrue(new InstantCommand(()->m_ledLight.setColor(LedLight.Color.PURPLE)));
-
-
-        // TODO: use trigger to do this as a button
-        
-
     }
 
     public Command getDriveCommand() {
