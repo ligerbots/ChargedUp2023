@@ -72,11 +72,16 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
             return m_blueTrajectory.getInitialPose();
     }
 
+
     @Override
     public void plotTrajectory(TrajectoryPlotter plotter) {
+        plotTrajectory(plotter, 0);
+    }
+
+    public void plotTrajectory(TrajectoryPlotter plotter, int index) {
         if (DriverStation.getAlliance() == Alliance.Red)
-            plotter.plotTrajectory(m_redTrajectory);
+            plotter.plotTrajectory(index, m_redTrajectory);
         else
-            plotter.plotTrajectory(m_blueTrajectory);
+            plotter.plotTrajectory(index, m_blueTrajectory);
     }
 }
