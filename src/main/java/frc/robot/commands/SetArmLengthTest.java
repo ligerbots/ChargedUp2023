@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,7 +28,7 @@ public class SetArmLengthTest extends InstantCommand {
     @Override
     public void initialize() {
         m_command = new SetArmLength(m_arm,
-                SmartDashboard.getNumber("Testing/SetArmLengthTest", 0.0));
+                Units.inchesToMeters(SmartDashboard.getNumber("Testing/SetArmLengthTest", 0.0)));
 
         CommandScheduler.getInstance().schedule(m_command);
     }

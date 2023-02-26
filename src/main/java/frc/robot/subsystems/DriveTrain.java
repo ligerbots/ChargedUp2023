@@ -53,7 +53,7 @@ public class DriveTrain extends SubsystemBase {
     // P constants for controllin during trajectory following
     private static final double X_PID_CONTROLLER_P = 2.0;
     private static final double Y_PID_CONTROLLER_P = 2.0;
-    private static final double THETA_PID_CONTROLLER_P = 2.0;
+    private static final double THETA_PID_CONTROLLER_P = 4.0;
 
     // the max velocity for drivetrain
     // adjusted when in precision driving mode
