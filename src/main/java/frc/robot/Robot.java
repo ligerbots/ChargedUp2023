@@ -131,6 +131,8 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during autonomous. */
@@ -148,8 +150,8 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.cancel();
         }
         m_robotContainer.getDriveCommand().schedule();
-         //Resets the goal of the arm So that it does not turn back to its origional position 
-        // m_robotContainer.getArm().resetGoal();
+
+        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during operator control. */

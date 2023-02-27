@@ -239,10 +239,18 @@ public class DriveTrain extends SubsystemBase {
                     newInputRotation * m_maxAngularVelocity);
         }
 
+        // Test code. Display Chassis Speeds
+      
+
         drive(chassisSpeeds);
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
+        // for debugging
+        SmartDashboard.putNumber("drivetrain/chassisX", chassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("drivetrain/chassisY", chassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("drivetrain/chassisAngle", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
         for (int i = 0; i < 4; i++) {
@@ -324,17 +332,17 @@ public class DriveTrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+        m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
         // Have the vision system update based on the Apriltags, if seen
-        // Comment out for now so we don't get exceptions
         m_vision.updateOdometry(m_odometry);
 
+        Pose2d pose = m_odometry.getEstimatedPosition();
         SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
         SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
         SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-        SmartDashboard.putNumber("drivetrain/gyro", m_navx.getYaw());
-    
+        SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
+
         // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
         // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
         // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
