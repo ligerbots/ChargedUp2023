@@ -70,8 +70,7 @@ public class FollowTrajectory extends CommandBase {
             PIDController xController,
             PIDController yController,
             ProfiledPIDController thetaController,
-            Consumer<SwerveModuleState[]> outputModuleStates,
-            Subsystem... requirements) {
+            Consumer<SwerveModuleState[]> outputModuleStates) {
         m_driveTrain = driveTrain;
         m_trajectory = trajectory;
         m_pose = pose;
@@ -84,7 +83,7 @@ public class FollowTrajectory extends CommandBase {
 
         m_outputModuleStates = outputModuleStates;
 
-        // addRequirements(requirements);
+        addRequirements(m_driveTrain);
     }
 
 	// Called when the command is initially scheduled.

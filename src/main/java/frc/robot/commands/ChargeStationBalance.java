@@ -27,6 +27,7 @@ public class ChargeStationBalance extends CommandBase {
         m_driveTrain = driveTrain;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
+        
         SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
         SmartDashboard.putNumber("balanceCommand/error", 0.0);
     }

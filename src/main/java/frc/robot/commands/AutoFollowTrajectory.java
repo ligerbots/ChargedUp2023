@@ -23,12 +23,14 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
 
     /** Creates a new AutoFollowTrajectory. */
     public AutoFollowTrajectory(DriveTrain driveTrain, String trajectoryName) {
-        // Use addRequirements() here to declare subsystem dependencies.
         m_driveTrain = driveTrain;
+
         m_blueTrajectory = PathPlanner.loadPath(trajectoryName + "_blue", Constants.TRAJ_MAX_VEL,
                 Constants.TRAJ_MAX_ACC);
         m_redTrajectory = PathPlanner.loadPath(trajectoryName + "_red", Constants.TRAJ_MAX_VEL,
                 Constants.TRAJ_MAX_ACC);
+
+        // Do NOT require the Drivetrain. That is handled by the m_trajFollowCommand subcommand.
     }
 
     // Called when the command is initially scheduled.
@@ -65,7 +67,7 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
 
     @Override
     public Pose2d getInitialPose() {
-        // TODO Auto-generated method stub
+        // Use the Holonmic pose to get the correct robot heading
         if (DriverStation.getAlliance() == Alliance.Red)
             return m_redTrajectory.getInitialHolonomicPose();
         else

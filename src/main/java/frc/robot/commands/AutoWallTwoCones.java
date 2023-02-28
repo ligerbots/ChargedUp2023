@@ -10,26 +10,23 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import frc.robot.subsystems.DriveTrain;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AutoWallTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
     AutoFollowTrajectory[] m_traj;
 
     /** Creates a new AutoBottomGrid. */
     public AutoWallTwoCones(DriveTrain driveTrain) {
-        // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
-        addRequirements(driveTrain);
 
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "bot_grid_s1"),
                 new AutoFollowTrajectory(driveTrain, "bot_grid_s2"),
                 new AutoFollowTrajectory(driveTrain, "bot_grid_s3") };
+
         addCommands(m_traj[0], 
                 new WaitCommand(1.0), 
                 m_traj[1], 
                 new WaitCommand(1.0), 
                 m_traj[2]);
+                
+        // Do NOT require any Subsystems. That is handled by the subcommands.
     }
 
     @Override

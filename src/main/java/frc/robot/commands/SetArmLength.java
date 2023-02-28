@@ -20,6 +20,8 @@ public class SetArmLength extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         m_arm = arm;
         m_length = Reacher.limitReacherLength(length);
+
+        addRequirements(m_arm);
     }
 
     // Called when the command is initially scheduled.

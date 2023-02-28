@@ -12,18 +12,18 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.DriveTrain;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class FeederPickup extends SequentialCommandGroup {
+
     /** Creates a new StowArm. */
     public FeederPickup(Arm arm, DriveTrain driveTrain, Vision vision, Claw claw, Position targetPosition) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-                // set arm start position
+                // open the claw
                 new InstantCommand(claw::open),
+                // set arm start position
                 new ScoreArm(arm, targetPosition).withTimeout(5),
+                // drive to the correct position
                 new TagPositionDrive(driveTrain, vision, targetPosition)
         );
     }
