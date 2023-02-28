@@ -4,13 +4,10 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -20,10 +17,8 @@ import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.FeederPickup;
 import frc.robot.commands.MoveArmAndDrive;
 import frc.robot.commands.ScoreArm;
-import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
-import frc.robot.commands.TagPositionDrive;
 import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
