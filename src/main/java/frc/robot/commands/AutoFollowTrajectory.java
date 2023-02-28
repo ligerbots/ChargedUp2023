@@ -67,9 +67,9 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
     public Pose2d getInitialPose() {
         // TODO Auto-generated method stub
         if (DriverStation.getAlliance() == Alliance.Red)
-            return m_redTrajectory.getInitialPose();
+            return m_redTrajectory.getInitialHolonomicPose();
         else
-            return m_blueTrajectory.getInitialPose();
+            return m_blueTrajectory.getInitialHolonomicPose();
     }
 
 

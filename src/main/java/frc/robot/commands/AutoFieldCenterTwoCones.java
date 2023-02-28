@@ -21,16 +21,16 @@ public class AutoFieldCenterTwoCones extends SequentialCommandGroup implements A
     /** Creates a new AutoBottomGrid. */
     public AutoFieldCenterTwoCones(DriveTrain driveTrain) {
         // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
+        // addCommands(new FooCommand(), new BarCommand());  
         addRequirements(driveTrain);
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "top_grid_s1"),
                 new AutoFollowTrajectory(driveTrain, "top_grid_s2"),
                 new AutoFollowTrajectory(driveTrain, "top_grid_s3") };
 
         addCommands(m_traj[0], 
-                new WaitCommand(1.0), 
-                m_traj[1], 
-                new WaitCommand(1.0), 
+                // new WaitCommand(1.0),
+                m_traj[1],
+                // new WaitCommand(1.0),
                 m_traj[2]);
     }
 

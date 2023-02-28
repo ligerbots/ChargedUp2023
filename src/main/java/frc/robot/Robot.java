@@ -15,6 +15,7 @@ import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoFieldCenterTwoCones;
 import frc.robot.commands.TrajectoryPlotter;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.LedLight.Color;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -61,11 +62,13 @@ public class Robot extends TimedRobot {
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
         m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
+        // m_chosenTrajectory.addOption("top_grid_s1", new AutoFollowTrajectory(driveTrain, "top_grid_s1"));
 
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
         m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
 
+        m_robotContainer.getLED().setColor(Color.OFF);
         m_robotContainer.getClaw().enableCompressor();
     }
 

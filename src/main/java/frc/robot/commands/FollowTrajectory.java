@@ -84,7 +84,7 @@ public class FollowTrajectory extends CommandBase {
 
         m_outputModuleStates = outputModuleStates;
 
-        addRequirements(requirements);
+        // addRequirements(requirements);
     }
 
 	// Called when the command is initially scheduled.
@@ -92,7 +92,7 @@ public class FollowTrajectory extends CommandBase {
 	public void initialize() {
 		m_timer.reset();
 		m_timer.start();
-        m_driveTrain.setPose(m_trajectory.getInitialPose());
+        // m_driveTrain.setPose(m_trajectory.getInitialHolonomicPose());
 
         // clear all robot mode and drive in field-centric at normal speeds
         m_driveTrain.resetDrivingModes();
