@@ -16,16 +16,15 @@ import frc.robot.subsystems.RollerClaw;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class FeederPickup extends SequentialCommandGroup {
+public class FloorPickUp extends SequentialCommandGroup {
     /** Creates a new StowArm. */
-    public FeederPickup(Arm arm, DriveTrain driveTrain, Vision vision, RollerClaw rollerClaw, Position targetPosition) {
+    public FloorPickUp(Arm arm, DriveTrain driveTrain, Vision vision, RollerClaw rollerClaw, Position targetPosition) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-                // set arm start position
-                new InstantCommand(rollerClaw::turnMotorOn),
+                //sets arm position to floor pickup
                 new ScoreArm(arm, targetPosition).withTimeout(5).alongWith(new InstantCommand(rollerClaw::open)),
-                new TagPositionDrive(driveTrain, vision, targetPosition)
+                new InstantCommand(rollerClaw::turnMotorOn)
         );
     }
 }
