@@ -7,20 +7,16 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class Claw extends SubsystemBase {
-    /** Creates a new Claw. */
-    public Claw() {}
-
-    // This method will be called once per scheduler run
-    @Override
-    public void periodic() {}
-
+    // open the claw, but don't start the motor
     public abstract void open();
     
+    // open the claw and start the motor
     public abstract void startIntake();
 
+    // close the claw. If the motor is running, stop it after a bit
     public abstract void close();
 
+    // enable/disable the compressor
     public abstract void enableCompressor();
-
     public abstract void disableCompressor();
 }

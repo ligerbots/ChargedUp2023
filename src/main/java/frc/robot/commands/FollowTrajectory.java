@@ -62,7 +62,7 @@ public class FollowTrajectory extends CommandBase {
      */
 
     // TODO: this is way too many parameters. All of this should be part of the Traj command or DriveTrain
-    // Probably should just be robotDrive and trajectory; not sure if we need requirements.
+    // Probably should just be robotDrive and trajectory.
     public FollowTrajectory(DriveTrain driveTrain,
             PathPlannerTrajectory trajectory,
             Supplier<Pose2d> pose,

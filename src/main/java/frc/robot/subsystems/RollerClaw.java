@@ -6,17 +6,13 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
 
@@ -27,6 +23,9 @@ public class RollerClaw extends Claw {
     // speed to run the motor for intake
     private static final double INTAKE_MOTOR_SPEED = 0.2;
     
+    // delay time for shutting off the motor
+    private static final double STOP_MOTOR_DELAY = 0.25;   // seconds
+
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
@@ -45,11 +44,10 @@ public class RollerClaw extends Claw {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
-        m_motor.set(m_speed);
         SmartDashboard.putNumber("claw/speed", m_speed);
 
-        if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT){
-            stopMotor();
+        if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT) {
+            setMotor(0);
         }
 
         SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
@@ -60,48 +58,42 @@ public class RollerClaw extends Claw {
             m_pH.disableCompressor();
     }
 
-    public void toggleClaw(){
-        m_clawSolenoid.toggle();
-    }
-
-    public void turnMotorOn(){
-        m_motor.set(.75);
-    }
-
     @Override
     public void open(){
         m_clawSolenoid.set(Value.kForward);
-        stopMotor();
+        setMotor(0);
     }
 
     @Override
-    public void close(){
+    public void close() {
         m_clawSolenoid.set(Value.kReverse);
+        setMotor(0);
+        // TODO delay stopping the motor to let it completely grab the cone.
+        // This can't work. This is a subsystem not a command
+        // Need to use a Timer, and check in periodic()
         // if(m_speed != 0.0)
-        //     new WaitCommand(0.5).andThen(new InstantCommand(this::stopMotor)).schedule();
+        // new WaitCommand(0.5).andThen(new InstantCommand(this::stopMotor)).schedule();
     }
 
     @Override
     public void startIntake() {
-        open();
-        runMotor();
+        // don't call open, since it does extra stuff
+        m_clawSolenoid.set(Value.kForward);
+        setMotor(INTAKE_MOTOR_SPEED);
     }
 
-    public void stopMotor(){
-        m_motor.set(0);
+    private void setMotor(double speed) {
+        m_motor.set(speed);
+        m_speed = speed;
     }
 
-    public void runMotor(){
-        m_speed = INTAKE_MOTOR_SPEED;
-    }
-    
     @Override
-    public void enableCompressor(){
+    public void enableCompressor() {
         m_pH.enableCompressorDigital();
     }
 
     @Override
-    public void disableCompressor(){
+    public void disableCompressor() {
         m_pH.disableCompressor();
     }
 }

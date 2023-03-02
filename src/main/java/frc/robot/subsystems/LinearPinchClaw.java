@@ -39,14 +39,17 @@ public class LinearPinchClaw extends Claw {
 
     @Override
     public void open(){
-        System.out.println("Setting Claw to OPEN");
         m_clawSolenoid.set(Value.kForward);
     }
 
     @Override
     public void close(){
-        System.out.println("Setting Claw to CLOSED");
         m_clawSolenoid.set(Value.kReverse);
+    }
+
+    @Override
+    public void startIntake() {
+        open();        
     }
 
     @Override
@@ -57,10 +60,5 @@ public class LinearPinchClaw extends Claw {
     @Override
     public void disableCompressor(){
         m_pH.disableCompressor();
-    }
-
-    @Override
-    public void startIntake() {
-        open();        
     }
 }
