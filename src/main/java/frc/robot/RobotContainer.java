@@ -23,6 +23,7 @@ import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LedLight;
+import frc.robot.subsystems.LinearPinchClaw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -61,7 +62,7 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    private final Claw m_claw = new Claw();
+    private final Claw m_claw = new LinearPinchClaw();
     private final LedLight m_ledLight = new LedLight();
 
     /**
@@ -106,10 +107,10 @@ public class RobotContainer {
                 
         //Turns analog triggers into buttons that actuate when it is half pressed 
         Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
-        rightTriggerButton.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::open)));
+        rightTriggerButton.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::startIntake)));
         
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
-        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).andThen()));
+        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).andThen(m_claw::close)));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
@@ -170,10 +171,10 @@ public class RobotContainer {
 
         //Feeder Stations 
         JoystickButton farm4 = new JoystickButton(m_farm, 4);
-        farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION));
+        farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION).andThen(new InstantCommand(m_claw::startIntake)));
 
         JoystickButton farm5 = new JoystickButton(m_farm, 5);
-        farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION));
+        farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION).andThen(new InstantCommand(m_claw::startIntake)));
 
         // LED Lights
         JoystickButton farm9 = new JoystickButton(m_farm, 9);
