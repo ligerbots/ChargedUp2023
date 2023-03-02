@@ -1,0 +1,32 @@
+//Pseudocode
+
+//In which x = arm pivot point to the ground (37.68 in)
+//In which y = When we set M as the altitude to pivot point, M to
+//the bumper (18.375 in)
+//Stage 0 = 28 in
+//Stage 0 to pivot = 14 in
+//Stage 1 = 28 in
+//Stage 2 = 30 in
+//Stage offsets = 7 in
+//Total extension length (from end of stage 0 to stage 3 end 44 in)
+//Highest possible length = 58 in
+//Furthest length the robot can reach at ground level = 44.1 in
+
+//Lowest Post (probably need to change to different angle measurements?)
+
+void operate_arm(int condition){
+        //In which 12.75 is from structure to first post
+        double leg_1 = y + 12.75;
+        //Difference of arm pivot point and height of first posst
+        double leg_2 = x - 34;
+        //hypotenuse is the length the arm should extend to there
+        double hypotenuse = sqrt(leg_1^2 + leg_2 ^2);
+        //Subtract 14 inches as it is the already established length for arm
+        extendLength(hypotenuse - 14);
+        //Find angle to rotate
+        double theta = arctan(leg_1 / leg_2);
+        //Rotate to angle
+        rotateTo(180 - theta);
+        //Open claw
+        open();
+}

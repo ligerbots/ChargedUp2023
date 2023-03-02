@@ -65,6 +65,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
         m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
+
+        m_robotContainer.getClaw().enableCompressor();
     }
 
     /**
@@ -99,6 +101,9 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
 
+        // Make sure the Arm Sooulder and Reacher won't move again when we re-enable.
+        m_robotContainer.getArm().resetGoal();
+
         // auto trajectory plotter
         AutoCommandInterface autoCommandInterface = m_chosenTrajectory.getSelected();
         if (autoCommandInterface != null && autoCommandInterface != m_prevAutoCommand) {
@@ -118,12 +123,16 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
+        //Resets the goal of the arm So that it does not turn back to its origional position 
+        // m_robotContainer.getArm().resetGoal();
         m_autonomousCommand = m_chosenTrajectory.getSelected();
-
+    
         // schedule the autonomous command
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during autonomous. */
@@ -141,6 +150,8 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.cancel();
         }
         m_robotContainer.getDriveCommand().schedule();
+
+        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during operator control. */
