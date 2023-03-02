@@ -11,13 +11,13 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
-public class AutoFieldCenterTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
+public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
     
     // save the trajectories so we can plot them in the simulation
     AutoFollowTrajectory[] m_traj;
 
-    /** Creates a new AutoBottomGrid. */
-    public AutoFieldCenterTwoCones(DriveTrain driveTrain, Arm arm, Vision vision, Position secondConePos) {
+    /** Creates a new AutoBarrierTwoCones */
+    public AutoBarrierTwoCones(DriveTrain driveTrain, Arm arm, Vision vision, Position secondConePos) {
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "top_grid_s1"),
                 new AutoFollowTrajectory(driveTrain, "top_grid_s2"),
                 new AutoFollowTrajectory(driveTrain, "top_grid_s3") };

@@ -13,7 +13,7 @@ import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.Constants.Position;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
-import frc.robot.commands.AutoFieldCenterTwoCones;
+import frc.robot.commands.AutoBarrierTwoCones;
 import frc.robot.commands.TrajectoryPlotter;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
 
         // Initialize the list of available Autonomous routines
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
-        m_chosenTrajectory.addOption("FieldCenter 2 Cones", new AutoFieldCenterTwoCones(driveTrain, arm, vision, Position.LEFT_TOP));
+        m_chosenTrajectory.addOption("Barrier 2 Cones", new AutoBarrierTwoCones(driveTrain, arm, vision, Position.LEFT_TOP));
         m_chosenTrajectory.addOption("Wall 2 Cones", new AutoWallTwoCones(driveTrain, arm, vision, Position.RIGHT_TOP));
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));

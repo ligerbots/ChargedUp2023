@@ -14,7 +14,7 @@ import frc.robot.subsystems.Vision;
 public class AutoWallTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
     AutoFollowTrajectory[] m_traj;
 
-    /** Creates a new AutoBottomGrid. */
+    /** Creates a new AutoWallTwoCones */
     public AutoWallTwoCones(DriveTrain driveTrain, Arm arm, Vision vision, Position secondConePos) {
 
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "bot_grid_s1"),
