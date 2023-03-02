@@ -45,6 +45,9 @@ public final class Constants {
     public static final int PNEUMATIC_HUB_PORT = 1;
     public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
     public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
+    // CAN ID for the motor on the end effector
+    // This is a SparkMax
+    public static final int CLAW_MOTOR_CAN_ID = 11;
 
     // Constants for the Arm, place holder
     public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
@@ -78,16 +81,12 @@ public final class Constants {
     // This is a SparkMax
     public static final int REACHER_CAN_ID = 10;
 
-    // CAN ID for the motor on the end effector
-    // This is a SprakMax
-    public static final int CLAW_MOTOR_CAN_ID = 11;
-
-    // CAND IDs for the Shoulder motors
+    // CAN IDs for the Shoulder motors
     // These are Falcons
     public static final int SHOULDER_CAN_ID_LEADER = 1;
     public static final int SHOULDER_CAN_ID_FOLLOWER = 2;
 
-    // max voltages
+    // max voltage
     /**
      * The maximum voltage that will be delivered to the drive motors.
      * <p>

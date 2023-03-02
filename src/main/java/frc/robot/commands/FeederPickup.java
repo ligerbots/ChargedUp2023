@@ -7,11 +7,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Position;
+
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.RollerClaw;
 
 public class FeederPickup extends SequentialCommandGroup {
 
@@ -21,7 +21,7 @@ public class FeederPickup extends SequentialCommandGroup {
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
                 // set arm start position
-                new InstantCommand(claw::turnMotorOn),
+                new InstantCommand(claw::startIntake),
                 new ScoreArm(arm, targetPosition).withTimeout(5).alongWith(new InstantCommand(claw::open)),
                 new TagPositionDrive(driveTrain, vision, targetPosition)
         );

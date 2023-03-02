@@ -17,32 +17,44 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.Constants;
 
-public class RollerClaw extends SubsystemBase {
+public class RollerClaw extends Claw {
+    // TODO: tune this current limit, borrowed from 2021 game
+    private static final double MOTOR_CURRENT_LIMIT = 10.35;
+
+    // speed to run the motor for intake
+    private static final double INTAKE_MOTOR_SPEED = 0.2;
+    
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
-    private CANSparkMax m_motor;
+    private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
     private ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
-    private RelativeEncoder m_encoder;
     private double m_speed = 0;
 
-    /** Creates a new Claw. */
+    /** Creates a new RollerClaw. */
     public RollerClaw() {
-        SmartDashboard.putBoolean("claw/isCompressorEnabled", m_pH.getCompressor());
-        m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);
+        // limit the current to 15A
+        m_motor.setSmartCurrentLimit(15);
+        
+        SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
     }
 
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
+        m_motor.set(m_speed);
+        SmartDashboard.putNumber("claw/speed", m_speed);
 
-        // TODO: this does not make sense. Testing the compressor does not test if something is in the claw
-        // SmartDashboard.putBoolean("claw/not full?", m_phCompressor.getPressureSwitchValue());
+        if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT){
+            stopMotor();
+        }
+
         SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
         SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
-        if(SmartDashboard.getBoolean("claw/isCompressorEnabled", false))
+        if(SmartDashboard.getBoolean("claw/isCompressorEnabled", true))
             m_pH.enableCompressorDigital();
         else
             m_pH.disableCompressor();
@@ -56,20 +68,40 @@ public class RollerClaw extends SubsystemBase {
         m_motor.set(.75);
     }
 
+    @Override
     public void open(){
-        System.out.println("Setting Claw to OPEN");
         m_clawSolenoid.set(Value.kForward);
+        stopMotor();
     }
 
+    @Override
     public void close(){
-        System.out.println("Setting Claw to CLOSED");
         m_clawSolenoid.set(Value.kReverse);
+        // if(m_speed != 0.0)
+        //     new WaitCommand(0.5).andThen(new InstantCommand(this::stopMotor)).schedule();
     }
 
+    @Override
+    public void startIntake() {
+        open();
+        runMotor();
+    }
+
+    public void stopMotor(){
+        m_motor.set(0);
+    }
+
+    public void runMotor(){
+        m_speed = INTAKE_MOTOR_SPEED;
+    }
+    
+    @Override
     public void enableCompressor(){
         m_pH.enableCompressorDigital();
     }
-    public void turnMotorOff(){
-        m_motor.set(0);
+
+    @Override
+    public void disableCompressor(){
+        m_pH.disableCompressor();
     }
 }

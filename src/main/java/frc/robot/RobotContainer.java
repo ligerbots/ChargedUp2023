@@ -224,7 +224,7 @@ public class RobotContainer {
     public Arm getArm(){
         return m_arm;
     }
-    public RollerClaw getClaw(){
+    public Claw getClaw(){
         return m_claw;
     }
     public LedLight getLED(){
