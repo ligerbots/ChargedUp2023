@@ -9,13 +9,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.AutoWallTwoCones;
+
 import frc.robot.Constants.Position;
+
+import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoBarrierTwoCones;
 import frc.robot.commands.TrajectoryPlotter;
+
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LedLight.Color;
@@ -60,11 +64,12 @@ public class Robot extends TimedRobot {
         DriveTrain driveTrain = m_robotContainer.getDriveTrain();
         Arm arm = m_robotContainer.getArm();
         Vision vision = m_robotContainer.getVision();
-
+        Claw claw = m_robotContainer.getClaw();
+        
         // Initialize the list of available Autonomous routines
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
-        m_chosenTrajectory.addOption("Barrier 2 Cones", new AutoBarrierTwoCones(driveTrain, arm, vision, Position.LEFT_TOP));
-        m_chosenTrajectory.addOption("Wall 2 Cones", new AutoWallTwoCones(driveTrain, arm, vision, Position.RIGHT_TOP));
+        m_chosenTrajectory.addOption("Barrier 2 Cones", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.LEFT_TOP));
+        m_chosenTrajectory.addOption("Wall 2 Cones", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.RIGHT_TOP));
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
         m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
