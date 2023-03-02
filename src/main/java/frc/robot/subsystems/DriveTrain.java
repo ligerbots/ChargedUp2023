@@ -367,29 +367,10 @@ public class DriveTrain extends SubsystemBase {
                 m_thetaController,
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this);
+                });
     }
 
-public AutoCommandInterface getTrajectoryFollowingCommand(String string) {
+    public AutoCommandInterface getTrajectoryFollowingCommand(String string) {
         return null;
-}
-
-    // // get the trajectory following autonomous command in PathPlanner using the name
-    // public Command getTrajectoryFollowingCommand(String trajectoryName) {
-    //     PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    // }
-
-    // // find a trajectory from robot pose to a target pose
-    // public Command trajectoryToPose(Pose2d targetPose) {
-    //     Pose2d currentPose = getPose(); //get robot current pose
-    //     PathPlannerTrajectory traj = PathPlanner.generatePath(
-    //             new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
-    //             new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-    //             new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-    //     );
-
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    //  }
+    }
 }

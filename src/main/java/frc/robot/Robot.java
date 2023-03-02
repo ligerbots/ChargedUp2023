@@ -9,12 +9,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.AutoBottomGrid;
+import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
-import frc.robot.commands.AutoTopGrid;
+import frc.robot.commands.AutoFieldCenterTwoCones;
 import frc.robot.commands.TrajectoryPlotter;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.LedLight.Color;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -56,16 +57,18 @@ public class Robot extends TimedRobot {
         DriveTrain driveTrain = m_robotContainer.getDriveTrain();
         // Initialize the list of available Autonomous routines
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
+        m_chosenTrajectory.addOption("FieldCenter 2 Cones", new AutoFieldCenterTwoCones(driveTrain));
+        m_chosenTrajectory.addOption("Wall 2 Cones", new AutoWallTwoCones(driveTrain));
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
-        m_chosenTrajectory.addOption("c_forward_balance", driveTrain.getTrajectoryFollowingCommand("c_forward_balance"));
-        m_chosenTrajectory.addOption("AutoTopGrid", new AutoTopGrid(driveTrain));
-        m_chosenTrajectory.addOption("AutoBottomGrid", new AutoBottomGrid(driveTrain));
+        m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
+        // m_chosenTrajectory.addOption("top_grid_s1", new AutoFollowTrajectory(driveTrain, "top_grid_s1"));
 
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
         m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
 
+        m_robotContainer.getLED().setColor(Color.OFF);
         m_robotContainer.getClaw().enableCompressor();
     }
 

@@ -31,7 +31,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // Let's give it 2 seconds to get to max velocity.
     // Once tuned, I expect we will want this to be equal to REACHER_MAX_VEL_METER_PER_SEC
     // so it will get to max velocity in one second.
-    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(100.0);
+    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(50.0);
 
     // TODO: See if this is close enough. Or do we need a more exact measurement?
     private static final double REACHER_METER_PER_REVOLUTION = Units.inchesToMeters(0.7);
