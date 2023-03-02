@@ -229,4 +229,7 @@ public class RobotContainer {
     public LedLight getLED(){
         return m_ledLight;
     }
+    public Vision getVision(){
+        return m_vision;
+    }
 }

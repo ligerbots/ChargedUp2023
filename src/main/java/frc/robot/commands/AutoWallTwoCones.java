@@ -6,25 +6,24 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-
+import frc.robot.Constants.Position;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Vision;
 
 public class AutoWallTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
     AutoFollowTrajectory[] m_traj;
 
     /** Creates a new AutoBottomGrid. */
-    public AutoWallTwoCones(DriveTrain driveTrain) {
+    public AutoWallTwoCones(DriveTrain driveTrain, Arm arm, Vision vision, Position secondConePos) {
 
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "bot_grid_s1"),
                 new AutoFollowTrajectory(driveTrain, "bot_grid_s2"),
                 new AutoFollowTrajectory(driveTrain, "bot_grid_s3") };
 
         addCommands(m_traj[0], 
-                new WaitCommand(1.0), 
-                m_traj[1], 
-                new WaitCommand(1.0), 
-                m_traj[2]);
+            m_traj[1].andThen(new DriveAndMoveArm(arm, driveTrain, vision, secondConePos)),
+            m_traj[2]);
                 
         // Do NOT require any Subsystems. That is handled by the subcommands.
     }

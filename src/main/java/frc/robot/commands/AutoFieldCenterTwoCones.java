@@ -6,9 +6,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-
+import frc.robot.Constants.Position;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Vision;
 
 public class AutoFieldCenterTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
     
@@ -16,15 +17,13 @@ public class AutoFieldCenterTwoCones extends SequentialCommandGroup implements A
     AutoFollowTrajectory[] m_traj;
 
     /** Creates a new AutoBottomGrid. */
-    public AutoFieldCenterTwoCones(DriveTrain driveTrain) {
+    public AutoFieldCenterTwoCones(DriveTrain driveTrain, Arm arm, Vision vision, Position secondConePos) {
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "top_grid_s1"),
                 new AutoFollowTrajectory(driveTrain, "top_grid_s2"),
                 new AutoFollowTrajectory(driveTrain, "top_grid_s3") };
 
         addCommands(m_traj[0], 
-                // new WaitCommand(1.0),
-                m_traj[1],
-                // new WaitCommand(1.0),
+                m_traj[1].andThen(new DriveAndMoveArm(arm, driveTrain, vision, secondConePos)),
                 m_traj[2]);
 
         // Do NOT require any Subsystems. That is handled by the subcommands.
