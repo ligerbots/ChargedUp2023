@@ -25,7 +25,7 @@ public class LedLight extends SubsystemBase {
     private Color m_currentColor = Color.OFF;
 
     /** Creates a new LEDLight. */
-    I2C m_led = new I2C(I2C.Port.kOnboard, 0x04);
+    I2C m_led = new I2C(I2C.Port.kMXP, 0x04);
 
     public LedLight() {
     }

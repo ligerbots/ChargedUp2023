@@ -101,7 +101,11 @@ public final class Constants {
 
     // CAN ID for the Reacher (arm extension system)
     // This is a SparkMax
-    public static final int REACHER_CAN_ID = 10; // TODO: Set CanID
+    public static final int REACHER_CAN_ID = 10;
+
+    // CAN ID for the motor on the end effector
+    // This is a SprakMax
+    public static final int CLAW_MOTOR_CAN_ID = 11;
 
     // CAND IDs for the Shoulder motors
     // These are Falcons

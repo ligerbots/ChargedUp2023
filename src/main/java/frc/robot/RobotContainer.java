@@ -26,6 +26,7 @@ import frc.robot.commands.ChargeStationBalance;
 
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LedLight;
+import frc.robot.subsystems.RollerClaw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -64,7 +65,7 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    private final Claw m_claw = new Claw();
+    private final RollerClaw m_claw = new RollerClaw();
     private final LedLight m_ledLight = new LedLight();
 
     /**
@@ -226,7 +227,7 @@ public class RobotContainer {
     public Arm getArm(){
         return m_arm;
     }
-    public Claw getClaw(){
+    public RollerClaw getClaw(){
         return m_claw;
     }
 }
