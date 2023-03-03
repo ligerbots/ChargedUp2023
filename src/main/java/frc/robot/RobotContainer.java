@@ -107,10 +107,10 @@ public class RobotContainer {
                 
         // Turns analog triggers into buttons that actuate when it is half pressed 
         Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
-        rightTriggerButton.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::startIntake)));
+        rightTriggerButton.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).withTimeout(5).andThen(new InstantCommand(m_claw::startIntake)));
         
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
-        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM)));
+        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).withTimeout(5)));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);

@@ -23,7 +23,7 @@ public class RollerClaw extends Claw {
     private static final double MOTOR_CURRENT_LIMIT = 10.35;
 
     // speed to run the motor for intake
-    private static final double INTAKE_MOTOR_SPEED = 0.2;
+    private static final double INTAKE_MOTOR_SPEED = 0.5;
     
     // delay time for shutting off the motor
     private static final double STOP_MOTOR_DELAY = 0.25;   // seconds
@@ -31,6 +31,7 @@ public class RollerClaw extends Claw {
     private double m_speed;
 
     private Timer m_timer;
+    private boolean m_needStop = false;
 
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
@@ -39,26 +40,32 @@ public class RollerClaw extends Claw {
 
     /** Creates a new RollerClaw. */
     public RollerClaw() {
+        m_motor.setInverted(true);
         // limit the current to 15A
         m_motor.setSmartCurrentLimit(15);
         m_timer = new Timer();
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
+        SmartDashboard.putNumber("claw/speed", 0.0);
         m_speed = 0.0;
     }
 
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("claw/speed", m_speed);
+        // SmartDashboard.putNumber("claw/speed", m_speed);
 
-        if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT) {
-            setMotor(0);
-        }
+        // setMotor(SmartDashboard.getNumber("claw/speed", 1.0));
+
+        // if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT) {
+        //     setMotor(0);
+        // }
 
         // Timer is turned on only in close() method
-        if(m_timer.hasElapsed(STOP_MOTOR_DELAY)){
+        if ( m_needStop && m_timer.hasElapsed(STOP_MOTOR_DELAY)) {
             m_timer.stop();
+            m_timer.reset();
             setMotor(0.0);
+            m_needStop = false;
         }
 
         SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
@@ -89,10 +96,11 @@ public class RollerClaw extends Claw {
         // if(m_speed != 0.0)
         // new WaitCommand(0.5).andThen(new InstantCommand(this::stopMotor)).schedule();
 
-        if(Math.abs(m_speed) >= 0.001){
+        if (Math.abs(m_speed) >= 0.001) {
             // Timer is turned on only in close() method
             m_timer.reset();
             m_timer.start();
+            m_needStop = true;
         }
         
     }
@@ -105,6 +113,7 @@ public class RollerClaw extends Claw {
     }
 
     private void setMotor(double speed) {
+        System.out.println("Setting claw motor to " + speed);
         m_motor.set(speed);
         m_speed = speed;
     }
@@ -117,10 +126,6 @@ public class RollerClaw extends Claw {
     @Override
     public void disableCompressor() {
         m_pH.disableCompressor();
-    }
-
-    public boolean isBallInFront () {
-        return m_colorSensor.getProximity() > 110;
     }
 
     public int getColorSensorProximity() {
