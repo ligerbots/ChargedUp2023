@@ -47,6 +47,7 @@ public class RollerClaw extends Claw {
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
         SmartDashboard.putNumber("claw/speed", 0.0);
         m_speed = 0.0;
+        
     }
 
     // This method will be called once per scheduler run
@@ -68,6 +69,7 @@ public class RollerClaw extends Claw {
             m_needStop = false;
         }
 
+        SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
         SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
         SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
         SmartDashboard.putNumberArray("claw/colorRGB", getColor());

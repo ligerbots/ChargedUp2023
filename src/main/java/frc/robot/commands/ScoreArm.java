@@ -24,16 +24,16 @@ public class ScoreArm extends CommandBase {
 
     private static final double MIDDLE_GRID_CUBE_ANGLE = Math.toRadians(-7.0);
     private static final double MIDDLE_GRID_CUBE_LENGTH = Units.inchesToMeters(12.0);
-    private static final double MIDDLE_GRID_CONE_ANGLE = Math.toRadians(10.0);
-    private static final double MIDDLE_GRID_CONE_LENGTH = Units.inchesToMeters(12.0);
+    private static final double MIDDLE_GRID_CONE_ANGLE = Math.toRadians(8.0);
+    private static final double MIDDLE_GRID_CONE_LENGTH = Units.inchesToMeters(14.0);
 
     private static final double HIGH_GRID_CUBE_ANGLE = Math.toRadians(10.0);
     private static final double HIGH_GRID_CUBE_LENGTH = Units.inchesToMeters(31.0);
-    private static final double HIGH_GRID_CONE_ANGLE = Math.toRadians(22.0);
-    private static final double HIGH_GRID_CONE_LENGTH = Units.inchesToMeters(35.0) ;
+    private static final double HIGH_GRID_CONE_ANGLE = Math.toRadians(18.0);
+    private static final double HIGH_GRID_CONE_LENGTH = Units.inchesToMeters(32.0);
 
-    private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-56.0);
-    private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(6.0);
+    private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-55.0);
+    private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(9.0);
     // private static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
     // private static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
 
