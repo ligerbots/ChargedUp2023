@@ -26,8 +26,7 @@ public class RollerClaw extends Claw {
     private static final double INTAKE_MOTOR_SPEED = 0.5;
     
     // delay time for shutting off the motor
-    private static final double STOP_MOTOR_DELAY = 0.25;   // seconds
-
+    private static final double STOP_MOTOR_DELAY = 1.0;   // seconds
     private double m_speed;
 
     private Timer m_timer;

@@ -39,8 +39,8 @@ public class TagPositionDrive extends CommandBase {
     private static final double SCORE_OFFSET_Y_METERS = Units.inchesToMeters(22.0);
 
     // left/right offset for pickup at the Substation
-    private static final double SUBSTATION_OFFSET_X_METERS = 1.0;
-    private static final double SUBSTATION_OFFSET_Y_METERS = 1.0;
+    private static final double SUBSTATION_OFFSET_X_METERS = 0.49;
+    private static final double SUBSTATION_OFFSET_Y_METERS = 0.7;
 
     private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {

@@ -71,8 +71,8 @@ public class Robot extends TimedRobot {
         
         // Initialize the list of available Autonomous routines
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
-        m_chosenTrajectory.addOption("Barrier 2 Cones", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.LEFT_TOP));
-        m_chosenTrajectory.addOption("Wall 2 Cones", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.RIGHT_TOP));
+        m_chosenTrajectory.addOption("Barrier Cone Cube", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
+        m_chosenTrajectory.addOption("Wall Cone Cube", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
         m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
