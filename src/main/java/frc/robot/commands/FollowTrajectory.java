@@ -18,21 +18,21 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import frc.robot.subsystems.DriveTrain;
 
 public class FollowTrajectory extends CommandBase {
 
-	private final Timer m_timer = new Timer();
-	private final PathPlannerTrajectory m_trajectory;
-	private final Supplier<Pose2d> m_pose;
-	private final SwerveDriveKinematics m_kinematics;
-	private final HolonomicDriveController m_controller;
-	private final Consumer<SwerveModuleState[]> m_outputModuleStates;
+    private final Timer m_timer = new Timer();
+    private final PathPlannerTrajectory m_trajectory;
+    private final Supplier<Pose2d> m_pose;
+    private final SwerveDriveKinematics m_kinematics;
+    private final HolonomicDriveController m_controller;
+    private final Consumer<SwerveModuleState[]> m_outputModuleStates;
 
-	DriveTrain m_driveTrain;
+    DriveTrain m_driveTrain;
 
-	/**
+    /**
      * Constructs a new PPSwerveControllerCommand that when executed will follow the
      * provided
      * trajectory. This command will not return output voltages but rather raw
@@ -86,38 +86,38 @@ public class FollowTrajectory extends CommandBase {
         addRequirements(m_driveTrain);
     }
 
-	// Called when the command is initially scheduled.
-	@Override
-	public void initialize() {
-		m_timer.reset();
-		m_timer.start();
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        m_timer.reset();
+        m_timer.start();
         // m_driveTrain.setPose(m_trajectory.getInitialHolonomicPose());
 
         // clear all robot mode and drive in field-centric at normal speeds
         m_driveTrain.resetDrivingModes();
-	}
+    }
 
-	// Called every time the scheduler runs while the command is scheduled.
-	@Override
-	public void execute() {
-		double curTime = m_timer.get();
-		var desiredState = (PathPlannerState) m_trajectory.sample(curTime);
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        double curTime = m_timer.get();
+        var desiredState = (PathPlannerState) m_trajectory.sample(curTime);
 
-		var targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.holonomicRotation);
-		var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
+        var targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.holonomicRotation);
+        var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
 
-		m_outputModuleStates.accept(targetModuleStates);
-	}
+        m_outputModuleStates.accept(targetModuleStates);
+    }
 
-	// Called once the command ends or is interrupted.
-	@Override
-	public void end(boolean interrupted) {
-		m_timer.stop();
-	}
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        m_timer.stop();
+    }
 
-	// Returns true when the command should end.
-	@Override
-	public boolean isFinished() {
-		return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
-	}
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
+    }
 }
