@@ -45,35 +45,13 @@ public final class Constants {
     public static final int PNEUMATIC_HUB_PORT = 1;
     public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
     public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
+    // CAN ID for the motor on the end effector
+    // This is a SparkMax
+    public static final int CLAW_MOTOR_CAN_ID = 11;
 
     // Constants for the Arm, place holder
     public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
     public static final double STARTING_ARM_LENGTH = Units.inchesToMeters(0.0);
-
-    public static final double LOW_GIRD_ARM_ANGLE = Math.toRadians(-45.0);
-    public static final double LOW_GIRD_ARM_LENGTH = Units.inchesToMeters(8.0);
-
-    public static final double MIDDLE_GRID_CUBE_ARM_ANGLE = Math.toRadians(-7.0);
-    public static final double MIDDLE_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(12.0);
-    public static final double MIDDLE_GRID_CONE_ARM_ANGLE = Math.toRadians(10.0);
-    public static final double MIDDLE_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(12.0);
-
-    public static final double HIGH_GRID_CUBE_ARM_ANGLE = Math.toRadians(10.0);
-    public static final double HIGH_GRID_CUBE_ARM_LENGTH = Units.inchesToMeters(31.0);
-    public static final double HIGH_GRID_CONE_ARM_ANGLE = Math.toRadians(19.0);
-    public static final double HIGH_GRID_CONE_ARM_LENGTH = Units.inchesToMeters(29.0) ;
-
-    public static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-56.0);
-    public static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(6.0);
-    public static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
-    public static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
-
-    public static final double SUBSTATION_ANGLE = Math.toRadians(15.0);
-    public static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);
-
-    public static final double STOW_ARM_ANGLE = Math.toRadians(-65.0);
-    public static final double STOW_ARM_LENGTH = Units.inchesToMeters(1.0);
-
 
 
     // scoring position numbers (m_positionNumber explained)
@@ -101,14 +79,14 @@ public final class Constants {
 
     // CAN ID for the Reacher (arm extension system)
     // This is a SparkMax
-    public static final int REACHER_CAN_ID = 10; // TODO: Set CanID
+    public static final int REACHER_CAN_ID = 10;
 
-    // CAND IDs for the Shoulder motors
+    // CAN IDs for the Shoulder motors
     // These are Falcons
     public static final int SHOULDER_CAN_ID_LEADER = 1;
     public static final int SHOULDER_CAN_ID_FOLLOWER = 2;
 
-    // max voltages
+    // max voltage
     /**
      * The maximum voltage that will be delivered to the drive motors.
      * <p>

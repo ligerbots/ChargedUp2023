@@ -38,6 +38,10 @@ public class TagPositionDrive extends CommandBase {
     // distance from center to cone pipe
     private static final double SCORE_OFFSET_Y_METERS = Units.inchesToMeters(22.0);
 
+    // left/right offset for pickup at the Substation
+    private static final double SUBSTATION_OFFSET_X_METERS = 0.49;
+    private static final double SUBSTATION_OFFSET_Y_METERS = 0.7;
+
     private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {
             // scoring transformations
@@ -51,17 +55,17 @@ public class TagPositionDrive extends CommandBase {
             put(Position.LEFT_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
             put(Position.CENTER_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, 0, Rotation2d.fromDegrees(180)));
             put(Position.RIGHT_BOTTOM, new Pose2d(SCORE_OFFSET_X_METERS, -SCORE_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
-            // substation positions, change later
+
+            // substation positions
             // NOTE substation left/right is flipped because we are going with the Driver's perspective
-            put(Position.LEFT_SUBSTATION, new Pose2d(1, -1, Rotation2d.fromDegrees(180)));
-            put(Position.RIGHT_SUBSTATION, new Pose2d(1, 1, Rotation2d.fromDegrees(180)));
+            put(Position.LEFT_SUBSTATION, new Pose2d(SUBSTATION_OFFSET_X_METERS, -SUBSTATION_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
+            put(Position.RIGHT_SUBSTATION, new Pose2d(SUBSTATION_OFFSET_X_METERS, SUBSTATION_OFFSET_Y_METERS, Rotation2d.fromDegrees(180)));
         }
     };
 
     public TagPositionDrive(DriveTrain driveTrain, Vision vision, Position targetPosition) {
         this.m_driveTrain = driveTrain;
         this.m_vision = vision;
-        // pass in a Position ex. pass in Position.LEFT_TOP
         this.m_targetPosition = targetPosition;
     }
 
@@ -78,7 +82,7 @@ public class TagPositionDrive extends CommandBase {
         }
         // get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
-        System.out.println("Target Tag Pose " + tagPose.toString());
+        // System.out.println("Target Tag Pose " + tagPose.toString());
 
         // this is the transformation we want to translate from the target AprilTag by
         // can do this instead of if checks
@@ -86,22 +90,22 @@ public class TagPositionDrive extends CommandBase {
 
         // to rotate universal coordinates so translation is correct direction
         Translation2d poseOffset = robotTransformation.getTranslation().rotateBy(tagPose.getRotation());
-        System.out.println("Pose Offset Translation " + poseOffset.toString());
+        // System.out.println("Pose Offset Translation " + poseOffset.toString());
 
         // add to get target rotation and translation for robot
         Translation2d robotTargetTranslation = tagPose.getTranslation().plus(poseOffset);
-        System.out.println("Robot Target Pose Translation " + robotTargetTranslation.toString());
+        // System.out.println("Robot Target Pose Translation " + robotTargetTranslation.toString());
         Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
-        System.out.println("Robot Target Pose Rotation " + robotTargetRotation.toString());
+        // System.out.println("Robot Target Pose Rotation " + robotTargetRotation.toString());
 
         // get robot current pose
         Pose2d currentPose = m_driveTrain.getPose();
-        System.out.println("Current Robot Pose " + currentPose.toString());
+        // System.out.println("Current Robot Pose " + currentPose.toString());
 
         // we need a heading for the trajectory
         // use the angle of the straight line between the 2 points
         Rotation2d heading = robotTargetTranslation.minus(currentPose.getTranslation()).getAngle();
-        System.out.println("Heading angle " + heading.getDegrees());
+        // System.out.println("Heading angle " + heading.getDegrees());
 
         PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose

@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.Constants;
+import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -366,25 +367,10 @@ public class DriveTrain extends SubsystemBase {
                 m_thetaController,
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this);
+                });
     }
 
-    // // get the trajectory following autonomous command in PathPlanner using the name
-    // public Command getTrajectoryFollowingCommand(String trajectoryName) {
-    //     PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    // }
-
-    // // find a trajectory from robot pose to a target pose
-    // public Command trajectoryToPose(Pose2d targetPose) {
-    //     Pose2d currentPose = getPose(); //get robot current pose
-    //     PathPlannerTrajectory traj = PathPlanner.generatePath(
-    //             new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
-    //             new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-    //             new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-    //     );
-
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    //  }
+    public AutoCommandInterface getTrajectoryFollowingCommand(String string) {
+        return null;
+    }
 }
