@@ -15,17 +15,15 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneCube extends SequentialCommandGroup implements AutoCommandInterface {
-    AutoFollowTrajectory m_traj;
 
     /** Creates a new AutoWallTwoCones */
     public AutoChargeStationOneCube(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
 
-        m_traj = new AutoFollowTrajectory(driveTrain, "c_forward_balance");
-
         addCommands(
-            new ScoreArm(arm, Position.CENTER_TOP).withTimeout(5),
+            new ScoreArm(arm, driveTrain, Position.CENTER_TOP).withTimeout(5),
             new InstantCommand(claw::open),
-            m_traj.alongWith(new ScoreArm(arm, Position.STOW_ARM).withTimeout(5).alongWith(new InstantCommand(claw::close))),
+            new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5),
+            new InstantCommand(claw::close),
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));
                     
@@ -34,11 +32,8 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
 
     @Override
     public Pose2d getInitialPose() {
-        return m_traj.getInitialPose();
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    @Override
-    public void plotTrajectory(TrajectoryPlotter plotter) {
-        m_traj.plotTrajectory(plotter);
-    }
 }

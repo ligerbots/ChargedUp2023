@@ -8,13 +8,17 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ChargeStationDrive extends CommandBase {
-    private static final Rotation2d RAMP_ANGLE = Rotation2d.fromDegrees(-10); 
     private static final double DRIVE_MPS = 0.75;
+    private static final double CHARGE_STATION_MIDDLE_BLUE = 3.9;
+    private static final double CHARGE_STATION_MIDDLE_RED = 12.6;
+
+    private static final double CHARGE_STATION_TOLERANCE = 0.25;
 
     private DriveTrain m_driveTrain;
-    private Rotation2d currentAngle;
 
     /** Creates a new ChargeStationDrive. */
     public ChargeStationDrive(DriveTrain driveTrain) {
@@ -30,10 +34,12 @@ public class ChargeStationDrive extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        currentAngle = m_driveTrain.getPitch();
-
+        double driveSpeed = DRIVE_MPS;
+        if(DriverStation.getAlliance() == Alliance.Red)
+            driveSpeed = -driveSpeed;
+        
         //robot drives at set speed in mps
-        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_MPS, 0.0, 0.0, m_driveTrain.getHeading()));
+        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveSpeed, 0.0, 0.0, m_driveTrain.getHeading()));
     }
 
     // Called once the command ends or is interrupted.
@@ -44,8 +50,16 @@ public class ChargeStationDrive extends CommandBase {
 
     // Returns true when the command should end.
     @Override
-    public boolean isFinished() {
+    public boolean isFinished() {      
+        double curX = m_driveTrain.getPose().getX();
+
+        double goalX;
+        if(DriverStation.getAlliance() == Alliance.Red)
+            goalX = CHARGE_STATION_MIDDLE_RED;
+        else
+            goalX = CHARGE_STATION_MIDDLE_BLUE;
+
         //stops when robot is on ramp of charge station 
-        return (currentAngle.getDegrees() <= RAMP_ANGLE.getDegrees());
+        return Math.abs(curX - goalX) < CHARGE_STATION_TOLERANCE;
     }
 }

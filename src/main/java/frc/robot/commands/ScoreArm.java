@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Reacher;
 import frc.robot.subsystems.Shoulder;
 
@@ -69,15 +71,16 @@ public class ScoreArm extends CommandBase {
 
     boolean m_goingDown;
     Arm m_arm;
+    DriveTrain m_driveTrain;
 
     double m_desiredAngle;
     double m_desiredLength;
-
     Constants.Position m_position;
 
     /** Creates a new ScoreArm. */
-    public ScoreArm(Arm arm, Constants.Position position) {
+    public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position) {
         m_arm = arm;
+        m_driveTrain = driveTrain;
         m_position = position;
         m_desiredAngle = Shoulder.limitShoulderAngle(SCORE_POSITIONS.get(position).getFirst());
         m_desiredLength = Reacher.limitReacherLength(SCORE_POSITIONS.get(position).getSecond());
@@ -89,6 +92,15 @@ public class ScoreArm extends CommandBase {
     public void initialize() {
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
+
+        // prevent from stowing in the bad zone
+        if(m_position == Position.STOW_ARM){
+            double currentX = m_driveTrain.getPose().getX();
+            // check if the robot position is within the safe zone on either side of field, if so then end command
+            if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED) {
+                this.cancel();
+            }
+        }
 
         m_goingDown = m_desiredAngle < m_arm.getArmAngle();
 
