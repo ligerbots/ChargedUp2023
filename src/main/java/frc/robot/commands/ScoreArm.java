@@ -30,7 +30,7 @@ public class ScoreArm extends CommandBase {
     private static final double HIGH_GRID_CUBE_ANGLE = Math.toRadians(10.0);
     private static final double HIGH_GRID_CUBE_LENGTH = Units.inchesToMeters(31.0);
     private static final double HIGH_GRID_CONE_ANGLE = Math.toRadians(18.0);
-    private static final double HIGH_GRID_CONE_LENGTH = Units.inchesToMeters(32.0);
+    private static final double HIGH_GRID_CONE_LENGTH = Units.inchesToMeters(33.0);
 
     private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-55.0);
     private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(9.0);

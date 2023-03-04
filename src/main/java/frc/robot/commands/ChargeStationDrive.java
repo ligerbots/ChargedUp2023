@@ -17,9 +17,10 @@ public class ChargeStationDrive extends CommandBase {
     private Rotation2d currentAngle;
 
     /** Creates a new ChargeStationDrive. */
-    public ChargeStationDrive() {
+    public ChargeStationDrive(DriveTrain driveTrain) {
+        m_driveTrain = driveTrain;
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(m_driveTrain);
+        addRequirements(driveTrain);
     }
 
     // Called when the command is initially scheduled.

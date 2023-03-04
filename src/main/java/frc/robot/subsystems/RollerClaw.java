@@ -35,7 +35,7 @@ public class RollerClaw extends Claw {
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
-    private ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    // private ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
     /** Creates a new RollerClaw. */
     public RollerClaw() {
@@ -68,10 +68,10 @@ public class RollerClaw extends Claw {
             m_needStop = false;
         }
 
-        SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
+        // SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
         SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
-        SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
-        SmartDashboard.putNumberArray("claw/colorRGB", getColor());
+        // SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
+        // SmartDashboard.putNumberArray("claw/colorRGB", getColor());
 
         SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
         SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
@@ -129,12 +129,12 @@ public class RollerClaw extends Claw {
         m_pH.disableCompressor();
     }
 
-    public int getColorSensorProximity() {
-        return m_colorSensor.getProximity();
-    }
+    // public int getColorSensorProximity() {
+    //     return m_colorSensor.getProximity();
+    // }
 
-    public double[] getColor(){
-        RawColor color = m_colorSensor.getRawColor();
-        return new double[]{color.red, color.green, color.blue};
-    }
+    // public double[] getColor(){
+    //     RawColor color = m_colorSensor.getRawColor();
+    //     return new double[]{color.red, color.green, color.blue};
+    // }
 }
