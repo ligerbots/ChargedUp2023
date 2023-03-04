@@ -17,7 +17,7 @@ import edu.wpi.first.math.util.Units;
  */
 public final class FieldConstants {
     // safeZone x limit on blue side, cannot stow in this zone
-    public static final double BAD_ZONE_X_BLUE = 2.3;
+    public static final double BAD_ZONE_X_BLUE = 2.1;
     // safeZone x limit on red side, cannot stow in this zone
-    public static final double BAD_ZONE_X_RED = 14.3;
+    public static final double BAD_ZONE_X_RED = 14.5;
 }

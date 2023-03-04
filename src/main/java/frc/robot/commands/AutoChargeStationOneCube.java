@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -16,14 +19,16 @@ import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneCube extends SequentialCommandGroup implements AutoCommandInterface {
 
+    AutoFollowTrajectory m_traj;
     /** Creates a new AutoWallTwoCones */
     public AutoChargeStationOneCube(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
-
+        m_traj = new AutoFollowTrajectory(driveTrain, "c_forward_balance");
         addCommands(
+            // TODO: use DriveAndMove
             new ScoreArm(arm, driveTrain, Position.CENTER_TOP).withTimeout(5),
             new InstantCommand(claw::open),
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5),
-            new InstantCommand(claw::close),
+            // TODO: wont stow because in the bad region
+            new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5).alongWith(new InstantCommand(claw::close)),
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));
                     
@@ -33,7 +38,7 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
     @Override
     public Pose2d getInitialPose() {
         // TODO Auto-generated method stub
-        return null;
+        return m_traj.getInitialPose();
     }
 
 }

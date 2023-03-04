@@ -77,6 +77,8 @@ public class ScoreArm extends CommandBase {
     double m_desiredLength;
     Constants.Position m_position;
 
+    boolean m_cancel;
+
     /** Creates a new ScoreArm. */
     public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position) {
         m_arm = arm;
@@ -84,21 +86,25 @@ public class ScoreArm extends CommandBase {
         m_position = position;
         m_desiredAngle = Shoulder.limitShoulderAngle(SCORE_POSITIONS.get(position).getFirst());
         m_desiredLength = Reacher.limitReacherLength(SCORE_POSITIONS.get(position).getSecond());
-
+        
         addRequirements(m_arm);
     }
 
     @Override
     public void initialize() {
+        m_cancel = false;
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
 
         // prevent from stowing in the bad zone
         if(m_position == Position.STOW_ARM){
             double currentX = m_driveTrain.getPose().getX();
+            System.out.println("testing stow " + currentX);
             // check if the robot position is within the safe zone on either side of field, if so then end command
             if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED) {
-                this.cancel();
+                System.out.println("***********cancelling***************");
+                m_cancel = true;
+                return ;
             }
         }
 
@@ -112,6 +118,9 @@ public class ScoreArm extends CommandBase {
 
     @Override
     public void execute() {
+        if(m_cancel)
+            return ;
+
         if (m_goingDown) {
             double curLength = m_arm.getArmLength();
             if (Math.abs(curLength - m_desiredLength) < Reacher.REACHER_OFFSET_TOLERANCE_METERS) {
@@ -133,6 +142,9 @@ public class ScoreArm extends CommandBase {
 
     @Override
     public boolean isFinished() {
+        if(m_cancel)
+            return true;
+
         double curLength = m_arm.getArmLength();
         double curAngle = m_arm.getArmAngle();
         return Math.abs(curAngle - m_desiredAngle) < Shoulder.SHOULDER_ANGLE_TOLERANCE_RADIAN && 

@@ -61,15 +61,16 @@ public class ChargeStationBalance extends CommandBase {
             if (Math.abs(driveMPS) > MAX_MPS) {
                 driveMPS = Math.copySign(MAX_MPS, driveMPS);
             }
+
             SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
             SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
-
-
             SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+
             double angleError = driveAngle.getRadians();
             if (Math.abs(angleError) > Math.PI/2) {
                 angleError = angleError - Math.PI;
             }
+
             angleSpeed = angleError * ANGLE_KP;
             if (Math.abs(angleSpeed) > MAX_ANGLE_SPEED) {
                 angleSpeed = Math.copySign(MAX_ANGLE_SPEED, angleSpeed);
@@ -77,7 +78,6 @@ public class ChargeStationBalance extends CommandBase {
             SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
         }
 
-        
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
             driveMPS * driveAngle.getCos(),
             driveMPS * driveAngle.getSin(),

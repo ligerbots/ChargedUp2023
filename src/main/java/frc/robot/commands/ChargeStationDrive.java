@@ -6,17 +6,16 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ChargeStationDrive extends CommandBase {
-    private static final double DRIVE_MPS = 0.75;
+    private static final double DRIVE_MPS = 3.0;
     private static final double CHARGE_STATION_MIDDLE_BLUE = 3.9;
     private static final double CHARGE_STATION_MIDDLE_RED = 12.6;
 
-    private static final double CHARGE_STATION_TOLERANCE = 0.25;
+    private static final double CHARGE_STATION_TOLERANCE = 0.15;
 
     private DriveTrain m_driveTrain;
 
