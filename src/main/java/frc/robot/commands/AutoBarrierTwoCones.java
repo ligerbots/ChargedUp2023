@@ -28,8 +28,7 @@ public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoC
         addCommands(
             new ScoreArm(arm, Position.LEFT_TOP).withTimeout(5),
             new InstantCommand(claw::open),
-            m_traj[0].alongWith(new ScoreArm(arm, Position.PICK_UP).withTimeout(5)),
-            // new ScoreArm(arm, Position.PICK_UP).withTimeout(5),
+            m_traj[0].alongWith(new ScoreArm(arm, Position.PICK_UP).withTimeout(5).andThen(new InstantCommand(claw::startIntake))),
             new ScoreArm(arm, Position.STOW_ARM).withTimeout(5),
             m_traj[1],
             new DriveAndMoveArm(arm, driveTrain, vision, secondConePos),

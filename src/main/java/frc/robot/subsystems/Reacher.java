@@ -28,17 +28,16 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // For initial testing, these should be very slow.
     // We can update them as we get more confidence.
     private static final double REACHER_MAX_VEL_METER_PER_SEC = Units.inchesToMeters(100.0);
-    // Let's give it 2 seconds to get to max velocity.
-    // Once tuned, I expect we will want this to be equal to REACHER_MAX_VEL_METER_PER_SEC
-    // so it will get to max velocity in one second.
-    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(50.0);
 
-    // TODO: See if this is close enough. Or do we need a more exact measurement?
+    // slower value if we are using the linear pinch class
+    // private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(50.0);
+
+    // faster acceleration with the roller claw
+    private static final double REACHER_MAX_ACC_METER_PER_SEC_SQ = Units.inchesToMeters(100.0);
+
     private static final double REACHER_METER_PER_REVOLUTION = Units.inchesToMeters(0.7);
 
     private static final double REACHER_OFFSET_METER = Units.inchesToMeters(0.0);
-
-
 
     // Feedforward constants for the reacher
     private static final double REACHER_KS = 0.182; // TODO: This may need to be tuned

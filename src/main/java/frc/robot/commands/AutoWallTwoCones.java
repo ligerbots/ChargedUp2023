@@ -22,14 +22,18 @@ public class AutoWallTwoCones extends SequentialCommandGroup implements AutoComm
 
         m_traj = new AutoFollowTrajectory[] { new AutoFollowTrajectory(driveTrain, "bot_grid_s1"),
                 new AutoFollowTrajectory(driveTrain, "bot_grid_s2"),
-                new AutoFollowTrajectory(driveTrain, "bot_grid_s3") };
+                new AutoFollowTrajectory(driveTrain, "bot_grid_s1") };
 
-        addCommands(m_traj[0], 
+        addCommands(
+            new ScoreArm(arm, Position.RIGHT_TOP).withTimeout(5),
+            new InstantCommand(claw::open),
+            m_traj[0].alongWith(new ScoreArm(arm, Position.PICK_UP).withTimeout(5).andThen(new InstantCommand(claw::startIntake))),
+            new ScoreArm(arm, Position.STOW_ARM).withTimeout(5),
             m_traj[1],
             new DriveAndMoveArm(arm, driveTrain, vision, secondConePos),
             new InstantCommand(claw::open),
-            m_traj[2]);
-                
+            m_traj[2].alongWith(new ScoreArm(arm, Position.STOW_ARM).withTimeout(5)));
+                    
         // Do NOT require any Subsystems. That is handled by the subcommands.
     }
 
