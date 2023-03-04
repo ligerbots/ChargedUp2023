@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,11 +14,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ChargeStationBalance extends CommandBase {
 
-    private static final Rotation2d BALANCED_ERROR = Rotation2d.fromDegrees(2.5); //error for what counts as balanced
+    private static final double BALANCED_ERROR_DEGREES = 2.5; // max error for what counts as balanced
     private static final double BALANCED_DEGREES = 0;
-    private static final double BALANCE_KP = 0.02; //change to control how fast robot drives during balancing
+    private static final double BALANCE_KP = 0.03; // change to control how fast robot drives during balancing
     private static final double MAX_MPS = 1.0;
-    private static final double BALANCE_SECONDS = 1; //how many seconds the robot has to be balanced before stopping
+    private static final double BALANCE_SECONDS = 1; // how many seconds the robot has to be balanced before stopping
+    private static final double ANGLE_KP = Units.degreesToRadians(1); 
+    private static final double MAX_ANGLE_SPEED = Units.degreesToRadians(10); 
 
     private DriveTrain m_driveTrain;
     private final Timer m_timer = new Timer();
@@ -27,9 +30,9 @@ public class ChargeStationBalance extends CommandBase {
         m_driveTrain = driveTrain;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
-        
         SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
         SmartDashboard.putNumber("balanceCommand/error", 0.0);
+        SmartDashboard.putNumber("balanceCommand/driveAngle", 0);
     }
 
     // Called when the command is initially scheduled.
@@ -42,23 +45,49 @@ public class ChargeStationBalance extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        //uses angle of robot to set its speed
-        // *current robot has Roll
-        Rotation2d currentAngle = m_driveTrain.getRoll();
-        Rotation2d error = Rotation2d.fromDegrees(BALANCED_DEGREES - currentAngle.getDegrees());
-        double driveMPS = -error.getDegrees() * BALANCE_KP;
+        double tiltAngle = m_driveTrain.getTiltDegrees();
+        double driveMPS, angleSpeed;
+        double errorDegrees = tiltAngle - BALANCED_DEGREES;
+        Rotation2d driveAngle = m_driveTrain.getTiltDirection(); //.plus(Rotation2d.fromDegrees(180));
 
-        // cap max speed
-        if (Math.abs(driveMPS) > MAX_MPS) {
-            driveMPS = Math.copySign(MAX_MPS, driveMPS);
+        if(Math.abs(tiltAngle) < 7.5){
+            driveMPS = 0.0;
+            angleSpeed = 0.0;
+        }else{
+            // uses angle of robot to set its speed
+            driveMPS = errorDegrees * BALANCE_KP;
+
+            // cap max speed
+            if (Math.abs(driveMPS) > MAX_MPS) {
+                driveMPS = Math.copySign(MAX_MPS, driveMPS);
+            }
+            SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
+            SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
+
+
+            SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+            double angleError = driveAngle.getRadians();
+            if (Math.abs(angleError) > Math.PI/2) {
+                angleError = angleError - Math.PI;
+            }
+            angleSpeed = angleError * ANGLE_KP;
+            if (Math.abs(angleSpeed) > MAX_ANGLE_SPEED) {
+                angleSpeed = Math.copySign(MAX_ANGLE_SPEED, angleSpeed);
+            }
+            SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
         }
-        SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
-        SmartDashboard.putNumber("balanceCommand/error", error.getDegrees());
 
-        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveMPS, 0.0, 0.0, m_driveTrain.getHeading()));
         
-        //if not balanced, resets timer
-        if (Math.abs(error.getDegrees()) >= BALANCED_ERROR.getDegrees()){
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+            driveMPS * driveAngle.getCos(),
+            driveMPS * driveAngle.getSin(),
+            angleSpeed
+        );
+
+        m_driveTrain.drive(chassisSpeeds);
+        
+        // if not balanced, resets timer
+        if (Math.abs(errorDegrees) >= BALANCED_ERROR_DEGREES){
             m_timer.reset();
         }
     }
@@ -66,7 +95,7 @@ public class ChargeStationBalance extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.stop();
+        m_driveTrain.lockWheels();
         m_timer.stop();
     }
 
