@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
  * class should not be used for any other purpose. All constants should be declared globally (i.e. public static). Do
@@ -20,4 +18,8 @@ public final class FieldConstants {
     public static final double BAD_ZONE_X_BLUE = 2.1;
     // safeZone x limit on red side, cannot stow in this zone
     public static final double BAD_ZONE_X_RED = 14.5;
+
+    // Center (x) of the Charging Station (in meters)
+    public static final double CHARGE_STATION_MIDDLE_X_BLUE = 3.9;
+    public static final double CHARGE_STATION_MIDDLE_X_RED = 12.6;
 }
