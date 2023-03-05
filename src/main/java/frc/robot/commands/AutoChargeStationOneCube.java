@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -22,7 +20,11 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
     AutoFollowTrajectory m_traj;
     /** Creates a new AutoWallTwoCones */
     public AutoChargeStationOneCube(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
+
+        // Note this is a quick hack: the trajectory is loaded to just get the initial Pose.
+        //  Otherwise it is not actually used.
         m_traj = new AutoFollowTrajectory(driveTrain, "c_forward_balance");
+
         addCommands(
             // TODO: use DriveAndMove
             new ScoreArm(arm, driveTrain, Position.CENTER_TOP).withTimeout(5),
@@ -37,7 +39,6 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
 
     @Override
     public Pose2d getInitialPose() {
-        // TODO Auto-generated method stub
         return m_traj.getInitialPose();
     }
 
