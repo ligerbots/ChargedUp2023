@@ -66,8 +66,9 @@ public class Vision {
         // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
-        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
                 m_aprilTagCamera, m_robotToAprilTagCam);
+        m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
 
         // set the driver mode to false
         m_aprilTagCamera.setDriverMode(false);
@@ -90,12 +91,12 @@ public class Vision {
             return;
 
         // Get the current best target.
-        PhotonTrackedTarget target = targetResult.getBestTarget();
-        SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
-        Transform3d cameraToTarget = target.getBestCameraToTarget();
-        SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
-        SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
-        SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
+        // PhotonTrackedTarget target = targetResult.getBestTarget();
+        // SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
+        // Transform3d cameraToTarget = target.getBestCameraToTarget();
+        // SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
+        // SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
+        // SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
 
         if (m_aprilTagFieldLayout == null)
             return;
@@ -107,9 +108,9 @@ public class Vision {
             EstimatedRobotPose camPose = result.get();
             var estimatedPose = camPose.estimatedPose;
             odometry.addVisionMeasurement(estimatedPose.toPose2d(), curImageTimeStamp);
-            SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
-            SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
-            SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
+            // SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
+            // SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
+            // SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
         // } else {
         //     // move it way off the screen to make it disappear
         //     SmartDashboard.putNumber("vision/estimatedPoseX", 0);
@@ -128,6 +129,7 @@ public class Vision {
         if (!targetResult.hasTargets()) {
             return Optional.empty();
         }
+
         // make a temp holder var for least Y translation, set to first tags translation
         double minY = 1.0e6; // big number
         int targetID = -1;
@@ -145,9 +147,9 @@ public class Vision {
             }
         }
         
-        //optional in case no target is found
+        // optional in case no target is found
         Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(targetID);
-        if(tagPose.isEmpty()){
+        if (tagPose.isEmpty()) {
             return Optional.empty(); //returns an empty optional
         }
         return Optional.of(tagPose.get().toPose2d());
