@@ -8,7 +8,6 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -17,19 +16,21 @@ import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneCube extends SequentialCommandGroup implements AutoCommandInterface {
 
+    private final double BACKING_MPS = 1.0;
     AutoFollowTrajectory m_traj;
     /** Creates a new AutoWallTwoCones */
     public AutoChargeStationOneCube(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
-
-        // Note this is a quick hack: the trajectory is loaded to just get the initial Pose.
+        // Note this is a quick hack: the trajectory is loaded to just get the initial Pose and the stop point for backing up.
         //  Otherwise it is not actually used.
         m_traj = new AutoFollowTrajectory(driveTrain, "c_forward_balance");
 
         addCommands(
-            // TODO: use DriveAndMove
-            new ScoreArm(arm, driveTrain, Position.CENTER_TOP).withTimeout(5),
+            new MoveArmAndDrive(arm, driveTrain, vision, Position.CENTER_TOP),
             new InstantCommand(claw::open),
-            // TODO: wont stow because in the bad region
+            
+            // back up to stow the arm
+            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), BACKING_MPS),
+            
             new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5).alongWith(new InstantCommand(claw::close)),
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));
@@ -41,5 +42,4 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
     public Pose2d getInitialPose() {
         return m_traj.getInitialPose();
     }
-
 }
