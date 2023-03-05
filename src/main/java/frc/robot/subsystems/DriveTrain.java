@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.Constants;
+import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
 
@@ -200,9 +203,24 @@ public class DriveTrain extends SubsystemBase {
             return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
-        // We have to invert the angle of the NavX so that rotating the robot
-        // counter-clockwise makes the angle increase.
-        return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+		// We have to invert the angle of the NavX so that rotating the robot
+		// counter-clockwise makes the angle increase.
+		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+	}
+	// know the robot heading and get pitch and roll
+    private Translation3d getNormalVector3d() {
+		Rotation3d tilt = new Rotation3d(Units.degreesToRadians(m_navx.getRoll()), Units.degreesToRadians(m_navx.getPitch()), 0);
+        return new Translation3d(0, 0, 1).rotateBy(tilt);
+		
+    }
+
+    // know how much it tilted, so we know if it's balance on the ramp
+    public double getTiltDegrees() {
+        return Math.toDegrees(Math.acos(getNormalVector3d().getZ()));
+    }
+
+    public Rotation2d getTiltDirection() {
+        return new Rotation2d(getNormalVector3d().getX(), getNormalVector3d().getY());
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
@@ -366,25 +384,10 @@ public class DriveTrain extends SubsystemBase {
                 m_thetaController,
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this);
+                });
     }
 
-    // // get the trajectory following autonomous command in PathPlanner using the name
-    // public Command getTrajectoryFollowingCommand(String trajectoryName) {
-    //     PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    // }
-
-    // // find a trajectory from robot pose to a target pose
-    // public Command trajectoryToPose(Pose2d targetPose) {
-    //     Pose2d currentPose = getPose(); //get robot current pose
-    //     PathPlannerTrajectory traj = PathPlanner.generatePath(
-    //             new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
-    //             new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-    //             new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-    //     );
-
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    //  }
+    public AutoCommandInterface getTrajectoryFollowingCommand(String string) {
+        return null;
+    }
 }

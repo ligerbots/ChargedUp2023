@@ -10,17 +10,16 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.DriveTrain;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class MoveArmAndDrive extends SequentialCommandGroup {
+
     /** Creates a new StowArm. */
     public MoveArmAndDrive(Arm arm, DriveTrain driveTrain, Vision vision, Position targetPosition) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
                 // set arm start position
-                new ScoreArm(arm, targetPosition).withTimeout(5),
+                new ScoreArm(arm, driveTrain, targetPosition).withTimeout(5),
+                // drive to the correct position
                 new TagPositionDrive(driveTrain, vision, targetPosition)
         );
     }

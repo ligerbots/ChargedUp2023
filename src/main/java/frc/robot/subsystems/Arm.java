@@ -48,7 +48,7 @@ public class Arm extends SubsystemBase {
     
     public void resetGoal(){
         m_shoulder.resetGoal();
-        // m_reacher.resetGoal();
+        m_reacher.resetGoal();
     }
 
     public void resetShoulderPos(){
