@@ -22,7 +22,7 @@ public class FeederPickup extends SequentialCommandGroup {
         addCommands(
                 // set arm start position
                 new InstantCommand(claw::startIntake),
-                new ScoreArm(arm, targetPosition).withTimeout(5),
+                new ScoreArm(arm, driveTrain, targetPosition).withTimeout(5),
                 new TagPositionDrive(driveTrain, vision, targetPosition)
         );
     }
