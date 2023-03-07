@@ -50,17 +50,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     
   
     // Constants to limit the shoulder rotation speed
-    // For initial testing, these should be very slow.
-    // We can update them as we get more confidence.
-    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(120.0); // 5 deg/sec
-    // Let's give it 2 seconds to get to max velocity.
-    // Once tuned, I expect we will want this to be equal to SHOULDER_MAX_VEL_RADIAN_PER_SEC
-    // so it will get to max velocity in one second.
-    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(120.0); // 2.5 deg/sec^2
+    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(120.0); // 120 deg/sec
+    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(120.0); // 120 deg/sec^2
+
     private static final double SHOULDER_POSITION_OFFSET = 62.0/360.0;
     private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;
 
-    // The Shoulder gear ratio is ~395.77, but let's get it exactly.
+    // The Shoulder gear ratio is 288, but let's get it exactly.
     private static final double SHOULDER_GEAR_RATIO = (84.0 /12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 22.0);
 
     // PID Constants for the shoulder PID controller
