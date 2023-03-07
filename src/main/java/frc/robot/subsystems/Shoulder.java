@@ -61,7 +61,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;
 
     // The Shoulder gear ratio is ~395.77, but let's get it exactly.
-    private static final double SHOULDER_GEAR_RATIO = (84.0 / 12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 12.0);
+    private static final double SHOULDER_GEAR_RATIO = (84.0 /22.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 12.0);
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
