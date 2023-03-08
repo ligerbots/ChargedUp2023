@@ -16,9 +16,11 @@ import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneCube extends SequentialCommandGroup implements AutoCommandInterface {
 
-    private final double BACKING_MPS = 1.0;
+    private final double BACKING_MPS = 0.5;
+
     AutoFollowTrajectory m_traj;
-    /** Creates a new AutoWallTwoCones */
+
+    /** Creates a new AutoChargeStationOneCube */
     public AutoChargeStationOneCube(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
         // Note this is a quick hack: the trajectory is loaded to just get the initial Pose and the stop point for backing up.
         //  Otherwise it is not actually used.
