@@ -13,7 +13,7 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class ChargeStationDrive extends CommandBase {
-    private static final double DRIVE_MPS = 3.0;
+    private static final double DRIVE_MPS = 1.0;
 
     private static final double CHARGE_STATION_TOLERANCE = 0.15;
 
