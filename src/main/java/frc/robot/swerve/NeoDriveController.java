@@ -15,7 +15,8 @@ public class NeoDriveController {
     private final CANSparkMax m_motor;
     private final RelativeEncoder m_encoder;
 
-    private static final double CURRENT_LIMIT = 20.0;
+    //currentLimit for driving 35 amps
+    private static final double CURRENT_LIMIT = 35.0;
     private static final boolean MOTOR_INVERTED = true;
 
     public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);

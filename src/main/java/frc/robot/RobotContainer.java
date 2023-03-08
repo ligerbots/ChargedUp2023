@@ -91,8 +91,8 @@ public class RobotContainer {
         xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
 
         // when button X is pressed, toggle precision (slow) drive mode
-        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
         // when button START is pressed, reset the robot heading
         // whichever way the robot is facing becomes the forward direction
@@ -111,36 +111,6 @@ public class RobotContainer {
         
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
         leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM).withTimeout(5)));
-
-        // ---- TESTING  ----
-        JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxYButton.onTrue(new InstantCommand(m_claw::close));
-        xboxYButton.onTrue(new SetArmAngleTest(m_arm));
-        xboxXButton.onTrue(new SetArmLengthTest(m_arm));
-        // testing if the command works by passing in a position, we need more buttons for all 11
-        // xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
-        
-        // // when button Y is pressed, attempt to balance on the Charging Station
-        // // assumes that the robot is already mostly up on the Station
-        xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
-
-        // when button Y is pressed, attempt to drive up onto the Charging Station
-        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // xboxYButton.onTrue(new ChargeStationDrive());
-
-        /* //Commented out for now
-        // button B
-        JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
-        // inline command to create trajectory from robot pose to middle of the best apriltag
-        xboxBButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, false))));
-        //need a proxy so command is not created before button pressed
-        
-        // button Y
-        JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // inline command to create trajectory from robot pose to right of the best apriltag
-        xboxYButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, true))));
-        */
 
         JoystickButton farm1 = new JoystickButton(m_farm, 1);
         farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM));
@@ -190,6 +160,12 @@ public class RobotContainer {
         // charge station balancing
         JoystickButton farm23 = new JoystickButton(m_farm, 23);
         farm23.onTrue(new ChargeStationBalance(m_driveTrain));
+
+        // // ---- TESTING  ----
+        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
+        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
+        // xboxXButton.onTrue(new SetArmLengthTest(m_arm));
     }
 
     public Command getDriveCommand() {
