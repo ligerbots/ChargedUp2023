@@ -5,23 +5,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.DriveTrain;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class DriveAndMoveArm extends SequentialCommandGroup {
+
     /** Creates a new StowArm. */
     public DriveAndMoveArm(Arm arm, DriveTrain driveTrain, Vision vision, Position targetPosition) {
-        // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
+
         addCommands(
                 // set arm start position
                 new TagPositionDrive(driveTrain, vision, targetPosition),
-                new ScoreArm(arm, targetPosition).withTimeout(5)
+                new ScoreArm(arm, driveTrain, targetPosition).withTimeout(5)
         );
     }
 }

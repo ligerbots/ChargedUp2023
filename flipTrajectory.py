@@ -92,4 +92,4 @@ if __name__ == '__main__':
     new_traj = flipper.flip_trajectory(pp_traj)
 
     with open(args.output, 'w') as outstrm:
-        json.dump(new_traj, outstrm)
+        json.dump(new_traj, outstrm, indent=2)

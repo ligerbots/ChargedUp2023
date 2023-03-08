@@ -4,8 +4,8 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Reacher;
 
@@ -20,6 +20,8 @@ public class SetArmLength extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         m_arm = arm;
         m_length = Reacher.limitReacherLength(length);
+
+        addRequirements(m_arm);
     }
 
     // Called when the command is initially scheduled.

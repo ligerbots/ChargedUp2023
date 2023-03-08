@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -18,14 +17,13 @@ import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.FeederPickup;
 import frc.robot.commands.MoveArmAndDrive;
 import frc.robot.commands.ScoreArm;
-import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
-import frc.robot.commands.TagPositionDrive;
 import frc.robot.commands.ChargeStationBalance;
-
+import frc.robot.commands.ChargeStationDrive;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LedLight;
+import frc.robot.subsystems.RollerClaw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -64,7 +62,7 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    private final Claw m_claw = new Claw();
+    private final Claw m_claw = new RollerClaw();
     private final LedLight m_ledLight = new LedLight();
 
     /**
@@ -107,12 +105,12 @@ public class RobotContainer {
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
         rightBumper.onTrue(new InstantCommand(m_claw::close));
                 
-        //Turns analog triggers into buttons that actuate when it is half pressed 
+        // Turns analog triggers into buttons that actuate when it is half pressed 
         Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
-        rightTriggerButton.onTrue(new ScoreArm(m_arm, Constants.Position.PICK_UP).andThen(new InstantCommand(m_claw::open)));
+        rightTriggerButton.onTrue(new ScoreArm(m_arm, m_driveTrain, Constants.Position.PICK_UP).withTimeout(5).andThen(new InstantCommand(m_claw::startIntake)));
         
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
-        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, Constants.Position.STOW_ARM).andThen()));
+        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM).withTimeout(5)));
 
         // ---- TESTING  ----
         JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
@@ -125,7 +123,7 @@ public class RobotContainer {
         
         // // when button Y is pressed, attempt to balance on the Charging Station
         // // assumes that the robot is already mostly up on the Station
-        // xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
+        xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
 
         // when button Y is pressed, attempt to drive up onto the Charging Station
         // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
@@ -171,7 +169,7 @@ public class RobotContainer {
         JoystickButton farm15 = new JoystickButton(m_farm, 15);
         farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP));
 
-        //Feeder Stations 
+        // Feeder Stations 
         JoystickButton farm4 = new JoystickButton(m_farm, 4);
         farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION));
 
@@ -184,6 +182,14 @@ public class RobotContainer {
 
         JoystickButton farm10 = new JoystickButton(m_farm, 10);
         farm10.onTrue(new InstantCommand(()->m_ledLight.setColor(LedLight.Color.PURPLE)));
+
+        // charge station drive
+        JoystickButton farm22 = new JoystickButton(m_farm, 22);
+        farm22.onTrue(new ChargeStationDrive(m_driveTrain));
+
+        // charge station balancing
+        JoystickButton farm23 = new JoystickButton(m_farm, 23);
+        farm23.onTrue(new ChargeStationBalance(m_driveTrain));
     }
 
     public Command getDriveCommand() {
@@ -228,5 +234,11 @@ public class RobotContainer {
     }
     public Claw getClaw(){
         return m_claw;
+    }
+    public LedLight getLED(){
+        return m_ledLight;
+    }
+    public Vision getVision(){
+        return m_vision;
     }
 }
