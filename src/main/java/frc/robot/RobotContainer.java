@@ -112,20 +112,6 @@ public class RobotContainer {
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
         leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM).withTimeout(5)));
 
-        // // ---- TESTING  ----
-        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
-        // xboxXButton.onTrue(new SetArmLengthTest(m_arm));
-        
-        // // when button Y is pressed, attempt to balance on the Charging Station
-        // // assumes that the robot is already mostly up on the Station
-        // xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
-
-        // when button Y is pressed, attempt to drive up onto the Charging Station
-        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // xboxYButton.onTrue(new ChargeStationDrive());
-
         JoystickButton farm1 = new JoystickButton(m_farm, 1);
         farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM));
         
@@ -174,6 +160,12 @@ public class RobotContainer {
         // charge station balancing
         JoystickButton farm23 = new JoystickButton(m_farm, 23);
         farm23.onTrue(new ChargeStationBalance(m_driveTrain));
+
+        // // ---- TESTING  ----
+        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
+        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
+        // xboxXButton.onTrue(new SetArmLengthTest(m_arm));
     }
 
     public Command getDriveCommand() {
