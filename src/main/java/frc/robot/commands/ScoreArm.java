@@ -99,11 +99,11 @@ public class ScoreArm extends CommandBase {
         // prevent from stowing in the bad zone
         if (m_position == Position.STOW_ARM) {
             double currentX = m_driveTrain.getPose().getX();
-            System.out.println("testing stow " + currentX);
+            // System.out.println("testing stow " + currentX);
 
             // check if the robot position is within the safe zone on either side of field, if so then end command
             if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED) {
-                System.out.println("***********cancelling***************");
+                // System.out.println("***********cancelling***************");
                 m_cancel = true;
                 return ;
             }
