@@ -76,6 +76,9 @@ public class Reacher extends TrapezoidProfileSubsystem {
         // Create the motor, PID Controller and encoder.
         m_motor = new CANSparkMax(Constants.REACHER_CAN_ID, MotorType.kBrushless);
         m_motor.restoreFactoryDefaults();
+        
+        //set currentLimit for reacher to 35 amps
+        m_motor.setSmartCurrentLimit(35);
 
         m_PIDController = m_motor.getPIDController();
         m_PIDController.setP(REACHER_K_P);
