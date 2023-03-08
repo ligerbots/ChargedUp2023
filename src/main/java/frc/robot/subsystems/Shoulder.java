@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -30,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 
 public class Shoulder extends TrapezoidProfileSubsystem {
-
     private static final double SHOULDER_MAX_ANGLE = Math.toRadians(30.0);  
     private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
 
@@ -131,6 +131,12 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 		m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
 		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
+
+        //limits for motor leader and folower
+        //when feature activate there's a limit of 35 ampms, limiting occurs when exceed 25 amps
+        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+
 
         m_Duty_Encoder = dutyCycleEncoder;
 
