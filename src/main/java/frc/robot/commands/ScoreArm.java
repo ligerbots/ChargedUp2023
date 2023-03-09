@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -45,6 +46,8 @@ public class ScoreArm extends CommandBase {
     private static final double STOW_ANGLE = Math.toRadians(-65.0);
     private static final double STOW_LENGTH = Units.inchesToMeters(1.0);
 
+    private static final double STOW_WAIT_TIME = 1.0;
+
     private static final HashMap<Position, Pair<Double, Double>> SCORE_POSITIONS = new HashMap<Position, Pair<Double, Double>>(){
         {
             // scoring arm length and angle (angle, length)
@@ -78,6 +81,7 @@ public class ScoreArm extends CommandBase {
     Constants.Position m_position;
 
     boolean m_cancel;
+    Timer m_timer = new Timer();
 
     /** Creates a new ScoreArm. */
     public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position) {
@@ -93,11 +97,12 @@ public class ScoreArm extends CommandBase {
     @Override
     public void initialize() {
         m_cancel = false;
+        m_timer.reset();
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
 
         // prevent from stowing in the bad zone
-        if (m_position == Position.STOW_ARM) {
+        if (m_position == Position.STOW_ARM || m_position == Position.CENTER_MIDDLE || m_position == Position.CENTER_TOP) {
             double currentX = m_driveTrain.getPose().getX();
             // System.out.println("testing stow " + currentX);
 
@@ -105,6 +110,7 @@ public class ScoreArm extends CommandBase {
             if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED) {
                 // System.out.println("***********cancelling***************");
                 m_cancel = true;
+                m_timer.start();
                 return ;
             }
         }
@@ -144,8 +150,16 @@ public class ScoreArm extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if (m_cancel)
-            return true;
+        if (m_cancel){
+            double currentX = m_driveTrain.getPose().getX();
+            if(m_timer.hasElapsed(STOW_WAIT_TIME)){
+                if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED)
+                    return true;
+                else
+                    initialize(); // m_cancel will be reset to false and command will move the arm in initialize() since the robot is no longer in the bad zone 
+                    
+            }
+        }
 
         double curLength = m_arm.getArmLength();
         double curAngle = m_arm.getArmAngle();
