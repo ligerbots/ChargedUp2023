@@ -53,9 +53,9 @@ public class DriveTrain extends SubsystemBase {
     private static final double WHEELBASE_METERS = Units.inchesToMeters(24.625);
 
     // P constants for controllin during trajectory following
-    private static final double X_PID_CONTROLLER_P = 8.0;
-    private static final double Y_PID_CONTROLLER_P = 8.0;
-    private static final double THETA_PID_CONTROLLER_P = 8.0;
+    private static final double X_PID_CONTROLLER_P = 2.0;
+    private static final double Y_PID_CONTROLLER_P = 2.0;
+    private static final double THETA_PID_CONTROLLER_P = 4.0;
 
     // speed used to drive onto/over the ChargeStation
     public static final double CHARGE_STATION_DRIVE_MPS = 1.0;
