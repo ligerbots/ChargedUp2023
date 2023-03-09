@@ -83,6 +83,7 @@ public class RollerClaw extends Claw {
 
     @Override
     public void open(){
+        System.out.println("Opening Claw");
         m_clawSolenoid.set(Value.kForward);
         setMotor(0);
     }
@@ -114,7 +115,7 @@ public class RollerClaw extends Claw {
     }
 
     private void setMotor(double speed) {
-        System.out.println("Setting claw motor to " + speed);
+        // System.out.println("Setting claw motor to " + speed);
         m_motor.set(speed);
         m_speed = speed;
     }

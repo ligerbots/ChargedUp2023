@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutoXPositionDrive extends CommandBase {
@@ -24,6 +25,8 @@ public class AutoXPositionDrive extends CommandBase {
         m_driveMPS = driveMPS;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(driveTrain);
+
+        SmartDashboard.putNumber("driveXPos/currentX", -1);
     }
 
     // Called when the command is initially scheduled.
@@ -56,6 +59,7 @@ public class AutoXPositionDrive extends CommandBase {
     @Override
     public boolean isFinished() {      
         double curX = m_driveTrain.getPose().getX();
+        SmartDashboard.putNumber("driveXPos/currentX", curX);
 
         //stops when robot is on ramp of charge station 
         return Math.abs(curX - m_goalX) < GOAL_TOLERANCE;

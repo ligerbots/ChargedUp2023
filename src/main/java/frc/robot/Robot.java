@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
         //   ntinst.startClient4("MainRobotProgram");
         // }
         
-        LiveWindow.disableAllTelemetry();
+        // LiveWindow.disableAllTelemetry();
 
         // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();

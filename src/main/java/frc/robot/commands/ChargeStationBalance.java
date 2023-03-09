@@ -45,15 +45,18 @@ public class ChargeStationBalance extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+
         double tiltAngle = m_driveTrain.getTiltDegrees();
         double driveMPS, angleSpeed;
         double errorDegrees = tiltAngle - BALANCED_DEGREES;
         Rotation2d driveAngle = m_driveTrain.getTiltDirection(); //.plus(Rotation2d.fromDegrees(180));
 
-        if(Math.abs(tiltAngle) < 7.5){
+        SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
+
+        if (Math.abs(tiltAngle) < 7.5) {
             driveMPS = 0.0;
             angleSpeed = 0.0;
-        }else{
+        } else {
             // uses angle of robot to set its speed
             driveMPS = errorDegrees * BALANCE_KP;
 
@@ -61,10 +64,6 @@ public class ChargeStationBalance extends CommandBase {
             if (Math.abs(driveMPS) > MAX_MPS) {
                 driveMPS = Math.copySign(MAX_MPS, driveMPS);
             }
-
-            SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
-            SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
-            SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
 
             double angleError = driveAngle.getRadians();
             if (Math.abs(angleError) > Math.PI/2) {
@@ -78,6 +77,9 @@ public class ChargeStationBalance extends CommandBase {
             SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
         }
 
+        SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
+        SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
             driveMPS * driveAngle.getCos(),
             driveMPS * driveAngle.getSin(),
@@ -87,7 +89,7 @@ public class ChargeStationBalance extends CommandBase {
         m_driveTrain.drive(chassisSpeeds);
         
         // if not balanced, resets timer
-        if (Math.abs(errorDegrees) >= BALANCED_ERROR_DEGREES){
+        if (Math.abs(errorDegrees) >= BALANCED_ERROR_DEGREES) {
             m_timer.reset();
         }
     }

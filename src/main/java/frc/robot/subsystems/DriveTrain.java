@@ -200,6 +200,8 @@ public class DriveTrain extends SubsystemBase {
     public void setPose(Pose2d pose) {
         if (Robot.isSimulation()) {
             m_simPose = pose;
+            // this is called on setting a new auto. Clear the chassis speeds
+            m_simChassisSpeeds = new ChassisSpeeds();
         }
 
         m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);		
@@ -295,6 +297,9 @@ public class DriveTrain extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             m_swerveModules[i].stopWheel();
         }
+
+        // zero speeds in the sim
+        m_simChassisSpeeds = new ChassisSpeeds();
     }
 
     // for the beginning of auto rountines
@@ -381,10 +386,9 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-        m_swerveModules[0].updateSmartDashboard();
-        m_swerveModules[1].updateSmartDashboard();
-        m_swerveModules[2].updateSmartDashboard();
-        m_swerveModules[3].updateSmartDashboard();
+        for (SwerveModule mod : m_swerveModules) {
+            mod.updateSmartDashboard();
+        }
     }
 
     @Override
