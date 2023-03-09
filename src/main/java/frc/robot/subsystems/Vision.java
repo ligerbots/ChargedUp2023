@@ -134,9 +134,9 @@ public class Vision {
             return -1;
 
         var targetResult = m_aprilTagCamera.getLatestResult();
-        if (!targetResult.hasTargets()) {
-            return -1;
-        }
+        // if (!targetResult.hasTargets()) {
+        //     return -1;
+        // }
 
         // make a temp holder var for least Y translation, set to first tags translation
         double minY = 1.0e6; // big number
@@ -151,7 +151,7 @@ public class Vision {
             // if abs Y translation of new tag is less then holder tag, it becomes holder tag
             if (tagY < minY) {
                 minY = tagY;
-                targetID = tag.getFiducialId(); // set targetID
+                targetID = tag.getFiducialId(); // remember targetID
             }
         }
         

@@ -64,16 +64,16 @@ public class TagPositionDrive extends CommandBase {
     };
 
     public TagPositionDrive(DriveTrain driveTrain, Vision vision, Position targetPosition) {
-        this.m_driveTrain = driveTrain;
-        this.m_vision = vision;
-        this.m_targetPosition = targetPosition;
+        m_driveTrain = driveTrain;
+        m_vision = vision;
+        m_targetPosition = targetPosition;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         // for safety, set command to null
-        this.m_followTrajectory = null;
+        m_followTrajectory = null;
 
         int centralTagId = m_vision.getCentralTagId();
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
