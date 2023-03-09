@@ -79,8 +79,8 @@ public class TagPositionDrive extends CommandBase {
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
             return; // return a null, stop command
-
         }
+
         // get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
         // System.out.println("Target Tag Pose " + tagPose.toString());

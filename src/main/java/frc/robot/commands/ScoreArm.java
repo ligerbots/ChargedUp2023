@@ -88,8 +88,10 @@ public class ScoreArm extends CommandBase {
         m_arm = arm;
         m_driveTrain = driveTrain;
         m_position = position;
-        m_desiredAngle = Shoulder.limitShoulderAngle(SCORE_POSITIONS.get(position).getFirst());
-        m_desiredLength = Reacher.limitReacherLength(SCORE_POSITIONS.get(position).getSecond());
+
+        Pair<Double, Double> desiredPos = SCORE_POSITIONS.get(position);
+        m_desiredAngle = Shoulder.limitShoulderAngle(desiredPos.getFirst());
+        m_desiredLength = Reacher.limitReacherLength(desiredPos.getSecond());
         
         addRequirements(m_arm);
     }
@@ -97,21 +99,18 @@ public class ScoreArm extends CommandBase {
     @Override
     public void initialize() {
         m_cancel = false;
-        m_timer.reset();
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
 
         // prevent from stowing in the bad zone
         if (m_position == Position.STOW_ARM || m_position == Position.CENTER_MIDDLE || m_position == Position.CENTER_TOP) {
-            double currentX = m_driveTrain.getPose().getX();
-            // System.out.println("testing stow " + currentX);
-
             // check if the robot position is within the safe zone on either side of field, if so then end command
-            if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED) {
+            if (inExclusionZone()) {
                 // System.out.println("***********cancelling***************");
                 m_cancel = true;
+                m_timer.reset();
                 m_timer.start();
-                return ;
+                return;
             }
         }
 
@@ -141,6 +140,14 @@ public class ScoreArm extends CommandBase {
         }
     }
 
+    // check if the robot position is within the danger zone on either side of field
+    private boolean inExclusionZone() {
+        double currentX = m_driveTrain.getPose().getX();
+        // System.out.println("testing stow " + currentX);
+
+        return currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED;
+    }
+
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
@@ -150,14 +157,14 @@ public class ScoreArm extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if (m_cancel){
-            double currentX = m_driveTrain.getPose().getX();
-            if(m_timer.hasElapsed(STOW_WAIT_TIME)){
-                if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED)
-                    return true;
-                else
-                    initialize(); // m_cancel will be reset to false and command will move the arm in initialize() since the robot is no longer in the bad zone 
-                    
+        if (m_cancel) {
+            if (!inExclusionZone()) {
+                // we are out of the zone. Go for it.
+                // m_cancel will be reset to false and command will move the arm in initialize() since the robot is no longer in the bad zone 
+                initialize();
+            } else if (m_timer.hasElapsed(STOW_WAIT_TIME)) {
+                // too much time has elapsed. Quit
+                return true;
             }
         }
 
