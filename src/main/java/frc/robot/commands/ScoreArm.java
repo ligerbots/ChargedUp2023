@@ -138,6 +138,7 @@ public class ScoreArm extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        System.out.println("*** ScoreArm end interrupted = " + interrupted);
         SmartDashboard.putBoolean("armCommands/isCommandFinished", true);
     }
 

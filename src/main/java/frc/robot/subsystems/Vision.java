@@ -49,7 +49,7 @@ public class Vision {
     // Forward B&W camera for Apriltags
     // relative position of the camera on the robot ot the robot center
     private final Transform3d m_robotToAprilTagCam = new Transform3d(
-            new Translation3d(Units.inchesToMeters(3.5), -0.136, Units.inchesToMeters(22.5)),
+            new Translation3d(Units.inchesToMeters(3.5), -0.136, Units.inchesToMeters(24.75)),
             new Rotation3d(0.0, 0.0, 0.0));
 
     private final PhotonPoseEstimator m_photonPoseEstimator;
@@ -66,9 +66,12 @@ public class Vision {
         // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
-        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
+        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
+        //         m_aprilTagCamera, m_robotToAprilTagCam);
+        // m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+        
+        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
                 m_aprilTagCamera, m_robotToAprilTagCam);
-        m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
 
         // set the driver mode to false
         m_aprilTagCamera.setDriverMode(false);
@@ -91,12 +94,12 @@ public class Vision {
             return;
 
         // Get the current best target.
-        // PhotonTrackedTarget target = targetResult.getBestTarget();
-        // SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
-        // Transform3d cameraToTarget = target.getBestCameraToTarget();
-        // SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
-        // SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
-        // SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
+        PhotonTrackedTarget target = targetResult.getBestTarget();
+        SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
+        Transform3d cameraToTarget = target.getBestCameraToTarget();
+        SmartDashboard.putNumber("vision/tagOffsetX", Units.metersToInches(cameraToTarget.getX()));
+        SmartDashboard.putNumber("vision/tagOffsetY", Units.metersToInches(cameraToTarget.getY()));
+        SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
 
         if (m_aprilTagFieldLayout == null)
             return;

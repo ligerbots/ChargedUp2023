@@ -17,7 +17,7 @@ import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoBarrierTwoCones;
-import frc.robot.commands.AutoChargeStationOneCube;
+import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
 import frc.robot.commands.TrajectoryPlotter;
 
 import frc.robot.subsystems.Arm;
@@ -74,7 +74,8 @@ public class Robot extends TimedRobot {
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
         m_chosenTrajectory.addOption("Barrier Cone Cube", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
         m_chosenTrajectory.addOption("Wall Cone Cube", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
-        m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCube(driveTrain, arm, vision, claw));
+        // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCube(driveTrain, arm, vision, claw));
+        m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCubeOtherSide(driveTrain, arm, vision, claw));
         m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
         // m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));

@@ -15,17 +15,17 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
-public class AutoChargeStationOneCube extends SequentialCommandGroup implements AutoCommandInterface {
+public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup implements AutoCommandInterface {
 
     private final double BACKING_MPS = 0.5;
 
     AutoFollowTrajectory m_traj;
 
     /** Creates a new AutoChargeStationOneCube */
-    public AutoChargeStationOneCube(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
+    public AutoChargeStationOneCubeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
         // Note this is a quick hack: the trajectory is loaded to just get the initial Pose and the stop point for backing up.
         //  Otherwise it is not actually used.
-        m_traj = new AutoFollowTrajectory(driveTrain, "c_forward_balance");
+        m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
 
         addCommands(
             new MoveArmAndDrive(arm, driveTrain, vision, Position.CENTER_TOP),
@@ -33,9 +33,12 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
             new InstantCommand(claw::open),
             
             // back up to stow the arm
-            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), BACKING_MPS),
+            new AutoXPositionDrive(driveTrain, m_traj.getInitialPose().getX(), BACKING_MPS),
             
             new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5).alongWith(new InstantCommand(claw::close)),
+            
+            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), BACKING_MPS),
+
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));
                     
