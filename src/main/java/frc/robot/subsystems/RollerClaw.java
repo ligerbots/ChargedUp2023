@@ -5,15 +5,15 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
+// import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ColorSensorV3.RawColor;
+// import com.revrobotics.ColorSensorV3.RawColor;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.I2C;
+// import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -46,7 +46,6 @@ public class RollerClaw extends Claw {
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
         SmartDashboard.putNumber("claw/speed", 0.0);
         m_speed = 0.0;
-        
     }
 
     // This method will be called once per scheduler run
