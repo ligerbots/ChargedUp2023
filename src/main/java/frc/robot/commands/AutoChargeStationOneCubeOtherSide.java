@@ -37,7 +37,7 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
             
             new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5).alongWith(new InstantCommand(claw::close)),
             
-            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), BACKING_MPS),
+            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));

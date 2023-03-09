@@ -13,8 +13,6 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class ChargeStationDrive extends CommandBase {
-    private static final double CHARGE_STATION_DRIVE_MPS = 1.0;
-
     Command m_command;
     DriveTrain m_driveTrain;
 
@@ -34,7 +32,7 @@ public class ChargeStationDrive extends CommandBase {
         else 
             goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE;
         
-        m_command = new AutoXPositionDrive(m_driveTrain, goalX, CHARGE_STATION_DRIVE_MPS);
+        m_command = new AutoXPositionDrive(m_driveTrain, goalX, DriveTrain.CHARGE_STATION_DRIVE_MPS);
         CommandScheduler.getInstance().schedule(m_command);
     }
 
