@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
@@ -128,6 +129,12 @@ public class DriveTrain extends SubsystemBase {
 
     private final Vision m_vision;
 
+    private final Field2d m_fieldSim = new Field2d();
+
+    // simulation variables
+    private double m_simX = 0.0;
+    private double m_simY = 0.0;
+    private Rotation2d m_yaw = new Rotation2d(0.0);
     private final Field2d m_field = new Field2d();
 
     // PID controller for swerve
@@ -183,12 +190,23 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
+        if(Robot.isSimulation()){
+            return new Pose2d(m_simX, m_simY, m_yaw);
+        }
         return m_odometry.getEstimatedPosition();
     }
 
     // sets the odometry to the specified pose
     public void setPose(Pose2d pose) {
-        m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
+        if (Robot.isSimulation()) {
+            m_simX = pose.getX();
+            m_simY = pose.getY();
+            m_yaw = pose.getRotation();
+            m_chassisSpeeds = new ChassisSpeeds();
+            return;
+        }
+
+        m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);		
     }
 
     public Rotation2d getHeading() {
@@ -203,15 +221,15 @@ public class DriveTrain extends SubsystemBase {
             return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
-		// We have to invert the angle of the NavX so that rotating the robot
-		// counter-clockwise makes the angle increase.
-		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
-	}
-	// know the robot heading and get pitch and roll
+        // We have to invert the angle of the NavX so that rotating the robot
+        // counter-clockwise makes the angle increase.
+        return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+    }
+    // know the robot heading and get pitch and roll
     private Translation3d getNormalVector3d() {
-		Rotation3d tilt = new Rotation3d(Units.degreesToRadians(m_navx.getRoll()), Units.degreesToRadians(m_navx.getPitch()), 0);
+        Rotation3d tilt = new Rotation3d(Units.degreesToRadians(m_navx.getRoll()), Units.degreesToRadians(m_navx.getPitch()), 0);
         return new Translation3d(0, 0, 1).rotateBy(tilt);
-		
+        
     }
 
     // know how much it tilted, so we know if it's balance on the ramp
@@ -350,6 +368,7 @@ public class DriveTrain extends SubsystemBase {
     @Override
     public void periodic() {
         m_odometry.update(getGyroscopeRotation(), getModulePositions());
+        // simulationPeriodic();
 
         // Have the vision system update based on the Apriltags, if seen
         m_vision.updateOdometry(m_odometry);
@@ -366,9 +385,24 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-        for (SwerveModule mod : m_swerveModules) {
-            mod.updateSmartDashboard();
-        }
+        m_swerveModules[0].updateSmartDashboard();
+        m_swerveModules[1].updateSmartDashboard();
+        m_swerveModules[2].updateSmartDashboard();
+        m_swerveModules[3].updateSmartDashboard();
+    }
+
+    @Override
+    public void simulationPeriodic(){
+        m_simX += m_chassisSpeeds.vxMetersPerSecond * 0.02;
+        m_simY += m_chassisSpeeds.vyMetersPerSecond * 0.02;
+        m_yaw = m_yaw.plus(Rotation2d.fromRadians(m_chassisSpeeds.omegaRadiansPerSecond * 0.02));
+
+        m_fieldSim.setRobotPose(new Pose2d(m_simX, m_simY, m_yaw));
+        SmartDashboard.putNumber("simX", m_simX);
+        SmartDashboard.putNumber("simY", m_simY);
+        SmartDashboard.putNumber("m_yaw", m_yaw.getDegrees());
+
+        SmartDashboard.putNumber("rotationSpeed", m_chassisSpeeds.omegaRadiansPerSecond);
     }
 
     // Make a command to follow a given trajectory
