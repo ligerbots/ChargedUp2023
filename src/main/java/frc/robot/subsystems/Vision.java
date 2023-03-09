@@ -124,10 +124,15 @@ public class Vision {
         return m_photonPoseEstimator.update();
     }
 
-    public Optional<Pose2d> getCentralTagPose() { // gets target closets to center of camera
+    // get the tag ID closest to vertical center of camera
+    // we might want to use this to do fine adjustments on field element locations
+    public int getCentralTagId() {
+        if (!m_aprilTagCamera.isConnected())
+            return -1;
+
         var targetResult = m_aprilTagCamera.getLatestResult();
         if (!targetResult.hasTargets()) {
-            return Optional.empty();
+            return -1;
         }
 
         // make a temp holder var for least Y translation, set to first tags translation
@@ -147,8 +152,14 @@ public class Vision {
             }
         }
         
+        return targetID;
+    }
+
+    // get the pose for a tag.
+    // will return null if the tag is not in the field map (eg -1)
+    public Optional<Pose2d> getTagPose(int tagId) {
         // optional in case no target is found
-        Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(targetID);
+        Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(tagId);
         if (tagPose.isEmpty()) {
             return Optional.empty(); //returns an empty optional
         }
