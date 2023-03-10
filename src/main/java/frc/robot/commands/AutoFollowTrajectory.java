@@ -46,7 +46,7 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
             curTraj = m_blueTrajectory;
 
         m_trajFollowCommand = m_driveTrain.makeFollowTrajectoryCommand(curTraj);
-        m_trajFollowCommand.initialize();;
+        m_trajFollowCommand.initialize();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
