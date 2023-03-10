@@ -46,7 +46,7 @@ public class ScoreArm extends CommandBase {
     private static final double STOW_ANGLE = Math.toRadians(-65.0);
     private static final double STOW_LENGTH = Units.inchesToMeters(1.0);
 
-    private static final double STOW_WAIT_TIME = 1.0;
+    private static final double STOW_WAIT_TIME = 1.5;
 
     private static final HashMap<Position, Pair<Double, Double>> SCORE_POSITIONS = new HashMap<Position, Pair<Double, Double>>(){
         {
