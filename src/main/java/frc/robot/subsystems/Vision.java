@@ -93,13 +93,13 @@ public class Vision {
         if (!targetResult.hasTargets())
             return;
 
-        // Get the current best target.
-        PhotonTrackedTarget target = targetResult.getBestTarget();
-        SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
-        Transform3d cameraToTarget = target.getBestCameraToTarget();
-        SmartDashboard.putNumber("vision/tagOffsetX", Units.metersToInches(cameraToTarget.getX()));
-        SmartDashboard.putNumber("vision/tagOffsetY", Units.metersToInches(cameraToTarget.getY()));
-        SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
+        // // Get the current best target.
+        // PhotonTrackedTarget target = targetResult.getBestTarget();
+        // SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
+        // Transform3d cameraToTarget = target.getBestCameraToTarget();
+        // SmartDashboard.putNumber("vision/tagOffsetX", Units.metersToInches(cameraToTarget.getX()));
+        // SmartDashboard.putNumber("vision/tagOffsetY", Units.metersToInches(cameraToTarget.getY()));
+        // SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
 
         if (m_aprilTagFieldLayout == null)
             return;
