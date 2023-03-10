@@ -68,6 +68,7 @@ public class TagPositionDrive extends CommandBase {
         m_vision = vision;
         m_targetPosition = targetPosition;
 
+        // The scheduler does not know about the sub-command, so include the requirements
         addRequirements(m_driveTrain);
     }
 
@@ -114,36 +115,24 @@ public class TagPositionDrive extends CommandBase {
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
+
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
-
-        // m_followTrajectory.schedule();
-
-        System.out.println("m_follow 1 null = " + (m_followTrajectory == null));
-        if (m_followTrajectory != null)
-            System.out.println("m_follow 1 scheduled = " + m_followTrajectory.isScheduled());
-
         m_followTrajectory.initialize();
-        System.out.println("end of TPD.init  req = " + this.hasRequirement(m_driveTrain));
-        System.out.println("follow req = " + m_followTrajectory.hasRequirement(m_driveTrain));
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        m_followTrajectory.execute();
-    }    
+        if (m_followTrajectory != null)
+            m_followTrajectory.execute();
+    }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
-        System.out.println("TagPositionDrive end interrupted = " + interrupted);
-        System.out.println("m_follow  null = " + (m_followTrajectory == null));
-
-        // if (interrupted) {
-        //     m_followTrajectory.cancel();
-        // }
-        m_followTrajectory.end(interrupted);
+        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
+        if (m_followTrajectory != null)
+            m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
     }
 
