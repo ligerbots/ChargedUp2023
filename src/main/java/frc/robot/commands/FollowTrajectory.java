@@ -91,7 +91,6 @@ public class FollowTrajectory extends CommandBase {
     public void initialize() {
         m_timer.reset();
         m_timer.start();
-        // m_driveTrain.setPose(m_trajectory.getInitialHolonomicPose());
 
         // clear all robot mode and drive in field-centric at normal speeds
         m_driveTrain.resetDrivingModes();
@@ -112,6 +111,7 @@ public class FollowTrajectory extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        // System.out.println("*** FollowTrajectory end interrupted = " + interrupted);
         m_timer.stop();
     }
 

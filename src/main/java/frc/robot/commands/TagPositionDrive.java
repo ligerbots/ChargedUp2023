@@ -64,23 +64,23 @@ public class TagPositionDrive extends CommandBase {
     };
 
     public TagPositionDrive(DriveTrain driveTrain, Vision vision, Position targetPosition) {
-        this.m_driveTrain = driveTrain;
-        this.m_vision = vision;
-        this.m_targetPosition = targetPosition;
+        m_driveTrain = driveTrain;
+        m_vision = vision;
+        m_targetPosition = targetPosition;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         // for safety, set command to null
-        this.m_followTrajectory = null;
+        m_followTrajectory = null;
 
         int centralTagId = m_vision.getCentralTagId();
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
             return; // return a null, stop command
-
         }
+
         // get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
         // System.out.println("Target Tag Pose " + tagPose.toString());
@@ -120,6 +120,7 @@ public class TagPositionDrive extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
+        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
         if (interrupted) {
             m_followTrajectory.cancel();
         }

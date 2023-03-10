@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -74,6 +76,17 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
             return m_blueTrajectory.getInitialHolonomicPose();
     }
 
+    // get the end pose with holomonic rotation
+    public Pose2d getEndPose() {
+        // Use the Holonmic pose to get the correct robot heading
+        if (DriverStation.getAlliance() == Alliance.Red){
+            PathPlannerState state = m_redTrajectory.getEndState();
+            return new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
+        }else{
+            PathPlannerState state = m_blueTrajectory.getEndState();
+            return new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
+        }
+    }
 
     @Override
     public void plotTrajectory(TrajectoryPlotter plotter) {
