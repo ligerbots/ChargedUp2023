@@ -67,6 +67,9 @@ public class TagPositionDrive extends CommandBase {
         m_driveTrain = driveTrain;
         m_vision = vision;
         m_targetPosition = targetPosition;
+
+        // The scheduler does not know about the sub-command, so include the requirements
+        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
@@ -112,8 +115,15 @@ public class TagPositionDrive extends CommandBase {
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
+
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
-        m_followTrajectory.schedule();
+        m_followTrajectory.initialize();
+    }
+
+    @Override
+    public void execute() {
+        if (m_followTrajectory != null)
+            m_followTrajectory.execute();
     }
 
     // Called once the command ends or is interrupted.
@@ -121,9 +131,8 @@ public class TagPositionDrive extends CommandBase {
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
         // System.out.println("TagPositionDrive end interrupted = " + interrupted);
-        if (interrupted) {
-            m_followTrajectory.cancel();
-        }
+        if (m_followTrajectory != null)
+            m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
     }
 
@@ -131,6 +140,6 @@ public class TagPositionDrive extends CommandBase {
     @Override
     public boolean isFinished() {
         // if the FollowTrajectory commad is null or not scheduled, end
-        return m_followTrajectory == null || !m_followTrajectory.isScheduled();
+        return m_followTrajectory == null || m_followTrajectory.isFinished();
     }
 }
