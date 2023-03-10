@@ -81,7 +81,7 @@ public class RollerClaw extends Claw {
 
     @Override
     public void open(){
-        System.out.println("RollerClaw open called");
+        // System.out.println("RollerClaw open called");
         m_clawSolenoid.set(Value.kForward);
         setMotor(0.0);
     }

@@ -29,7 +29,7 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
         m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
 
         addCommands(
-            new PrintCommand("Start of Cube Auto"),
+            // new PrintCommand("Start of Cube Auto"),
 
             // new MoveArmAndDrive(arm, driveTrain, vision, Position.CENTER_TOP),
 
@@ -37,7 +37,7 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
             // drive to the correct position
             new TagPositionDrive(driveTrain, vision, Position.CENTER_TOP).withInterruptBehavior(InterruptionBehavior.kCancelIncoming),
 
-            new PrintCommand("Step 2 of AutoCS"),
+            // new PrintCommand("Step 2 of AutoCS"),
             new InstantCommand(claw::open),
 
             // back up to stow the arm
