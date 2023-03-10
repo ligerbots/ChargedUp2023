@@ -111,13 +111,14 @@ public class FollowTrajectory extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("*** FollowTrajectory end interrupted = " + interrupted);
+        System.out.println("*** FollowTrajectory end interrupted = " + interrupted);
         m_timer.stop();
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
+        System.out.println("FollowTraj finished " + m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds()));
         return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
     }
 }

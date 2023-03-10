@@ -26,6 +26,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class Vision {
     // Values for the Shed in late January
@@ -130,6 +131,10 @@ public class Vision {
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
     public int getCentralTagId() {
+        // SIMULATION
+        if (Robot.isSimulation())
+            return 2;   // center red tag
+    
         if (!m_aprilTagCamera.isConnected())
             return -1;
 

@@ -67,6 +67,8 @@ public class TagPositionDrive extends CommandBase {
         m_driveTrain = driveTrain;
         m_vision = vision;
         m_targetPosition = targetPosition;
+
+        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
@@ -113,24 +115,43 @@ public class TagPositionDrive extends CommandBase {
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
-        m_followTrajectory.schedule();
+
+        // m_followTrajectory.schedule();
+
+        System.out.println("m_follow 1 null = " + (m_followTrajectory == null));
+        if (m_followTrajectory != null)
+            System.out.println("m_follow 1 scheduled = " + m_followTrajectory.isScheduled());
+
+        m_followTrajectory.initialize();
+        System.out.println("end of TPD.init  req = " + this.hasRequirement(m_driveTrain));
+        System.out.println("follow req = " + m_followTrajectory.hasRequirement(m_driveTrain));
     }
+
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        m_followTrajectory.execute();
+    }    
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
-        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
-        if (interrupted) {
-            m_followTrajectory.cancel();
-        }
+        System.out.println("TagPositionDrive end interrupted = " + interrupted);
+        System.out.println("m_follow  null = " + (m_followTrajectory == null));
+
+        // if (interrupted) {
+        //     m_followTrajectory.cancel();
+        // }
+        m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
+        System.out.println("TagPositionDrive finished " + (m_followTrajectory == null || !m_followTrajectory.isFinished()));
         // if the FollowTrajectory commad is null or not scheduled, end
-        return m_followTrajectory == null || !m_followTrajectory.isScheduled();
+        return m_followTrajectory == null || !m_followTrajectory.isFinished();
     }
 }
