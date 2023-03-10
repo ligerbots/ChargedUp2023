@@ -152,6 +152,6 @@ public class TagPositionDrive extends CommandBase {
     public boolean isFinished() {
         System.out.println("TagPositionDrive finished " + (m_followTrajectory == null || !m_followTrajectory.isFinished()));
         // if the FollowTrajectory commad is null or not scheduled, end
-        return m_followTrajectory == null || !m_followTrajectory.isFinished();
+        return m_followTrajectory == null || m_followTrajectory.isFinished();
     }
 }

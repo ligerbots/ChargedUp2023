@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.Robot;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
@@ -100,6 +101,8 @@ public class ScoreArm extends CommandBase {
     public void initialize() {
         m_cancel = false;
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
+        System.out.println("ScoreArm " + m_position.toString());
+
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
 
         // prevent from stowing in the bad zone
@@ -151,12 +154,15 @@ public class ScoreArm extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("*** ScoreArm end interrupted = " + interrupted);
+        System.out.println("*** ScoreArm end interrupted = " + interrupted);
         SmartDashboard.putBoolean("armCommands/isCommandFinished", true);
     }
 
     @Override
     public boolean isFinished() {
+        if (Robot.isSimulation())
+            return true;
+
         if (m_cancel) {
             if (!inExclusionZone()) {
                 // we are out of the zone. Go for it.

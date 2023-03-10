@@ -100,6 +100,8 @@ public class FollowTrajectory extends CommandBase {
     @Override
     public void execute() {
         double curTime = m_timer.get();
+        System.out.println("FollowTraj execute " + curTime);
+
         var desiredState = (PathPlannerState) m_trajectory.sample(curTime);
 
         var targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.holonomicRotation);
@@ -118,7 +120,7 @@ public class FollowTrajectory extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        System.out.println("FollowTraj finished " + m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds()));
+        System.out.println("FollowTraj finished " + m_timer.get() + "traj total time " + m_trajectory.getTotalTimeSeconds());
         return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
     }
 }

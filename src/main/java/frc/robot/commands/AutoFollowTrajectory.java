@@ -32,6 +32,7 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
         m_redTrajectory = PathPlanner.loadPath(trajectoryName + "_red", Constants.TRAJ_MAX_VEL,
                 Constants.TRAJ_MAX_ACC);
 
+        addRequirements(m_driveTrain);
         // Do NOT require the Drivetrain. That is handled by the m_trajFollowCommand subcommand.
     }
 
@@ -43,28 +44,28 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
             curTraj = m_redTrajectory;
         else
             curTraj = m_blueTrajectory;
+
         m_trajFollowCommand = m_driveTrain.makeFollowTrajectoryCommand(curTraj);
-        CommandScheduler.getInstance().schedule(m_trajFollowCommand);
+        m_trajFollowCommand.initialize();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        m_trajFollowCommand.execute();
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        if (interrupted) {
-            m_trajFollowCommand.cancel();
-        }
+        m_trajFollowCommand.end(interrupted);
         m_trajFollowCommand = null;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_trajFollowCommand == null || !m_trajFollowCommand.isScheduled();
+        return m_trajFollowCommand == null || m_trajFollowCommand.isFinished();
     }
 
     @Override

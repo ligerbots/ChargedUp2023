@@ -193,7 +193,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        if(Robot.isSimulation()){
+        if (Robot.isSimulation()) {
             return m_simPose;
         }
         return m_odometry.getEstimatedPosition();
@@ -211,12 +211,20 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
+        if (Robot.isSimulation()) {
+            return m_simPose.getRotation();
+        }
+
         return m_odometry.getEstimatedPosition().getRotation();
     }
 
     // the gyro reading should be private.
     // Everyone else who wants the robot angle should call getHeading()
     private Rotation2d getGyroscopeRotation() {
+        if (Robot.isSimulation()) {
+            return m_simPose.getRotation();
+        }
+
         if (m_navx.isMagnetometerCalibrated()) {
             // We will only get valid fused headings if the magnetometer is calibrated
             return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
@@ -396,10 +404,12 @@ public class DriveTrain extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        double newX = m_simPose.getX() + m_simChassisSpeeds.vxMetersPerSecond * SIM_LOOP_TIME;
-        double newY = m_simPose.getY() + m_simChassisSpeeds.vyMetersPerSecond * SIM_LOOP_TIME;
+        Rotation2d head = m_simPose.getRotation();
+        double newX = m_simPose.getX() + SIM_LOOP_TIME * (head.getCos() * m_simChassisSpeeds.vxMetersPerSecond - head.getSin() * m_simChassisSpeeds.vyMetersPerSecond);
+        double newY = m_simPose.getY() + SIM_LOOP_TIME * (head.getSin() * m_simChassisSpeeds.vxMetersPerSecond + head.getCos() * m_simChassisSpeeds.vyMetersPerSecond);
         double newHeading = m_simPose.getRotation().getRadians() + m_simChassisSpeeds.omegaRadiansPerSecond * SIM_LOOP_TIME;
-
+        // double newHeading = m_simPose.getRotation().getRadians();
+                
         m_simPose = new Pose2d(newX, newY, Rotation2d.fromRadians(newHeading));
         m_field.setRobotPose(m_simPose);
 

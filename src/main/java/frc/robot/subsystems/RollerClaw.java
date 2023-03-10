@@ -81,13 +81,14 @@ public class RollerClaw extends Claw {
 
     @Override
     public void open(){
-        System.out.println("RollerClaw open called");
+        System.out.println("RollerClaw open");
         m_clawSolenoid.set(Value.kForward);
         setMotor(0.0);
     }
 
     @Override
     public void close() {
+        System.out.println("RollerClaw close");
         m_clawSolenoid.set(Value.kReverse);
 
         if (Math.abs(m_speed) >= 0.001) {
@@ -100,6 +101,8 @@ public class RollerClaw extends Claw {
 
     @Override
     public void startIntake() {
+        System.out.println("RollerClaw startIntake");
+
         // don't call open, since it does extra stuff
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
