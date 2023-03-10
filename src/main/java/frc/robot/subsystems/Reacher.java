@@ -95,7 +95,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_encoder.setPosition(REACHER_OFFSET_METER);
 
         setCoastMode(false);
-        SmartDashboard.putBoolean("Reacher/m_coastMode", m_coastMode);
+        SmartDashboard.putBoolean("Reacher/coastMode", m_coastMode);
 
         SmartDashboard.putNumber("Reacher/P Gain", m_kPReacher);
     }
@@ -103,12 +103,12 @@ public class Reacher extends TrapezoidProfileSubsystem {
     @Override
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
-        SmartDashboard.putNumber("Reacher/Encoder", Units.metersToInches(encoderValue));
-        SmartDashboard.putNumber("Reacher/m_goal", Units.metersToInches(m_goal));
-        SmartDashboard.putBoolean("Reacher/m_resetReacherPos", m_resetReacherPos);
+        SmartDashboard.putNumber("Reacher/encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/goal", Units.metersToInches(m_goal));
+        // SmartDashboard.putBoolean("Reacher/mesetReacherPos", m_resetReacherPos);
         
-        m_coastMode = SmartDashboard.getBoolean("Reacher/m_coastMode", m_coastMode);
-        if(m_coastMode)
+        m_coastMode = SmartDashboard.getBoolean("Reacher/coastMode", m_coastMode);
+        if (m_coastMode)
             setCoastMode(m_coastMode);
         
         // Jack: I dont think we need this check because we are only going to set to coast mode during disabled and the motor won't be moved by super.periodic() or useState() anyway
@@ -118,13 +118,13 @@ public class Reacher extends TrapezoidProfileSubsystem {
         super.periodic();
 
         // update the PID val
-        checkPIDVal();
+        // checkPIDVal();
     }
 
     @Override
     protected void useState(TrapezoidProfile.State setPoint) {
         // Calculate the feedforward from the setPoint
-        double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
+        // double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
 
         // Add the feedforward to the PID output to get the motor output
         // Remember that the encoder was already set to account for the gear ratios.
@@ -155,6 +155,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_resetReacherPos = true;
     }
 
+    // this needs to be public so that commands can get the restricted distance.
     public static double limitReacherLength(double length){
         return Math.min(REACHER_MAX_LENGTH, Math.max(REACHER_MIN_LENGTH, length));
     }
@@ -170,10 +171,10 @@ public class Reacher extends TrapezoidProfileSubsystem {
     }
 
     public void setCoastMode(boolean coastMode){
-        if(coastMode){
+        if (coastMode) {
             m_motor.setIdleMode(IdleMode.kCoast);
             m_motor.stopMotor();
-        }else
+        } else
             m_motor.setIdleMode(IdleMode.kBrake);
     }
 }

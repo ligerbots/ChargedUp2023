@@ -30,9 +30,10 @@ public class ChargeStationBalance extends CommandBase {
         m_driveTrain = driveTrain;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
-        SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
-        SmartDashboard.putNumber("balanceCommand/error", 0.0);
-        SmartDashboard.putNumber("balanceCommand/driveAngle", 0);
+        
+        // SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
+        // SmartDashboard.putNumber("balanceCommand/error", 0.0);
+        // SmartDashboard.putNumber("balanceCommand/driveAngle", 0);
     }
 
     // Called when the command is initially scheduled.
@@ -65,6 +66,10 @@ public class ChargeStationBalance extends CommandBase {
                 driveMPS = Math.copySign(MAX_MPS, driveMPS);
             }
 
+            // SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
+            // SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
+            // SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+
             double angleError = driveAngle.getRadians();
             if (Math.abs(angleError) > Math.PI/2) {
                 angleError = angleError - Math.PI;
@@ -74,7 +79,7 @@ public class ChargeStationBalance extends CommandBase {
             if (Math.abs(angleSpeed) > MAX_ANGLE_SPEED) {
                 angleSpeed = Math.copySign(MAX_ANGLE_SPEED, angleSpeed);
             }
-            SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
+            // SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
         }
 
         SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
@@ -104,7 +109,7 @@ public class ChargeStationBalance extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        //if robot is balanced and it has been for at least one second, robot ends
+        // if robot is balanced and it has been for at least one second, robot ends
         return m_timer.hasElapsed(BALANCE_SECONDS);
     }
 }
