@@ -5,13 +5,27 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import frc.robot.Constants.Position;
+
+import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
+import frc.robot.commands.AutoBarrierTwoCones;
+import frc.robot.commands.AutoChargeStationOneConeOtherSide;
+import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
 import frc.robot.commands.TrajectoryPlotter;
+
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.LedLight.Color;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -47,16 +61,34 @@ public class Robot extends TimedRobot {
         //   ntinst.startClient4("MainRobotProgram");
         // }
         
+        LiveWindow.disableAllTelemetry();
+
         // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();
 
+        DriveTrain driveTrain = m_robotContainer.getDriveTrain();
+        Arm arm = m_robotContainer.getArm();
+        Vision vision = m_robotContainer.getVision();
+        Claw claw = m_robotContainer.getClaw();
+        
         // Initialize the list of available Autonomous routines
-        m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_1m"));
-        m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_slide"));
-        m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(m_robotContainer.getDriveTrain(), "drive_and_turn"));
+        m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
+        m_chosenTrajectory.addOption("Barrier Cone Cube", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
+        m_chosenTrajectory.addOption("Wall Cone Cube", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
+        // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCube(driveTrain, arm, vision, claw));
+        // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCubeOtherSide(driveTrain, arm, vision, claw));
+        m_chosenTrajectory.addOption("Charge Station Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw));
+        // m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
+        // m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
+        // m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
+        // m_chosenTrajectory.addOption("top_grid_s1", new AutoFollowTrajectory(driveTrain, "top_grid_s1"));
+
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);
 
         m_plotter = new TrajectoryPlotter(m_robotContainer.getDriveTrain().getField2d());
+
+        m_robotContainer.getLED().setColor(Color.OFF);
+        m_robotContainer.getClaw().enableCompressor();
     }
 
     /**
@@ -91,6 +123,9 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
 
+        // Make sure the Arm Sooulder and Reacher won't move again when we re-enable.
+        m_robotContainer.getArm().resetGoal();
+
         // auto trajectory plotter
         AutoCommandInterface autoCommandInterface = m_chosenTrajectory.getSelected();
         if (autoCommandInterface != null && autoCommandInterface != m_prevAutoCommand) {
@@ -110,12 +145,16 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
+        //Resets the goal of the arm So that it does not turn back to its origional position 
+        // m_robotContainer.getArm().resetGoal();
         m_autonomousCommand = m_chosenTrajectory.getSelected();
-
+    
         // schedule the autonomous command
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during autonomous. */
@@ -133,6 +172,8 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.cancel();
         }
         m_robotContainer.getDriveCommand().schedule();
+
+        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during operator control. */

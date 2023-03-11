@@ -5,18 +5,25 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Drive;
+import frc.robot.commands.DriveAndMoveArm;
+import frc.robot.commands.FeederPickup;
+import frc.robot.commands.MoveArmAndDrive;
+import frc.robot.commands.ScoreArm;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
-import frc.robot.commands.TagPositionDrive;
 import frc.robot.commands.ChargeStationBalance;
-
+import frc.robot.commands.ChargeStationDrive;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.LedLight;
+import frc.robot.subsystems.RollerClaw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -38,8 +45,8 @@ public class RobotContainer {
     private static final int XBOX_Y = 4;
 
     // left and right bumpers
-    // private static final int XBOX_LB = 5;
-    // private static final int XBOX_RB = 6;
+    private static final int XBOX_LB = 5;
+    private static final int XBOX_RB = 6;
     
     // private static final int XBOX_BACK = 7;
     private static final int XBOX_START = 8;
@@ -49,12 +56,14 @@ public class RobotContainer {
     // private static final int XBOX_JR = 10;
 
     private final XboxController m_controller = new XboxController(0);
+    private final Joystick m_farm = new Joystick(1);
 
     // The robot's subsystems and commands are defined here...
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
-    // private final Arm m_arm = new Arm();
-    // private final Claw m_claw = new Claw();
+    private final Arm m_arm = new Arm();
+    private final Claw m_claw = new RollerClaw();
+    private final LedLight m_ledLight = new LedLight();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -90,35 +99,73 @@ public class RobotContainer {
         JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
         xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
-        // ---- TESTING  ----
-        JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
+        JoystickButton leftBumper = new JoystickButton(m_controller, XBOX_LB);
+        leftBumper.onTrue(new InstantCommand(m_claw::open));
 
-        // xboxYButton.onTrue(new InstantCommand(m_claw::close));
-        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
-
-        // testing if the command works by passing in a position, we need more buttons for all 11
-        // xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
+        JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
+        rightBumper.onTrue(new InstantCommand(m_claw::close));
+                
+        // Turns analog triggers into buttons that actuate when it is half pressed 
+        Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
+        rightTriggerButton.onTrue(new ScoreArm(m_arm, m_driveTrain, Constants.Position.PICK_UP).withTimeout(5).andThen(new InstantCommand(m_claw::startIntake)));
         
-        // // when button Y is pressed, attempt to balance on the Charging Station
-        // // assumes that the robot is already mostly up on the Station
-        // xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
+        Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
+        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM).withTimeout(5)));
 
-        // when button Y is pressed, attempt to drive up onto the Charging Station
+        JoystickButton farm1 = new JoystickButton(m_farm, 1);
+        farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM));
+        
+        JoystickButton farm2 = new JoystickButton(m_farm, 2);
+        farm2.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_BOTTOM));
+
+        JoystickButton farm3 = new JoystickButton(m_farm, 3);
+        farm3.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_BOTTOM));
+
+        JoystickButton farm6 = new JoystickButton(m_farm, 6);
+        farm6.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_MIDDLE));
+
+        JoystickButton farm7 = new JoystickButton(m_farm, 7);
+        farm7.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_MIDDLE));
+
+        JoystickButton farm8 = new JoystickButton(m_farm, 8);
+        farm8.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_MIDDLE));
+
+        JoystickButton farm11 = new JoystickButton(m_farm, 11);
+        farm11.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
+
+        JoystickButton farm13 = new JoystickButton(m_farm, 13);
+        farm13.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_TOP));
+
+        JoystickButton farm15 = new JoystickButton(m_farm, 15);
+        farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP));
+
+        // Feeder Stations 
+        JoystickButton farm4 = new JoystickButton(m_farm, 4);
+        farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION));
+
+        JoystickButton farm5 = new JoystickButton(m_farm, 5);
+        farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION));
+
+        // LED Lights
+        JoystickButton farm9 = new JoystickButton(m_farm, 9);
+        farm9.onTrue(new InstantCommand(()->m_ledLight.setColor(LedLight.Color.ORANGE)));
+
+        JoystickButton farm10 = new JoystickButton(m_farm, 10);
+        farm10.onTrue(new InstantCommand(()->m_ledLight.setColor(LedLight.Color.PURPLE)));
+
+        // charge station drive
+        JoystickButton farm22 = new JoystickButton(m_farm, 22);
+        farm22.onTrue(new ChargeStationDrive(m_driveTrain));
+
+        // charge station balancing
+        JoystickButton farm23 = new JoystickButton(m_farm, 23);
+        farm23.onTrue(new ChargeStationBalance(m_driveTrain));
+
+        // // ---- TESTING  ----
         // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // xboxYButton.onTrue(new ChargeStationDrive());
-
-        /* //Commented out for now
-        // button B
-        JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
-        // inline command to create trajectory from robot pose to middle of the best apriltag
-        xboxBButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, false))));
-        //need a proxy so command is not created before button pressed
-        
-        // button Y
-        JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // inline command to create trajectory from robot pose to right of the best apriltag
-        xboxYButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, true))));
-        */
+        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
+        // xboxXButton.onTrue(new SetArmLengthTest(m_arm));
     }
 
     public Command getDriveCommand() {
@@ -157,5 +204,17 @@ public class RobotContainer {
 
     public DriveTrain getDriveTrain() {
         return m_driveTrain;
+    }
+    public Arm getArm(){
+        return m_arm;
+    }
+    public Claw getClaw(){
+        return m_claw;
+    }
+    public LedLight getLED(){
+        return m_ledLight;
+    }
+    public Vision getVision(){
+        return m_vision;
     }
 }

@@ -7,154 +7,205 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
-import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.system.plant.DCMotor;
+// import edu.wpi.first.math.controller.ArmFeedforward;
+// import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+// import edu.wpi.first.wpilibj.RobotController;
+// import edu.wpi.first.wpilibj.simulation.BatterySim;
+// import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+// import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+// import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+// import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+// import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
+
 import frc.robot.Constants;
 
 public class Shoulder extends TrapezoidProfileSubsystem {
+    private static final double SHOULDER_MAX_ANGLE = Math.toRadians(30.0);  
+    private static final double SHOULDER_MIN_ANGLE = Math.toRadians(-65.0);
+
+    public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(3.0);
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
+    // All units are MKS with angles in Radians
 
     // Feedforward constants for the shoulder
     private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
     // The following constants are computed from https://www.reca.lc/arm
-    private static final double SHOULDER_KG = 2.07;
-    private static final double SHOULDER_KV = 1.83;
-    private static final double SHOULDER_KA = 0.08;
-
+    private static final double SHOULDER_KG = 0.09; // V
+    private static final double SHOULDER_KV = 6.60; // V*sec/rad
+    private static final double SHOULDER_KA = 0.01; // V*sec^2/rad
+    
+  
     // Constants to limit the shoulder rotation speed
-    private static final double SHOULDER_MAX_VEL_DEGREE_PER_SEC = 2048.0;
-    private static final double SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ = 2048.0;
-    private static final double SHOULDER_OFFSET_DEGREE = 0.0;
+    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(120.0); // 120 deg/sec
+    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(120.0); // 120 deg/sec^2
+
+    private static final double SHOULDER_POSITION_OFFSET = 62.0/360.0;
+    private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;
+
+    // The Shoulder gear ratio is 288, but let's get it exactly.
+    private static final double SHOULDER_GEAR_RATIO = (84.0 /12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 22.0);
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    private static final double SHOULDER_K_P = 1.0;
+    private static final double SHOULDER_K_P = 0.1;
     private static final double SHOULDER_K_I = 0.0;
     private static final double SHOULDER_K_D = 0.0;
     private static final double SHOULDER_K_FF = 0.0;
     private static final int kPIDLoopIdx = 0;
     private static final int kTimeoutMs = 0;
 
-    private static final double SHOULDER_DEGREE_PER_UNIT = 360.0 / 2048.0;
+    // The TalonFX, the integrated motor controller for the Falcon, uses ticks as it's noative unit.
+    // There are 2048 ticks per revolution. Need to account for the gear ratio.
+    private static final double SHOULDER_RADIAN_PER_UNIT = 2 * Math.PI / (2048.0 * SHOULDER_GEAR_RATIO);
 
-    private final ArmFeedforward m_feedForward = new ArmFeedforward(SHOULDER_KS, SHOULDER_KG,
-    SHOULDER_KV, SHOULDER_KA);
+    // private final ArmFeedforward m_feedForward = new ArmFeedforward(SHOULDER_KS, SHOULDER_KG, SHOULDER_KV, SHOULDER_KA);
 
     // Define the motor and encoders
     private final WPI_TalonFX m_motorLeader;
     private final WPI_TalonFX m_motorFollower;
-    
     private final TalonFXSensorCollection m_encoder;
-    // private final EncoderSim m_encoderSim;
-
+    DutyCycleEncoder m_dutyEncoder;
+    
     // The P gain for the PID controller that drives this shoulder.
-    private static double m_kPShoulder = 1.0;
+    private double m_kPShoulder = SHOULDER_K_P;
+    private double m_kFeedForward = SHOULDER_K_FF;
 
     private boolean m_resetShoulderPos = false;
     private boolean m_coastMode = false;
 
-    // current goal in degrees
+    // current goal in radians
     private double m_goal;
 
     // *********************Simulation Stuff************************
+    // private final EncoderSim m_encoderSim;
 
-    // distance per pulse = (angle per revolution) / (pulses per revolution)
-    // = (2 * PI rads) / (4096 pulses)
-    private static final double kShoulderEncoderDistPerPulse = 2.0 * Math.PI / 4096;
-    // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-    private final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
+    // // The arm gearbox represents a gearbox containing two Falcon motors.
+    // private final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
 
-    // Simulation classes help us simulate what's going on, including gravity.
-    private static final double m_shoulderReduction = 395.77;
-    private static final double m_shoulderMass = 10; // Kilograms
-    private static final double m_shoulderLength = Units.inchesToMeters(30);
+    // // Simulation classes help us simulate what's going on, including gravity.
+    // private static final double SHOULDER_MASS = 10; // Kilograms
+    // private static final double SHOULDER_LENGTH = Units.inchesToMeters(30);
 
-    private TalonFXSimCollection m_motorSim;
+    // private TalonFXSimCollection m_motorSim;
 
-    private final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, m_shoulderReduction,
-            SingleJointedArmSim.estimateMOI(m_shoulderLength, m_shoulderMass), m_shoulderLength,
-            Units.degreesToRadians(-75), Units.degreesToRadians(120), true);
+    // private final SingleJointedArmSim m_shoulderSim = new SingleJointedArmSim(m_shoulderGearbox, SHOULDER_GEAR_RATIO,
+    //         SingleJointedArmSim.estimateMOI(SHOULDER_LENGTH, SHOULDER_MASS), SHOULDER_LENGTH,
+    //         Units.degreesToRadians(-75), Units.degreesToRadians(120), true);
 
-    // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
-    // private final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
-    private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-    private final MechanismRoot2d m_shoulderPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-    private final MechanismLigament2d m_shoulderTower = m_shoulderPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
-    private final MechanismLigament2d m_shoulder = m_shoulderPivot.append(new MechanismLigament2d("Arm", 30,
-            Units.radiansToDegrees(m_shoulderSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
+    // // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
+    // // private final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
+    // private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
+    // private final MechanismRoot2d m_shoulderPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+    // private final MechanismLigament2d m_shoulderTower = m_shoulderPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+    // private final MechanismLigament2d m_shoulder = m_shoulderPivot.append(new MechanismLigament2d("Arm", 30,
+    //         Units.radiansToDegrees(m_shoulderSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
     // Construct a new Shoulder subsystem
-    public Shoulder() {
-        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_DEGREE_PER_SEC, SHOULDER_MAX_ACC_DEGREE_PER_SEC_SQ));
+    public Shoulder(DutyCycleEncoder dutyCycleEncoder) {
+        super(new TrapezoidProfile.Constraints(SHOULDER_MAX_VEL_RADIAN_PER_SEC / SHOULDER_RADIAN_PER_UNIT,
+                SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ / SHOULDER_RADIAN_PER_UNIT),
+                (SHOULDER_OFFSET_RADIAN-dutyCycleEncoder.getDistance() * 2 * Math.PI) / SHOULDER_RADIAN_PER_UNIT);
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
         m_encoder = m_motorLeader.getSensorCollection();
-        // m_motorSim = new TalonFXSimCollection(m_motorLeader);
-        // m_encoderSim = new TalonFXSimCollection(m_encoder);
+
         m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
-        // Set follower and invert
+        // Set follower
         m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
+
         m_motorLeader.config_kF(kPIDLoopIdx, SHOULDER_K_FF, kTimeoutMs);
 		m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
 		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
-        m_encoder.setIntegratedSensorPosition(SHOULDER_OFFSET_DEGREE / SHOULDER_DEGREE_PER_UNIT, 0);
-        m_motorLeader.setSelectedSensorPosition(0.0);
+        //limits for motor leader and folower
+        //when feature activate there's a limit of 35 ampms, limiting occurs when exceed 25 amps
+        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
 
+        m_dutyEncoder = dutyCycleEncoder;
+
+        // Encoder distance is in radians
+        m_dutyEncoder.setDistancePerRotation(2 * Math.PI);
+        m_dutyEncoder.setPositionOffset(SHOULDER_POSITION_OFFSET);
+
+        double initialAngle = -m_dutyEncoder.getDistance();
+        // SmartDashboard.putNumber("shoulder/initAngle", Units.radiansToDegrees(initialAngle));
+
+        // Set the motor encoder and Position setpoint to the initialAngle from the absolute encoder
+        m_encoder.setIntegratedSensorPosition(initialAngle / SHOULDER_RADIAN_PER_UNIT, 0);
+        // SmartDashboard.putNumber("shoulder/initialAngle_SHOULDER_RADIAN_PER_UNIT", initialAngle / SHOULDER_RADIAN_PER_UNIT);
+        SmartDashboard.putNumber("shoulder/encoderIntegSensPos", m_encoder.getIntegratedSensorPosition());
+        // m_motorLeader.setSelectedSensorPosition(-m_Duty_Encoder.getDistance());
+        // m_motorLeader.setSelectedSensorPosition(m_encoder.getIntegratedSensorPosition());
+        // m_motorLeader.setSelectedSensorPosition(initialAngle / SHOULDER_RADIAN_PER_UNIT);
+        // SmartDashboard.putNumber("shoulder/motorLeaderIntegSensPos", m_motorLeader.getSelectedSensorPosition());
+
+        // m_Duty_Encoder.setPositionOffset(SHOULDER_OFFSET_RADIAN);
+        // m_motorSim = new TalonFXSimCollection(m_motorLeader);
+        // m_encoderSim = new TalonFXSimCollection(m_encoder);
+        SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
-        SmartDashboard.putData("shoulder Sim", m_mech2d);
+        // SmartDashboard.putData("shoulder Sim", m_mech2d);
+
+        setCoastMode(false);
+        SmartDashboard.putBoolean("shoulder/coastMode", m_coastMode);
+        SmartDashboard.putNumber("shoulder/kFeadForward", m_kFeedForward);
+
+        // m_motorLeader.set(ControlMode.Position, )
+        // m_motorLeader.set(ControlMode.Position, m_encoder.getIntegratedSensorPosition(), DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
+        // setAngle(m_encoder.getIntegratedSensorPosition() * SHOULDER_RADIAN_PER_UNIT);
     }
 
-    public void simulationPeriodic() {
-        // First, we set our "inputs" (voltages)
-        m_shoulderSim.setInput(m_motorLeader.get() * RobotController.getBatteryVoltage());
-        // Next, we update it. The standard loop time is 20ms.
-        m_shoulderSim.update(0.020);
+    // public void simulationPeriodic() {
+    //     // First, we set our "inputs" (voltages)
+    //     m_shoulderSim.setInput(m_motorLeader.get() * RobotController.getBatteryVoltage());
+    //     // Next, we update it. The standard loop time is 20ms.
+    //     m_shoulderSim.update(0.020);
 
-        // Finally, we set our simulated encoder's readings and simulated battery
-        // voltage
-        // m_motorSim.setIntegratedSensorRawPosition(m_armSim.getAngleRads());
-        // SimBattery estimates loaded battery voltages
-        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shoulderSim.getCurrentDrawAmps()));
+    //     // Finally, we set our simulated encoder's readings and simulated battery
+    //     // voltage
+    //     // m_motorSim.setIntegratedSensorRawPosition(m_armSim.getAngleRads());
+    //     // SimBattery estimates loaded battery voltages
+    //     RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shoulderSim.getCurrentDrawAmps()));
 
-        // Update the Mechanism Arm angle based on the simulated arm angle
-        m_shoulder.setAngle(Units.radiansToDegrees(m_shoulderSim.getAngleRads()));
-        SmartDashboard.putNumber("Simulated Shoulder Angle", m_shoulderSim.getAngleRads());
-        SmartDashboard.putNumber("Sim Battery voltage", RobotController.getBatteryVoltage());
-    }
+    //     // Update the Mechanism Arm angle based on the simulated arm angle
+    //     m_shoulder.setAngle(Units.radiansToDegrees(m_shoulderSim.getAngleRads()));
+    //     SmartDashboard.putNumber("Simulated Shoulder Angle", Units.radiansToDegrees(m_shoulderSim.getAngleRads()));
+    //     SmartDashboard.putNumber("Sim Battery voltage", RobotController.getBatteryVoltage());
+    // }
 
     @Override
     public void periodic() {
         // Display current values on the SmartDashboard
-        SmartDashboard.putNumber("shoulder/Output", m_motorLeader.get());
-        SmartDashboard.putNumber("shoulder/Encoder", getAngle());
-        SmartDashboard.putNumber("shoulder/Goal", m_goal);
-        SmartDashboard.putBoolean("shoulder/CoastMode", m_coastMode);
-
+        // SmartDashboard.putNumber("shoulder/Output", m_motorLeader.get());
+        SmartDashboard.putNumber("shoulder/encoder", Math.toDegrees(getAngle()));
+        SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
+        SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
+        // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
+        
+        m_coastMode = SmartDashboard.getBoolean("shoulder/coastMode", m_coastMode);
         if (m_coastMode)
-            return;
+            setCoastMode(m_coastMode);
+        
+        // Jack: I dont think we need this check because we are only going to set to coast mode during disabled and the motor won't be moved by super.periodic() or useState() anyway
+        // And we want the setPoint to follow the current encoder reading in disabled mode
+        // if (m_coastMode)
+        //     return;
 
         // Execute the super class periodic method
         super.periodic();
@@ -162,13 +213,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // Here we can check the SmartDashboard for any updates to the PIC constants.
         // Note that since this is Trapezoidal control, we only need to set P.
         // Each increment will only change the set point position a little bit.
-        checkPIDVal();
+        // checkPIDVal();
     }
 
     @Override
     protected void useState(TrapezoidProfile.State setPoint) {
         // Calculate the feedforward from the setPoint
-        double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
+        // double feedforward = m_feedForward.calculate(setPoint.position, setPoint.velocity);
 
         // Add the feedforward to the PID output to get the motor output
         // The ArmFeedForward computes in radians. We need to convert back to degrees.
@@ -176,13 +227,15 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // TODO: if the "12.0" is volts, should use RobotController.getBatteryVoltage()
         if (m_resetShoulderPos) {
-            setPoint.position = m_encoder.getIntegratedSensorAbsolutePosition();
+            setPoint.position = m_encoder.getIntegratedSensorPosition();
             m_resetShoulderPos = false;
         }
 
-        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
-        SmartDashboard.putNumber("shoulder/feedforward", feedforward);
-        SmartDashboard.putNumber("shoulder/setPoint", setPoint.position * SHOULDER_DEGREE_PER_UNIT);
+        m_kFeedForward = SmartDashboard.getNumber("shoulder/kFeadForward", m_kFeedForward);
+
+        m_motorLeader.set(ControlMode.Position, setPoint.position, DemandType.ArbitraryFeedForward, m_kFeedForward); //, feedforward / 12.0);
+        // SmartDashboard.putNumber("shoulder/feedforward", feedforward);
+        SmartDashboard.putNumber("shoulder/setPoint", Math.toDegrees(setPoint.position * SHOULDER_RADIAN_PER_UNIT));
         // SmartDashboard.putNumber("shoulder/velocity", Units.metersToInches(setPoint.velocity));
     }
 
@@ -195,9 +248,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         }
     }
 
-    // return current shoulder angle in degrees
+    // return current shoulder angle in radians
     public double getAngle() {
-        return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_DEGREE_PER_UNIT;
+        // return m_encoder.getIntegratedSensorAbsolutePosition() * SHOULDER_RADIAN_PER_UNIT;
+        return m_encoder.getIntegratedSensorPosition() * SHOULDER_RADIAN_PER_UNIT;
     }
 
     public void resetShoulderPos() {
@@ -205,9 +259,28 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_resetShoulderPos = true;
     }
 
-    // set shoulder angle in degrees
+    // needs to be public so that commands can get the restricted angle
+    public static double limitShoulderAngle(double angle){
+        return Math.min(SHOULDER_MAX_ANGLE, Math.max(SHOULDER_MIN_ANGLE, angle));
+    }
+
+    // set shoulder angle in radians
     public void setAngle(double angle) {
-        m_goal = angle;
-        super.setGoal(angle / SHOULDER_DEGREE_PER_UNIT);
+        m_goal = limitShoulderAngle(angle);
+        super.setGoal(m_goal / SHOULDER_RADIAN_PER_UNIT);
+    }
+    public void resetGoal(){
+        // m_encoder.setIntegratedSensorPosition(getAngle()/SHOULDER_RADIAN_PER_UNIT, kTimeoutMs);
+        setAngle(getAngle());
+        // super.disable();
+        // m_superEnabled = false;
+    }
+
+    public void setCoastMode(boolean coastMode){
+        if (coastMode) {
+            m_motorLeader.setNeutralMode(NeutralMode.Coast);
+            m_motorLeader.stopMotor();
+        } else
+            m_motorLeader.setNeutralMode(NeutralMode.Brake);
     }
 }

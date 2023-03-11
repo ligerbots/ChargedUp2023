@@ -1,10 +1,5 @@
 {
   "HALProvider": {
-    "DIO": {
-      "window": {
-        "visible": true
-      }
-    },
     "Other Devices": {
       "DutyCycleEncoder[0]": {
         "header": {
@@ -42,12 +37,31 @@
         }
       },
       "/SmartDashboard/Field": {
+        "bottom": 544,
+        "height": 8.013679504394531,
+        "image": "/scratch/ligerbots/projects/ChargedUp2023/2023-field.png",
+        "left": 46,
+        "right": 1088,
+        "top": 36,
         "trajectory": {
           "arrowSize": 100,
-          "length": 0.20000000298023224,
+          "length": 0.10000000149011612,
           "weight": 0.0,
           "width": 0.10000000149011612
         },
+        "trajectory1": {
+          "length": 0.10000000149011612,
+          "width": 0.10000000149011612
+        },
+        "trajectory2": {
+          "length": 0.10000000149011612,
+          "width": 0.10000000149011612
+        },
+        "waypoints": {
+          "length": 0.10000000149011612,
+          "width": 0.10000000149011612
+        },
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }

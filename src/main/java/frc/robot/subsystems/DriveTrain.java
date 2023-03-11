@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.Constants;
+import frc.robot.commands.AutoCommandInterface;
 import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.DriveTrain;
@@ -53,7 +56,10 @@ public class DriveTrain extends SubsystemBase {
     // P constants for controllin during trajectory following
     private static final double X_PID_CONTROLLER_P = 2.0;
     private static final double Y_PID_CONTROLLER_P = 2.0;
-    private static final double THETA_PID_CONTROLLER_P = 2.0;
+    private static final double THETA_PID_CONTROLLER_P = 4.0;
+
+    // speed used to drive onto/over the ChargeStation
+    public static final double CHARGE_STATION_DRIVE_MPS = 1.0;
 
     // the max velocity for drivetrain
     // adjusted when in precision driving mode
@@ -218,9 +224,24 @@ public class DriveTrain extends SubsystemBase {
             return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
-        // We have to invert the angle of the NavX so that rotating the robot
-        // counter-clockwise makes the angle increase.
-        return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+		// We have to invert the angle of the NavX so that rotating the robot
+		// counter-clockwise makes the angle increase.
+		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+	}
+	// know the robot heading and get pitch and roll
+    private Translation3d getNormalVector3d() {
+		Rotation3d tilt = new Rotation3d(Units.degreesToRadians(m_navx.getRoll()), Units.degreesToRadians(m_navx.getPitch()), 0);
+        return new Translation3d(0, 0, 1).rotateBy(tilt);
+		
+    }
+
+    // know how much it tilted, so we know if it's balance on the ramp
+    public double getTiltDegrees() {
+        return Math.toDegrees(Math.acos(getNormalVector3d().getZ()));
+    }
+
+    public Rotation2d getTiltDirection() {
+        return new Rotation2d(getNormalVector3d().getX(), getNormalVector3d().getY());
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
@@ -260,6 +281,11 @@ public class DriveTrain extends SubsystemBase {
     }
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
+        // // for debugging
+        // SmartDashboard.putNumber("drivetrain/chassisX", chassisSpeeds.vxMetersPerSecond);
+        // SmartDashboard.putNumber("drivetrain/chassisY", chassisSpeeds.vyMetersPerSecond);
+        // SmartDashboard.putNumber("drivetrain/chassisAngle", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 		m_chassisSpeeds = m_kinematics.toChassisSpeeds(states);
@@ -341,23 +367,23 @@ public class DriveTrain extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		Pose2d pose = m_odometry.update(getGyroscopeRotation(), getModulePositions());
+		m_odometry.update(getGyroscopeRotation(), getModulePositions());
 		simulationPeriodic();
 
         // Have the vision system update based on the Apriltags, if seen
-        // Comment out for now so we don't get exceptions
         m_vision.updateOdometry(m_odometry);
 
-        SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
-        SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
-        SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-        SmartDashboard.putNumber("drivetrain/gyro", m_navx.getYaw());
-    
-        // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
-        // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
-        // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
+        // Pose2d pose = m_odometry.getEstimatedPosition();
+        // SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
+        // SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
+        // SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
 
-        SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
+        // // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+        // // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
+        // // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
+
+        // SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
 		m_swerveModules[0].updateSmartDashboard();
 		m_swerveModules[1].updateSmartDashboard();
@@ -392,25 +418,10 @@ public class DriveTrain extends SubsystemBase {
                 m_thetaController,
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
-                },
-                this);
+                });
     }
 
-    // // get the trajectory following autonomous command in PathPlanner using the name
-    // public Command getTrajectoryFollowingCommand(String trajectoryName) {
-    //     PathPlannerTrajectory traj = PathPlanner.loadPath(trajectoryName, Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC);
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    // }
-
-    // // find a trajectory from robot pose to a target pose
-    // public Command trajectoryToPose(Pose2d targetPose) {
-    //     Pose2d currentPose = getPose(); //get robot current pose
-    //     PathPlannerTrajectory traj = PathPlanner.generatePath(
-    //             new PathConstraints(Constants.TRAJ_MAX_VEL, Constants.TRAJ_MAX_ACC), // velocity, acceleration
-    //             new PathPoint(currentPose.getTranslation(), currentPose.getRotation()), // starting pose
-    //             new PathPoint(targetPose.getTranslation(), targetPose.getRotation()) // position, heading
-    //     );
-
-    //     return makeFollowTrajectoryCommand(traj).andThen(() -> stop());
-    //  }
+    public AutoCommandInterface getTrajectoryFollowingCommand(String string) {
+        return null;
+    }
 }

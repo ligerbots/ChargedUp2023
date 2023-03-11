@@ -4,47 +4,50 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class ChargeStationDrive extends CommandBase {
-    private static final Rotation2d RAMP_ANGLE = Rotation2d.fromDegrees(-10); 
-    private static final double DRIVE_MPS = 0.75;
-
-    private DriveTrain m_driveTrain;
-    private Rotation2d currentAngle;
+    Command m_command;
+    DriveTrain m_driveTrain;
 
     /** Creates a new ChargeStationDrive. */
-    public ChargeStationDrive() {
-        // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(m_driveTrain);
+    public ChargeStationDrive(DriveTrain driveTrain) {
+        m_driveTrain = driveTrain;
+
+        // Do NOT require any Subsystems. That is handled by the subcommands.
     }
 
     // Called when the command is initially scheduled.
     @Override
-    public void initialize() {}
-
-    // Called every time the scheduler runs while the command is scheduled.
-    @Override
-    public void execute() {
-        currentAngle = m_driveTrain.getPitch();
-
-        //robot drives at set speed in mps
-        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_MPS, 0.0, 0.0, m_driveTrain.getHeading()));
+    public void initialize() {
+        double goalX;
+        if (DriverStation.getAlliance() == Alliance.Red)
+            goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_RED;
+        else 
+            goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE;
+        
+        m_command = new AutoXPositionDrive(m_driveTrain, goalX, DriveTrain.CHARGE_STATION_DRIVE_MPS);
+        CommandScheduler.getInstance().schedule(m_command);
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.stop();
+        if (interrupted) {
+            m_command.cancel();
+        }
+        m_command = null;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        //stops when robot is on ramp of charge station 
-        return (currentAngle.getDegrees() <= RAMP_ANGLE.getDegrees());
+        return m_command == null || !m_command.isScheduled();
     }
 }

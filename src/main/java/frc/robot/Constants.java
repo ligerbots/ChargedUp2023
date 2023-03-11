@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
  * class should not be used for any other purpose. All constants should be declared globally (i.e. public static). Do
@@ -22,28 +24,35 @@ public final class Constants {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 9;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(87.5);
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(88.3);
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 3;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 4;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 10;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.5);
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.8);
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 5;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 11;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(77.3);
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(80.2);
 
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.2);
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(110.9);
 
     // CAN ID and channels for the Claw subsystem
-    public static final int PNEUMATIC_HUB_PORT = 2;
-    public static final int DOUBLE_SOLENOID_MODULE_NUMBER = 1;
-    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 4;
-    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 5;
+    public static final int PNEUMATIC_HUB_PORT = 1;
+    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
+    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
+    // CAN ID for the motor on the end effector
+    // This is a SparkMax
+    public static final int CLAW_MOTOR_CAN_ID = 11;
+
+    // Constants for the Arm, place holder
+    public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
+    public static final double STARTING_ARM_LENGTH = Units.inchesToMeters(0.0);
+
 
     // scoring position numbers (m_positionNumber explained)
     // p1-9 is for the scoring grid
@@ -58,7 +67,8 @@ public final class Constants {
         LEFT_MIDDLE, CENTER_MIDDLE, RIGHT_MIDDLE, 
         LEFT_BOTTOM, CENTER_BOTTOM, RIGHT_BOTTOM,
         // for the two substations/pick up stations
-        LEFT_SUBSTATION, RIGHT_SUBSTATION
+        LEFT_SUBSTATION, RIGHT_SUBSTATION,
+        PICK_UP, STOW_ARM
     }
 
     public static final double TRAJ_MAX_VEL = 2.0;
@@ -69,14 +79,14 @@ public final class Constants {
 
     // CAN ID for the Reacher (arm extension system)
     // This is a SparkMax
-    public static final int REACHER_CAN_ID = 10; // TODO: Set CanID
+    public static final int REACHER_CAN_ID = 10;
 
-    // CAND IDs for the Shoulder motors
+    // CAN IDs for the Shoulder motors
     // These are Falcons
     public static final int SHOULDER_CAN_ID_LEADER = 1;
     public static final int SHOULDER_CAN_ID_FOLLOWER = 2;
 
-    // max voltages
+    // max voltage
     /**
      * The maximum voltage that will be delivered to the drive motors.
      * <p>

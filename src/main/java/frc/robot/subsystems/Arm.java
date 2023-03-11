@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -11,10 +12,11 @@ public class Arm extends SubsystemBase {
 
     private Shoulder m_shoulder;
     private Reacher m_reacher;
+    private DutyCycleEncoder m_Duty_Encoder = new DutyCycleEncoder(0);
 
     public Arm() {
         // Construct the shoulder and reacher trapezoid subsystems
-        m_shoulder = new Shoulder();
+        m_shoulder = new Shoulder(m_Duty_Encoder);
         m_reacher = new Reacher();
     
         SmartDashboard.putNumber("Testing/SetArmLengthTest", 0.0);
@@ -24,23 +26,36 @@ public class Arm extends SubsystemBase {
     public void periodic() {
     }
 
-    // set arm length in inches
+    // set arm length in meters
     public void setArmLength(double length) {
         m_reacher.setLength(length);
     }
 
-    // rotates the arm to a certain angle in degrees
-    public void setArmAngle(double degree) {
-        m_shoulder.setAngle(degree);
+    // rotates the arm to a certain angle in radians
+    public void setArmAngle(double radian) {
+        m_shoulder.setAngle(radian);
     }
 
-    // returns the currrent length of the arm in inches
+    // returns the currrent length of the arm in meters
     public double getArmLength() {
         return m_reacher.getLength();
     }
 
-    // returns the current angle of the arm in degrees
+    // returns the current angle of the arm in radians
     public double getArmAngle() {
         return m_shoulder.getAngle();
+    }
+    
+    public void resetGoal(){
+        m_shoulder.resetGoal();
+        m_reacher.resetGoal();
+    }
+
+    public void resetShoulderPos(){
+        m_shoulder.resetShoulderPos();
+    }
+
+    public void resetReacherPos(){
+        m_reacher.resetReacherPos();
     }
 }
