@@ -4,14 +4,14 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.DriveTrain;
 
-public class DriveAndMoveArm extends SequentialCommandGroup {
+public class DriveAndMoveArm extends ParallelCommandGroup {
 
     /** Creates a new StowArm. */
     public DriveAndMoveArm(Arm arm, DriveTrain driveTrain, Vision vision, Position targetPosition) {

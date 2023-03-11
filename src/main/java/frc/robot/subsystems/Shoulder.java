@@ -50,7 +50,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
   
     // Constants to limit the shoulder rotation speed
     private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(120.0); // 120 deg/sec
-    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(120.0); // 120 deg/sec^2
+    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(300.0); // 120 deg/sec^2
 
     private static final double SHOULDER_POSITION_OFFSET = 62.0/360.0;
     private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;

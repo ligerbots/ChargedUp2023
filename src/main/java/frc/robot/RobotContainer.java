@@ -162,10 +162,10 @@ public class RobotContainer {
         farm23.onTrue(new ChargeStationBalance(m_driveTrain));
 
         // // ---- TESTING  ----
-        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxYButton.onTrue(new SetArmAngleTest(m_arm));
-        // xboxXButton.onTrue(new SetArmLengthTest(m_arm));
+        JoystickButton farm21 = new JoystickButton(m_farm, 21);
+        JoystickButton farm24 = new JoystickButton(m_farm, 24);
+        farm21.onTrue(new SetArmAngleTest(m_arm));
+        farm24.onTrue(new SetArmLengthTest(m_arm));
     }
 
     public Command getDriveCommand() {
