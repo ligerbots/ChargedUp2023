@@ -8,6 +8,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -29,7 +30,8 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
         addCommands(
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP).withTimeout(5),
             new InstantCommand(claw::open),
-
+            new WaitCommand(0.5),
+            
             // back up to stow the arm
             new AutoXPositionDrive(driveTrain, m_traj.getInitialPose().getX(), BACKING_MPS),
             
