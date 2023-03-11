@@ -33,7 +33,7 @@ public class ChargeStationDrive extends CommandBase {
             goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE;
         
         m_command = new AutoXPositionDrive(m_driveTrain, goalX, DriveTrain.CHARGE_STATION_DRIVE_MPS);
-        m_command.execute();
+        m_command.initialize();
     }
 
     
