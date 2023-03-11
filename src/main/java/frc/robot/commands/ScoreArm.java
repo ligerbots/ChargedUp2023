@@ -41,7 +41,7 @@ public class ScoreArm extends CommandBase {
     // private static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
     // private static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
 
-    private static final double SUBSTATION_ANGLE = Math.toRadians(12.0);
+    private static final double SUBSTATION_ANGLE = Math.toRadians(11.0);
     private static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);
 
     private static final double STOW_ANGLE = Math.toRadians(-65.0);

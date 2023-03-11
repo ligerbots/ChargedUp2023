@@ -158,11 +158,11 @@ public class RobotContainer {
 
         // charge station drive
         JoystickButton farm22 = new JoystickButton(m_farm, 22);
-        farm22.onTrue(new ChargeStationDrive(m_driveTrain));
+        farm22.onTrue(new ChargeStationDrive(m_driveTrain).withTimeout(15.0));
 
         // charge station balancing
         JoystickButton farm23 = new JoystickButton(m_farm, 23);
-        farm23.onTrue(new ChargeStationBalance(m_driveTrain));
+        farm23.onTrue(new ChargeStationBalance(m_driveTrain).withTimeout(5.0));
 
         // // ---- TESTING  ----
         JoystickButton farm21 = new JoystickButton(m_farm, 21);
