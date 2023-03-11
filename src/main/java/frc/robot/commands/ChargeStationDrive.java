@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
 
@@ -20,7 +20,7 @@ public class ChargeStationDrive extends CommandBase {
     public ChargeStationDrive(DriveTrain driveTrain) {
         m_driveTrain = driveTrain;
 
-        // Do NOT require any Subsystems. That is handled by the subcommands.
+        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
@@ -33,21 +33,30 @@ public class ChargeStationDrive extends CommandBase {
             goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE;
         
         m_command = new AutoXPositionDrive(m_driveTrain, goalX, DriveTrain.CHARGE_STATION_DRIVE_MPS);
-        CommandScheduler.getInstance().schedule(m_command);
+        m_command.execute();
+    }
+
+    
+    @Override
+    public void execute() {
+        if (m_command != null)
+            m_command.execute();
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        if (interrupted) {
-            m_command.cancel();
-        }
+        // if interrupted, stop the follow trajectory
+        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
+        if (m_command != null)
+            m_command.end(interrupted);
         m_command = null;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_command == null || !m_command.isScheduled();
+        // if the FollowTrajectory commad is null or not scheduled, end
+        return m_command == null || m_command.isFinished();
     }
 }

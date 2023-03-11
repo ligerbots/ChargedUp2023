@@ -31,12 +31,12 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
         addCommands(
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
-            new WaitCommand(0.5),
+            new WaitCommand(0.25),
             
             // back up to stow the arm
-            new AutoXPositionDrive(driveTrain, m_traj.getInitialPose().getX(), BACKING_MPS),
+            // new AutoXPositionDrive(driveTrain, m_traj.getInitialPose().getX(), BACKING_MPS),
             
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5).alongWith(new InstantCommand(claw::close)),
+            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
             new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
