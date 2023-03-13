@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 // import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 // import com.revrobotics.ColorSensorV3.RawColor;
@@ -24,6 +25,8 @@ public class RollerClaw extends Claw {
 
     // speed to run the motor for intake
     private static final double INTAKE_MOTOR_SPEED = 0.75;
+
+    private static final double INTAKE_STOP_SPEED = 0.05;
     
     // delay time for shutting off the motor
     private static final double STOP_MOTOR_DELAY = 2.0;   // seconds
@@ -42,6 +45,8 @@ public class RollerClaw extends Claw {
         m_motor.setInverted(true);
         // limit the current to 15A
         m_motor.setSmartCurrentLimit(15);
+        m_motor.setIdleMode(IdleMode.kBrake);
+        
         m_timer = new Timer();
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
         // SmartDashboard.putNumber("claw/speed", 0.0);
@@ -62,7 +67,7 @@ public class RollerClaw extends Claw {
         // Timer is turned on only in close() method
         if (m_needStop && m_timer.hasElapsed(STOP_MOTOR_DELAY)) {
             m_timer.stop();
-            setMotor(0.0);
+            setMotor(INTAKE_STOP_SPEED);
             m_needStop = false;
         }
 
@@ -90,7 +95,7 @@ public class RollerClaw extends Claw {
     public void close() {
         m_clawSolenoid.set(Value.kReverse);
 
-        if (Math.abs(m_speed) >= 0.001) {
+        if (Math.abs(m_speed) >= (INTAKE_STOP_SPEED + 0.05)) {
             // Timer is turned on only in close() method
             m_timer.reset();
             m_timer.start();
