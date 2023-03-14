@@ -75,7 +75,9 @@ public class TagPositionDrive extends CommandBase {
         // for safety, set command to null
         m_followTrajectory = null;
 
-        int centralTagId = m_vision.getCentralTagId();
+        // getting central tag
+        int centralTagId = m_vision.getCentralTagId(m_targetPosition);
+
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
             return; // return a null, stop command

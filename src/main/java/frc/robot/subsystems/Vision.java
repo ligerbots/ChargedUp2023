@@ -26,6 +26,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.Constants;
+import frc.robot.Constants.Position;
 
 public class Vision {
     // Values for the Shed in late January
@@ -129,9 +130,17 @@ public class Vision {
 
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
-    public int getCentralTagId() {
+    public int getCentralTagId(Position targetPosition) {
+        // make sure camera connected
         if (!m_aprilTagCamera.isConnected())
             return -1;
+
+        // to keep track if target is substation or grid
+        boolean substationTarget = false; //set target to grid first
+        // if robot is targeting a substation, set bool to true
+        if (targetPosition == Position.LEFT_SUBSTATION || targetPosition == Position.RIGHT_SUBSTATION) {
+            substationTarget = true;
+        }
 
         var targetResult = m_aprilTagCamera.getLatestResult();
         // if (!targetResult.hasTargets()) {
@@ -141,7 +150,20 @@ public class Vision {
         // make a temp holder var for least Y translation, set to first tags translation
         double minY = 1.0e6; // big number
         int targetID = -1;
-        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera
+        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera            
+            // find id for current tag we are focusing on
+            int tempTagID = tag.getFiducialId();
+
+            // if aiming for substation
+            if (substationTarget) {
+                if (tempTagID != 5 || tempTagID != 4) { //exit if tags are grids
+                    break;
+                }
+            } else { //if aiming for aiming for grid/not substation
+                if (tempTagID == 5 || tempTagID == 4) { // exit if tag is substation
+                    break;
+                }
+            }
             // get transformation to target
             Transform3d tagTransform = tag.getBestCameraToTarget();
             // get abs translation to target from transformation
@@ -151,7 +173,7 @@ public class Vision {
             // if abs Y translation of new tag is less then holder tag, it becomes holder tag
             if (tagY < minY) {
                 minY = tagY;
-                targetID = tag.getFiducialId(); // remember targetID
+                targetID = tempTagID; // remember targetID
             }
         }
         
