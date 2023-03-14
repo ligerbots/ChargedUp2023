@@ -130,17 +130,10 @@ public class Vision {
 
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
-    public int getCentralTagId(Position targetPosition) {
+    public int getCentralTagId(Boolean isSubstationTarget) {
         // make sure camera connected
         if (!m_aprilTagCamera.isConnected())
             return -1;
-
-        // to keep track if target is substation or grid
-        boolean substationTarget = false; //set target to grid first
-        // if robot is targeting a substation, set bool to true
-        if (targetPosition == Position.LEFT_SUBSTATION || targetPosition == Position.RIGHT_SUBSTATION) {
-            substationTarget = true;
-        }
 
         var targetResult = m_aprilTagCamera.getLatestResult();
         // if (!targetResult.hasTargets()) {
@@ -155,7 +148,7 @@ public class Vision {
             int tempTagID = tag.getFiducialId();
 
             // if aiming for substation
-            if (substationTarget) {
+            if (isSubstationTarget) {
                 if (tempTagID != 5 || tempTagID != 4) { //exit if tags are grids
                     break;
                 }
