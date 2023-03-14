@@ -130,7 +130,7 @@ public class Vision {
 
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
-    public int getCentralTagId(Boolean isSubstationTarget) {
+    public int getCentralTagId(Boolean wantSubstationTarget) {
         // make sure camera connected
         if (!m_aprilTagCamera.isConnected())
             return -1;
@@ -147,14 +147,18 @@ public class Vision {
             // find id for current tag we are focusing on
             int tempTagID = tag.getFiducialId();
 
+            // if tag has an invalid ID then skip this tag
+            if (tempTagID < 1 || tempTagID > 8) {
+                continue;
+            }
             // if aiming for substation
-            if (isSubstationTarget) {
+            if (wantSubstationTarget) {
                 if (tempTagID != 5 || tempTagID != 4) { //exit if tags are grids
-                    break;
+                    continue; //continue the for loop
                 }
             } else { //if aiming for aiming for grid/not substation
                 if (tempTagID == 5 || tempTagID == 4) { // exit if tag is substation
-                    break;
+                    continue;
                 }
             }
             // get transformation to target

@@ -75,13 +75,9 @@ public class TagPositionDrive extends CommandBase {
         // for safety, set command to null
         m_followTrajectory = null;
 
-        // to keep track if target is substation or grid
-        boolean isSubstationTarget = false; //set target to grid first
-        // if robot is targeting a substation, set bool to true
-        if (m_targetPosition == Position.LEFT_SUBSTATION || m_targetPosition == Position.RIGHT_SUBSTATION) {
-            isSubstationTarget = true;
-        }
-
+        // keep track if target is substation or grid
+        boolean isSubstationTarget = (m_targetPosition == Position.LEFT_SUBSTATION || m_targetPosition == Position.RIGHT_SUBSTATION);
+        
         // getting central tag
         int centralTagId = m_vision.getCentralTagId(isSubstationTarget);
 
