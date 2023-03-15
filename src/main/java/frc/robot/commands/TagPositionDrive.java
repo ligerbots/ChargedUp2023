@@ -39,8 +39,11 @@ public class TagPositionDrive extends CommandBase {
     private static final double SCORE_OFFSET_Y_METERS = Units.inchesToMeters(22.0);
 
     // left/right offset for pickup at the Substation
-    private static final double SUBSTATION_OFFSET_X_METERS = 0.49;
+    private static final double SUBSTATION_OFFSET_X_METERS = 0.54;
     private static final double SUBSTATION_OFFSET_Y_METERS = 0.7;
+
+    private static final double DRIVE_MAX_VELOCITY = 2.0;
+    private static final double DRIVE_MAX_ACCEL = 4.0;
 
     private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {
@@ -111,7 +114,8 @@ public class TagPositionDrive extends CommandBase {
         Rotation2d heading = robotTargetTranslation.minus(currentPose.getTranslation()).getAngle();
         // System.out.println("Heading angle " + heading.getDegrees());
 
-        PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
+        PathPlannerTrajectory traj = PathPlanner.generatePath(
+                new PathConstraints(DRIVE_MAX_VELOCITY, DRIVE_MAX_ACCEL), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
@@ -130,7 +134,7 @@ public class TagPositionDrive extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
-        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
+        System.out.println("TagPositionDrive end interrupted = " + interrupted);
         if (m_followTrajectory != null)
             m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
