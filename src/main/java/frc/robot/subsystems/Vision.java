@@ -151,13 +151,16 @@ public class Vision {
             if (tempTagID < 1 || tempTagID > 8) {
                 continue;
             }
+
+            boolean isSubstation = tempTagID == 5 || tempTagID == 4;
+
             // if aiming for substation
             if (wantSubstationTarget) {
-                if (tempTagID != 5 || tempTagID != 4) { //exit if tags are grids
+                if (!isSubstation) { //exit if tags are grids
                     continue; //continue the for loop
                 }
             } else { //if aiming for aiming for grid/not substation
-                if (tempTagID == 5 || tempTagID == 4) { // exit if tag is substation
+                if (isSubstation) { // exit if tag is substation
                     continue;
                 }
             }
