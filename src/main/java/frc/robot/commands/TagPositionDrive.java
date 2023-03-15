@@ -134,7 +134,7 @@ public class TagPositionDrive extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
-        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
+        System.out.println("TagPositionDrive end interrupted = " + interrupted);
         if (m_followTrajectory != null)
             m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
