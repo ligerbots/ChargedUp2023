@@ -138,7 +138,7 @@ public class DriveTrain extends SubsystemBase {
     private final PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
     private final ProfiledPIDController m_thetaController = new ProfiledPIDController(THETA_PID_CONTROLLER_P,
             0, 0,
-            new TrapezoidProfile.Constraints(2* Math.PI, Math.PI));
+            new TrapezoidProfile.Constraints(4 * Math.PI, 4 * Math.PI));
 
     public DriveTrain(Vision vision) {
 
