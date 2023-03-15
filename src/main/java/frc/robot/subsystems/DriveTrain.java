@@ -31,10 +31,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import frc.robot.Constants;
-import frc.robot.commands.AutoCommandInterface;
 import frc.robot.Robot;
 import frc.robot.commands.FollowTrajectory;
-import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.swerve.*;
 
@@ -132,12 +130,12 @@ public class DriveTrain extends SubsystemBase {
 
     private final Vision m_vision;
 
-	private final Field2d m_fieldSim = new Field2d();
-
-	private double m_simX = 0.0;
-	private double m_simY = 0.0;
-	private Rotation2d m_yaw = new Rotation2d(0.0);
-	private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+    // simulation variables
+    private static final double SIM_LOOP_TIME = 0.020;
+    private Pose2d m_simPose = new Pose2d();
+    // remember the current chassis speeds so we can update the robot position
+    private ChassisSpeeds m_simChassisSpeeds = new ChassisSpeeds();
+    
     private final Field2d m_field = new Field2d();
 
     // PID controller for swerve
@@ -192,47 +190,53 @@ public class DriveTrain extends SubsystemBase {
         setPose(newPose);
     }
 
-	public Pose2d getPose() {
-		if(Robot.isSimulation()){
-			return new Pose2d(m_simX, m_simY, m_yaw);
-		}
-		return m_odometry.getEstimatedPosition();
-	}
+    public Pose2d getPose() {
+        if (Robot.isSimulation()) {
+            return m_simPose;
+        }
+        return m_odometry.getEstimatedPosition();
+    }
 
-	// sets the odometry to the specified pose
-	public void setPose(Pose2d pose) {
-		if(Robot.isSimulation()){
-			m_simX = pose.getX();
-			m_simY = pose.getY();
-			m_yaw = pose.getRotation();
-			m_chassisSpeeds = new ChassisSpeeds();
-			return ;
-		}
+    // sets the odometry to the specified pose
+    public void setPose(Pose2d pose) {
+        if (Robot.isSimulation()) {
+            m_simPose = pose;
+            // this is called on setting a new auto. Clear the chassis speeds
+            m_simChassisSpeeds = new ChassisSpeeds();
+        }
 
-		m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);		
-	}
+        m_odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);		
+    }
 
     public Rotation2d getHeading() {
+        if (Robot.isSimulation()) {
+            return m_simPose.getRotation();
+        }
+
         return m_odometry.getEstimatedPosition().getRotation();
     }
 
     // the gyro reading should be private.
     // Everyone else who wants the robot angle should call getHeading()
     private Rotation2d getGyroscopeRotation() {
+        if (Robot.isSimulation()) {
+            return m_simPose.getRotation();
+        }
+
         if (m_navx.isMagnetometerCalibrated()) {
             // We will only get valid fused headings if the magnetometer is calibrated
             return Rotation2d.fromDegrees(360.0 - m_navx.getFusedHeading());
         }
 
-		// We have to invert the angle of the NavX so that rotating the robot
-		// counter-clockwise makes the angle increase.
-		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
-	}
-	// know the robot heading and get pitch and roll
+        // We have to invert the angle of the NavX so that rotating the robot
+        // counter-clockwise makes the angle increase.
+        return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+    }
+
+    // know the robot heading and get pitch and roll
     private Translation3d getNormalVector3d() {
-		Rotation3d tilt = new Rotation3d(Units.degreesToRadians(m_navx.getRoll()), Units.degreesToRadians(m_navx.getPitch()), 0);
+        Rotation3d tilt = new Rotation3d(Units.degreesToRadians(m_navx.getRoll()), Units.degreesToRadians(m_navx.getPitch()), 0);
         return new Translation3d(0, 0, 1).rotateBy(tilt);
-		
     }
 
     // know how much it tilted, so we know if it's balance on the ramp
@@ -280,25 +284,31 @@ public class DriveTrain extends SubsystemBase {
         drive(chassisSpeeds);
     }
 
-	public void drive(ChassisSpeeds chassisSpeeds) {
+    public void drive(ChassisSpeeds chassisSpeeds) {
         // // for debugging
         // SmartDashboard.putNumber("drivetrain/chassisX", chassisSpeeds.vxMetersPerSecond);
         // SmartDashboard.putNumber("drivetrain/chassisY", chassisSpeeds.vyMetersPerSecond);
         // SmartDashboard.putNumber("drivetrain/chassisAngle", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
 
-		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
-		m_chassisSpeeds = m_kinematics.toChassisSpeeds(states);
-		for (int i = 0; i < 4; i++) {
-			m_swerveModules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * Constants.MAX_VOLTAGE,
-					states[i].angle.getRadians());
-		}
-	}
+        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+        for (int i = 0; i < 4; i++) {
+            m_swerveModules[i].set(
+                    states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * Constants.MAX_VOLTAGE,
+                    states[i].angle.getRadians());
+        }
+
+        // simulation
+        m_simChassisSpeeds = m_kinematics.toChassisSpeeds(states);;
+    }
 
     public void stop() {
         for (int i = 0; i < 4; i++) {
             m_swerveModules[i].stopWheel();
         }
+
+        // zero speeds in the sim
+        m_simChassisSpeeds = new ChassisSpeeds();
     }
 
     // for the beginning of auto rountines
@@ -365,10 +375,9 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-	@Override
-	public void periodic() {
-		m_odometry.update(getGyroscopeRotation(), getModulePositions());
-		simulationPeriodic();
+    @Override
+    public void periodic() {
+        m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
         // Have the vision system update based on the Apriltags, if seen
         m_vision.updateOdometry(m_odometry);
@@ -385,25 +394,26 @@ public class DriveTrain extends SubsystemBase {
 
         // SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
 
-		m_swerveModules[0].updateSmartDashboard();
-		m_swerveModules[1].updateSmartDashboard();
-		m_swerveModules[2].updateSmartDashboard();
-		m_swerveModules[3].updateSmartDashboard();
-	}
+        // for (SwerveModule mod : m_swerveModules) {
+        //     mod.updateSmartDashboard();
+        // }
+    }
 
-	@Override
-	public void simulationPeriodic(){
-		m_simX += m_chassisSpeeds.vxMetersPerSecond * 0.02;
-		m_simY += m_chassisSpeeds.vyMetersPerSecond * 0.02;
-		m_yaw = m_yaw.plus(Rotation2d.fromRadians(m_chassisSpeeds.omegaRadiansPerSecond * 0.02));
+    @Override
+    public void simulationPeriodic() {
+        Rotation2d head = m_simPose.getRotation();
+        double newX = m_simPose.getX() + SIM_LOOP_TIME * (head.getCos() * m_simChassisSpeeds.vxMetersPerSecond - head.getSin() * m_simChassisSpeeds.vyMetersPerSecond);
+        double newY = m_simPose.getY() + SIM_LOOP_TIME * (head.getSin() * m_simChassisSpeeds.vxMetersPerSecond + head.getCos() * m_simChassisSpeeds.vyMetersPerSecond);
+        double newHeading = m_simPose.getRotation().getRadians() + m_simChassisSpeeds.omegaRadiansPerSecond * SIM_LOOP_TIME;
+        // double newHeading = m_simPose.getRotation().getRadians();
+                
+        m_simPose = new Pose2d(newX, newY, Rotation2d.fromRadians(newHeading));
+        m_field.setRobotPose(m_simPose);
 
-		m_fieldSim.setRobotPose(new Pose2d(m_simX, m_simY, m_yaw));
-		SmartDashboard.putNumber("simX", m_simX);
-		SmartDashboard.putNumber("simY", m_simY);
-		SmartDashboard.putNumber("m_yaw", m_yaw.getDegrees());
-
-		SmartDashboard.putNumber("rotationSpeed", m_chassisSpeeds.omegaRadiansPerSecond);
-	}
+        SmartDashboard.putNumber("drivetrain/simX", newX);
+        SmartDashboard.putNumber("drivetrain/simY", newY);
+        SmartDashboard.putNumber("drivetrain/simHeading", Math.toDegrees(newHeading));
+    }
 
     // Make a command to follow a given trajectory
     // Note this does NOT include stopping at the end
@@ -419,9 +429,5 @@ public class DriveTrain extends SubsystemBase {
                 (states) -> {
                     this.drive(m_kinematics.toChassisSpeeds(states));
                 });
-    }
-
-    public AutoCommandInterface getTrajectoryFollowingCommand(String string) {
-        return null;
     }
 }

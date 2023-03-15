@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -83,6 +84,11 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        if (Robot.isSimulation()) {
+            // for the simulation, silence warnings about missing joysticks
+            DriverStation.silenceJoystickConnectionWarning(true);
+        }
+      
         m_overrideButton = new JoystickButton(m_controller, XBOX_Y);
 
         // when button A is pressed, toggle field-centric drive mode
