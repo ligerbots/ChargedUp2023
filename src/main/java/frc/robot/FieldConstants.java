@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
  * class should not be used for any other purpose. All constants should be declared globally (i.e. public static). Do
@@ -22,4 +25,17 @@ public final class FieldConstants {
     // Center (x) of the Charging Station (in meters)
     public static final double CHARGE_STATION_MIDDLE_X_BLUE = 3.9;
     public static final double CHARGE_STATION_MIDDLE_X_RED = 12.6;
+
+    public static final double FIELD_LENGTH = 16.6;
+}
+
+
+//Flip position
+public static Pose2d flipPose(Pose2d Pose) {
+    Pose2d flipped_pose = Pose2d(FIELD_LENGTH - Pose.getX(), Pose.getY(), Pose.getRotation());
+    return flipped_pose;
+}
+
+private static Pose2d Pose2d(double x, double y, Rotation2d rotation) {
+    return null;
 }
