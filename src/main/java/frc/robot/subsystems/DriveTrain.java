@@ -354,11 +354,11 @@ public class DriveTrain extends SubsystemBase {
         // Have the vision system update based on the Apriltags, if seen
         m_vision.updateOdometry(m_odometry);
 
-        // Pose2d pose = m_odometry.getEstimatedPosition();
-        // SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
-        // SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
-        // SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-        // SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
+        Pose2d pose = m_odometry.getEstimatedPosition();
+        SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
+        SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
+        SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+        SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
 
         // // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
         // // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
