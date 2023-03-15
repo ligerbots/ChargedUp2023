@@ -81,7 +81,12 @@ public class TagPositionDrive extends CommandBase {
         // for safety, set command to null
         m_followTrajectory = null;
 
-        int centralTagId = m_vision.getCentralTagId();
+        // keep track if target is substation or grid
+        boolean isSubstationTarget = (m_targetPosition == Position.LEFT_SUBSTATION || m_targetPosition == Position.RIGHT_SUBSTATION);
+        
+        // getting central tag
+        int centralTagId = m_vision.getCentralTagId(isSubstationTarget);
+
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
             return; // return a null, stop command
