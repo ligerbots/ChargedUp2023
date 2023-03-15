@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
 
@@ -32,7 +32,8 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
         m_redTrajectory = PathPlanner.loadPath(trajectoryName + "_red", Constants.TRAJ_MAX_VEL,
                 Constants.TRAJ_MAX_ACC);
 
-        // Do NOT require the Drivetrain. That is handled by the m_trajFollowCommand subcommand.
+        // the scheduler does not know about the sub-command, so include the requirements
+        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
@@ -43,28 +44,30 @@ public class AutoFollowTrajectory extends CommandBase implements AutoCommandInte
             curTraj = m_redTrajectory;
         else
             curTraj = m_blueTrajectory;
+
         m_trajFollowCommand = m_driveTrain.makeFollowTrajectoryCommand(curTraj);
-        CommandScheduler.getInstance().schedule(m_trajFollowCommand);
+        m_trajFollowCommand.initialize();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        if (m_trajFollowCommand != null)
+            m_trajFollowCommand.execute();
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        if (interrupted) {
-            m_trajFollowCommand.cancel();
-        }
+        if (m_trajFollowCommand != null)
+            m_trajFollowCommand.end(interrupted);
         m_trajFollowCommand = null;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_trajFollowCommand == null || !m_trajFollowCommand.isScheduled();
+        return m_trajFollowCommand == null || m_trajFollowCommand.isFinished();
     }
 
     @Override

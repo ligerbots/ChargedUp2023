@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
 
 import frc.robot.subsystems.Arm;
@@ -16,13 +17,13 @@ import frc.robot.subsystems.DriveTrain;
 public class FeederPickup extends SequentialCommandGroup {
 
     /** Creates a new StowArm. */
-    public FeederPickup(Arm arm, DriveTrain driveTrain, Vision vision, Claw claw, Position targetPosition) {
+    public FeederPickup(Arm arm, DriveTrain driveTrain, Vision vision, Claw claw, Position targetPosition, JoystickButton overrideButton) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
                 // set arm start position
                 new InstantCommand(claw::startIntake),
-                new ScoreArm(arm, driveTrain, targetPosition).withTimeout(5),
+                new ScoreArm(arm, driveTrain, targetPosition, overrideButton).withTimeout(5),
                 new TagPositionDrive(driveTrain, vision, targetPosition)
         );
     }

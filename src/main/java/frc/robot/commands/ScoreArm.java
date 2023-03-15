@@ -9,9 +9,10 @@ import java.util.HashMap;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.Constants.Position;
@@ -35,12 +36,12 @@ public class ScoreArm extends CommandBase {
     private static final double HIGH_GRID_CONE_ANGLE = Math.toRadians(18.0);
     private static final double HIGH_GRID_CONE_LENGTH = Units.inchesToMeters(33.0);
 
-    private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-55.0);
-    private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(9.0);
+    private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-45.0);
+    private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(15.0);
     // private static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
     // private static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
 
-    private static final double SUBSTATION_ANGLE = Math.toRadians(12.0);
+    private static final double SUBSTATION_ANGLE = Math.toRadians(13.0);
     private static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);
 
     private static final double STOW_ANGLE = Math.toRadians(-65.0);
@@ -72,6 +73,7 @@ public class ScoreArm extends CommandBase {
         }
     };
 
+
     boolean m_goingDown;
     Arm m_arm;
     DriveTrain m_driveTrain;
@@ -82,12 +84,14 @@ public class ScoreArm extends CommandBase {
 
     boolean m_cancel;
     Timer m_timer = new Timer();
+    JoystickButton m_overrideButton;
 
     /** Creates a new ScoreArm. */
-    public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position) {
+    public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position, JoystickButton overrideButton) {
         m_arm = arm;
         m_driveTrain = driveTrain;
         m_position = position;
+        m_overrideButton = overrideButton;
 
         Pair<Double, Double> desiredPos = SCORE_POSITIONS.get(position);
         m_desiredAngle = Shoulder.limitShoulderAngle(desiredPos.getFirst());
@@ -102,8 +106,11 @@ public class ScoreArm extends CommandBase {
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
 
+        // override button pressed?
+        boolean override = m_overrideButton.getAsBoolean();
+
         // prevent from stowing in the bad zone
-        if (m_position == Position.STOW_ARM || m_position == Position.CENTER_MIDDLE || m_position == Position.CENTER_TOP) {
+        if (!override && (m_position == Position.STOW_ARM || m_position == Position.CENTER_MIDDLE || m_position == Position.CENTER_TOP)) {
             // check if the robot position is within the safe zone on either side of field, if so then end command
             if (inExclusionZone()) {
                 // System.out.println("***********cancelling***************");

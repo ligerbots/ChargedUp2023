@@ -8,6 +8,8 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -16,26 +18,24 @@ import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup implements AutoCommandInterface {
 
-    private final double BACKING_MPS = 0.5;
+    // private final double BACKING_MPS = 0.5;
 
     AutoFollowTrajectory m_traj;
 
     /** Creates a new AutoChargeStationOneCube */
-    public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw) {
+    public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
         // Note this is a quick hack: the trajectory is loaded to just get the initial Pose and the stop point for backing up.
         //  Otherwise it is not actually used.
         m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
 
         addCommands(
-            new ScoreArm(arm, driveTrain, Position.LEFT_TOP).withTimeout(5),
+            new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
-
-            // back up to stow the arm
-            new AutoXPositionDrive(driveTrain, m_traj.getInitialPose().getX(), BACKING_MPS),
+            new WaitCommand(0.25),
             
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5).alongWith(new InstantCommand(claw::close)),
+            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
-            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
+            // new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));
