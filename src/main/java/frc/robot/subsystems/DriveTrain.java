@@ -53,8 +53,8 @@ public class DriveTrain extends SubsystemBase {
     private static final double WHEELBASE_METERS = Units.inchesToMeters(24.625);
 
     // P constants for controllin during trajectory following
-    private static final double X_PID_CONTROLLER_P = 2.0;
-    private static final double Y_PID_CONTROLLER_P = 2.0;
+    private static final double X_PID_CONTROLLER_P = 3.0;
+    private static final double Y_PID_CONTROLLER_P = 3.0;
     private static final double THETA_PID_CONTROLLER_P = 4.0;
 
     // speed used to drive onto/over the ChargeStation
@@ -354,11 +354,11 @@ public class DriveTrain extends SubsystemBase {
         // Have the vision system update based on the Apriltags, if seen
         m_vision.updateOdometry(m_odometry);
 
-        // Pose2d pose = m_odometry.getEstimatedPosition();
-        // SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
-        // SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
-        // SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-        // SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
+        Pose2d pose = m_odometry.getEstimatedPosition();
+        SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
+        SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
+        SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+        SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
 
         // // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
         // // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
