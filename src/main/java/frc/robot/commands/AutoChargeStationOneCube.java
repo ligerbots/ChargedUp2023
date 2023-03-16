@@ -8,6 +8,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
@@ -28,6 +29,9 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
         m_traj = new AutoFollowTrajectory(driveTrain, "c_forward_balance");
 
         addCommands(
+            new InstantCommand(arm::retractArm),
+            new WaitCommand(1.0),
+
             new MoveArmAndDrive(arm, driveTrain, vision, Position.CENTER_TOP, overrideButton),
             // new PrintCommand("End of MoveArmAndDrive"),
             new InstantCommand(claw::open),

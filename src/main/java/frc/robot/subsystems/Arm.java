@@ -26,6 +26,10 @@ public class Arm extends SubsystemBase {
     public void periodic() {
     }
 
+    public void retractArm(){
+        m_reacher.setLength(0.0);
+    }
+
     // set arm length in meters
     public void setArmLength(double length) {
         m_reacher.setLength(length);

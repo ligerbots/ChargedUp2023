@@ -29,7 +29,9 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
         m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
 
         addCommands(
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2),
+            new InstantCommand(arm::retractArm),
+            new WaitCommand(1.0),
+
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
             new WaitCommand(0.25),

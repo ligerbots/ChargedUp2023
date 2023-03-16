@@ -7,7 +7,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -30,6 +29,9 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
         m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
 
         addCommands(
+            new InstantCommand(arm::retractArm),
+            new WaitCommand(1.0),
+
             new ScoreArm(arm, driveTrain, Position.CENTER_TOP, overrideButton).withTimeout(5),
             // drive to the correct position
             new TagPositionDrive(driveTrain, vision, Position.CENTER_TOP),
