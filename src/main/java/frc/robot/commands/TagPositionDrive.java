@@ -42,8 +42,12 @@ public class TagPositionDrive extends CommandBase {
     private static final double SUBSTATION_OFFSET_X_METERS = 0.54;
     private static final double SUBSTATION_OFFSET_Y_METERS = 0.7;
 
-    private static final double DRIVE_MAX_VELOCITY = 2.0;
-    private static final double DRIVE_MAX_ACCEL = 4.0;
+    private static final double SUBSTATION_DRIVE_MAX_VELOCITY = 2.0;
+    private static final double SUBSTATION_DRIVE_MAX_ACCEL = 2.0;
+    
+    private static final double SCORE_DRIVE_MAX_VELOCITY = 2.0;
+    private static final double SCORE_DRIVE_MAX_ACCEL = 1.0;
+
 
     private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {
@@ -82,10 +86,10 @@ public class TagPositionDrive extends CommandBase {
         m_followTrajectory = null;
 
         // keep track if target is substation or grid
-        boolean isSubstationTarget = (m_targetPosition == Position.LEFT_SUBSTATION || m_targetPosition == Position.RIGHT_SUBSTATION);
+        boolean isSubTarget = isSubstationTarget(m_targetPosition);
         
         // getting central tag
-        int centralTagId = m_vision.getCentralTagId(isSubstationTarget);
+        int centralTagId = m_vision.getCentralTagId(isSubTarget);
 
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
@@ -119,8 +123,15 @@ public class TagPositionDrive extends CommandBase {
         Rotation2d heading = robotTargetTranslation.minus(currentPose.getTranslation()).getAngle();
         // System.out.println("Heading angle " + heading.getDegrees());
 
+        double maxVel = SCORE_DRIVE_MAX_VELOCITY;
+        double maxAcc = SCORE_DRIVE_MAX_ACCEL;
+        if (isSubTarget) {
+            maxVel = SUBSTATION_DRIVE_MAX_VELOCITY;
+            maxAcc = SUBSTATION_DRIVE_MAX_ACCEL;    
+        }
+
         PathPlannerTrajectory traj = PathPlanner.generatePath(
-                new PathConstraints(DRIVE_MAX_VELOCITY, DRIVE_MAX_ACCEL), // velocity, acceleration
+                new PathConstraints(maxVel, maxAcc), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
@@ -150,5 +161,9 @@ public class TagPositionDrive extends CommandBase {
     public boolean isFinished() {
         // if the FollowTrajectory commad is null or not scheduled, end
         return m_followTrajectory == null || m_followTrajectory.isFinished();
+    }
+
+    private boolean isSubstationTarget(Position pos) {
+        return pos == Position.LEFT_SUBSTATION || pos == Position.RIGHT_SUBSTATION;
     }
 }

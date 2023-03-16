@@ -67,12 +67,12 @@ public class Vision {
         // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
-        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
-        //         m_aprilTagCamera, m_robotToAprilTagCam);
-        // m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
-        
-        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
                 m_aprilTagCamera, m_robotToAprilTagCam);
+        m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+        
+        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+        //         m_aprilTagCamera, m_robotToAprilTagCam);
 
         // set the driver mode to false
         m_aprilTagCamera.setDriverMode(false);
