@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -61,8 +62,13 @@ public class Robot extends TimedRobot {
         //   ntinst.startClient4("MainRobotProgram");
         // }
         
+        // Disable the LiveWindow telemetry to lower the network load
         LiveWindow.disableAllTelemetry();
 
+        // Enable local logging.
+        // ** CAREFUL: this probably should be disabled during competition.
+        DataLogManager.start();
+        
         // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();
 
@@ -71,6 +77,7 @@ public class Robot extends TimedRobot {
         Vision vision = m_robotContainer.getVision();
         Claw claw = m_robotContainer.getClaw();
         JoystickButton overrideButton = m_robotContainer.getOverRideButton();
+
         // Initialize the list of available Autonomous routines
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
         m_chosenTrajectory.addOption("Barrier Cone Cube", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP, overrideButton));
