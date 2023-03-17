@@ -20,14 +20,9 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
 
     // private final double BACKING_MPS = 0.5;
 
-    AutoFollowTrajectory m_traj;
-
     /** Creates a new AutoChargeStationOneCube */
     public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
-        // Note this is a quick hack: the trajectory is loaded to just get the initial Pose and the stop point for backing up.
-        //  Otherwise it is not actually used.
-        m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
-
+        
         addCommands(
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
@@ -41,10 +36,5 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
             new ChargeStationBalance(driveTrain));
                     
         // Do NOT require any Subsystems. That is handled by the subcommands.
-    }
-
-    @Override
-    public Pose2d getInitialPose() {
-        return m_traj.getInitialPose();
     }
 }
