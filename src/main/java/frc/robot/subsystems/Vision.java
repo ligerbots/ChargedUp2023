@@ -110,8 +110,16 @@ public class Vision {
         Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
         if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
-            var estimatedPose = camPose.estimatedPose;
-            odometry.addVisionMeasurement(estimatedPose.toPose2d(), curImageTimeStamp);
+            Pose2d estimatedPose = camPose.estimatedPose.toPose2d();
+
+            // Only update if the estimated pose is reasonably close to the current pose.
+            // This filters out really bad results.
+            double delta = odometry.getEstimatedPosition().getTranslation().getDistance(estimatedPose.getTranslation());
+            if (delta < 0.5) {
+                odometry.addVisionMeasurement(estimatedPose, curImageTimeStamp);
+            } else {
+                System.out.println("** rejecting vision measurement. delta = " + delta + "  z = " + camPose.estimatedPose.getZ());
+            }
             // SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
             // SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
             // SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
