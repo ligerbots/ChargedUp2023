@@ -24,13 +24,14 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
     public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
         
         addCommands(
+            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2),
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
             new WaitCommand(0.25),
             
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
-            // new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
+            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));

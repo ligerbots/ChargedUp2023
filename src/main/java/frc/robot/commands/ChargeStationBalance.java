@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -16,7 +16,7 @@ public class ChargeStationBalance extends CommandBase {
 
     private static final double BALANCED_ERROR_DEGREES = 2.5; // max error for what counts as balanced
     private static final double BALANCED_DEGREES = 0;
-    private static final double BALANCE_KP = 0.03; // change to control how fast robot drives during balancing
+    private static final double BALANCE_KP = 0.035; // WPI 2023-03-15
     private static final double MAX_MPS = 1.0;
     private static final double BALANCE_SECONDS = 1; // how many seconds the robot has to be balanced before stopping
     private static final double ANGLE_KP = Units.degreesToRadians(1); 

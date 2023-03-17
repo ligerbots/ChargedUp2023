@@ -26,6 +26,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.Constants;
+import frc.robot.Constants.Position;
 
 public class Vision {
     // Values for the Shed in late January
@@ -66,12 +67,12 @@ public class Vision {
         // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
-        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
-        //         m_aprilTagCamera, m_robotToAprilTagCam);
-        // m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
-        
-        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
                 m_aprilTagCamera, m_robotToAprilTagCam);
+        m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+        
+        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+        //         m_aprilTagCamera, m_robotToAprilTagCam);
 
         // set the driver mode to false
         m_aprilTagCamera.setDriverMode(false);
@@ -129,7 +130,8 @@ public class Vision {
 
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
-    public int getCentralTagId() {
+    public int getCentralTagId(Boolean wantSubstationTarget) {
+        // make sure camera connected
         if (!m_aprilTagCamera.isConnected())
             return -1;
 
@@ -141,7 +143,27 @@ public class Vision {
         // make a temp holder var for least Y translation, set to first tags translation
         double minY = 1.0e6; // big number
         int targetID = -1;
-        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera
+        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera            
+            // find id for current tag we are focusing on
+            int tempTagID = tag.getFiducialId();
+
+            // if tag has an invalid ID then skip this tag
+            if (tempTagID < 1 || tempTagID > 8) {
+                continue;
+            }
+
+            boolean isSubstation = tempTagID == 5 || tempTagID == 4;
+
+            // if aiming for substation
+            if (wantSubstationTarget) {
+                if (!isSubstation) { //exit if tags are grids
+                    continue; //continue the for loop
+                }
+            } else { //if aiming for aiming for grid/not substation
+                if (isSubstation) { // exit if tag is substation
+                    continue;
+                }
+            }
             // get transformation to target
             Transform3d tagTransform = tag.getBestCameraToTarget();
             // get abs translation to target from transformation
@@ -151,7 +173,7 @@ public class Vision {
             // if abs Y translation of new tag is less then holder tag, it becomes holder tag
             if (tagY < minY) {
                 minY = tagY;
-                targetID = tag.getFiducialId(); // remember targetID
+                targetID = tempTagID; // remember targetID
             }
         }
         
