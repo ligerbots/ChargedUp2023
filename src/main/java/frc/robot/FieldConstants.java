@@ -27,15 +27,13 @@ public final class FieldConstants {
     public static final double CHARGE_STATION_MIDDLE_X_RED = 12.6;
 
     public static final double FIELD_LENGTH = 16.6;
-}
 
+    // Flip position
+    public static Pose2d flipPose(Pose2d pose) {
+        Rotation2d rot = pose.getRotation();
+        // reflect the pose over center line, flip both the X and the rotation
+        Pose2d flippedPose = new Pose2d(FIELD_LENGTH - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
+        return flippedPose;
+    }
 
-//Flip position
-public static Pose2d flipPose(Pose2d Pose) {
-    Pose2d flipped_pose = Pose2d(FIELD_LENGTH - Pose.getX(), Pose.getY(), Pose.getRotation());
-    return flipped_pose;
-}
-
-private static Pose2d Pose2d(double x, double y, Rotation2d rotation) {
-    return null;
 }
