@@ -5,7 +5,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutoXPositionDrive extends CommandBase {
@@ -15,7 +21,14 @@ public class AutoXPositionDrive extends CommandBase {
     private DriveTrain m_driveTrain;
     private double m_driveMPS;
     private double m_goalX;
-    private double m_direction;
+    private double m_directionX;
+
+    private final double Y_PID_CONTROLLER_P = 1.0;
+    private PIDController m_yController = new PIDController(Y_PID_CONTROLLER_P, 0, 0);
+
+    private Rotation2d m_rotationHeading;
+    private final double ROT_PID_CONTROLLER_P = 1.0;
+    private PIDController m_rotController = new PIDController(ROT_PID_CONTROLLER_P, 0, 0);
 
     /** Creates a new ChargeStationDrive. */
     public AutoXPositionDrive(DriveTrain driveTrain, double goalX, double driveMPS) {
@@ -31,18 +44,31 @@ public class AutoXPositionDrive extends CommandBase {
     public void initialize() {
         // driving towards the goal
         if(m_driveTrain.getPose().getX() < m_goalX)
-            m_direction = 1.0;
+            m_directionX = 1.0;
         else
-            m_direction = -1.0;
+            m_directionX = -1.0;
+
+        if(DriverStation.getAlliance() == Alliance.Red)
+            m_rotationHeading = Rotation2d.fromDegrees(0);
+        else
+            m_rotationHeading = Rotation2d.fromDegrees(180);
     }   
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        double driveSpeed = m_direction * m_driveMPS;
+        double driveSpeedX = m_directionX * m_driveMPS;
         
+        Pose2d curPose = m_driveTrain.getPose();
+        
+        double directionY = curPose.getY() < FieldConstants.FIELD_HORIZONTAL_CENTER_LINE_Y ? 1.0 : -1.0;
+        double driveSpeedY = directionY * m_yController.calculate(curPose.getY(), FieldConstants.FIELD_HORIZONTAL_CENTER_LINE_Y);
+
+        double directionRot = curPose.getRotation().getDegrees() < m_rotationHeading.getDegrees() ? 1.0 : -1.0;
+        double driveSpeedRot = directionRot * m_rotController.calculate(curPose.getRotation().getDegrees(), m_rotationHeading.getDegrees());
+
         //robot drives at set speed in mps
-        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveSpeed, 0.0, 0.0, m_driveTrain.getHeading()));
+        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveSpeedX, driveSpeedY, driveSpeedRot, m_driveTrain.getHeading()));
     }
 
     // Called once the command ends or is interrupted.
