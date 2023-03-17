@@ -30,7 +30,7 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
 
         addCommands(
             new InstantCommand(arm::retractArm),
-            new WaitCommand(1.0),
+            new WaitCommand(0.1),
 
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),

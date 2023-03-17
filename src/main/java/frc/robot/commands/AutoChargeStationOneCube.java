@@ -30,7 +30,7 @@ public class AutoChargeStationOneCube extends SequentialCommandGroup implements 
 
         addCommands(
             new InstantCommand(arm::retractArm),
-            new WaitCommand(1.0),
+            new WaitCommand(0.1),
 
             new MoveArmAndDrive(arm, driveTrain, vision, Position.CENTER_TOP, overrideButton),
             // new PrintCommand("End of MoveArmAndDrive"),
