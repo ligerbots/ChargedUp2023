@@ -285,21 +285,29 @@ public class DriveTrain extends SubsystemBase {
 
     // for the beginning of auto rountines
     public void resetDrivingModes() {
-        m_fieldCentric = true;
-        m_precisionMode = false;
+        setFieldCentricMode(true);
+        setPrecisionMode(false);
     }
 
     // toggle whether driving is field-centric
     public void toggleFieldCentric() {
-        m_fieldCentric = !m_fieldCentric;
+        setFieldCentricMode(!m_fieldCentric);
     }
 
     // toggle precision mode for driving
     public void togglePrecisionMode() {
-        m_precisionMode = !m_precisionMode;
+        setPrecisionMode(!m_precisionMode);
+    }
+
+    public void setFieldCentricMode(boolean fieldCentricMode){
+        m_fieldCentric = fieldCentricMode;
+    }
+
+    public void setPrecisionMode(boolean precisionMode){
+        m_precisionMode = precisionMode;
         m_maxVelocity = m_precisionMode ? MAX_VELOCITY_PRECISION_MODE : MAX_VELOCITY_METERS_PER_SECOND;
         m_maxAngularVelocity = m_precisionMode ? MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND_PRECISION_MODE
-                : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+            : MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
     }
 
     // lock wheels in x position to resist pushing

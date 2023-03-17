@@ -24,7 +24,7 @@ public final class FieldConstants {
 
     // Center (x) of the Charging Station (in meters)
     public static final double CHARGE_STATION_MIDDLE_X_BLUE = 3.9;
-    public static final double CHARGE_STATION_MIDDLE_X_RED = 12.6;
+    public static final double CHARGE_STATION_MIDDLE_X_RED = flipX(CHARGE_STATION_MIDDLE_X_BLUE);
 
     public static final double FIELD_LENGTH = 16.6;
     public static final double FIELD_WIDTH = 8.1;
@@ -37,6 +37,10 @@ public final class FieldConstants {
         // reflect the pose over center line, flip both the X and the rotation
         Pose2d flippedPose = new Pose2d(FIELD_LENGTH - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
         return flippedPose;
+    }
+
+    public static double flipX(double x){
+        return FIELD_LENGTH - x;
     }
 
 }
