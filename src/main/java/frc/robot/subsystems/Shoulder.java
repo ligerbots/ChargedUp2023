@@ -197,7 +197,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
         SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
-        
+        SmartDashboard.putNumber("shoulder/currentMain", m_motorLeader.getStatorCurrent());
+        SmartDashboard.putNumber("shoulder/currentFollow", m_motorFollower.getStatorCurrent());
+  
         m_coastMode = SmartDashboard.getBoolean("shoulder/coastMode", m_coastMode);
         if (m_coastMode)
             setCoastMode(m_coastMode);
