@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -30,14 +32,23 @@ public final class FieldConstants {
 
     // Flip position
     public static Pose2d flipPose(Pose2d pose) {
-        Rotation2d rot = pose.getRotation();
+        
+        Pose2d flippedPose;
+        if(DriverStation.getAlliance() == Alliance.Red){
+            Rotation2d rot = pose.getRotation();
+            flippedPose = new Pose2d(FIELD_LENGTH - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
+        }else{
+            flippedPose = pose;
+        }
         // reflect the pose over center line, flip both the X and the rotation
-        Pose2d flippedPose = new Pose2d(FIELD_LENGTH - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
         return flippedPose;
     }
 
     public static double flipX(double x){
-        return FIELD_LENGTH - x;
+        if(DriverStation.getAlliance() == Alliance.Red)
+            return FIELD_LENGTH - x;
+        else
+            return x;
     }
 
 }
