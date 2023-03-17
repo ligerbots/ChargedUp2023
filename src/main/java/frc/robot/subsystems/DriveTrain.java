@@ -369,10 +369,10 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
 
         // // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
-        // // SmartDashboard.putNumber(""drivetrain/roll", getRoll().getDegrees());
+        // // SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
         // // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
-        // SmartDashboard.putBoolean("drivetrain/fieldCentric", m_fieldCentric);
+        SmartDashboard.putBoolean("drivetrain/precisionMode", m_precisionMode);
 
         // for (SwerveModule mod : m_swerveModules) {
         //     mod.updateSmartDashboard();
