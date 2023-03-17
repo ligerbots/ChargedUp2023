@@ -29,7 +29,7 @@ public final class FieldConstants {
     public static final double FIELD_LENGTH = 16.6;
     public static final double FIELD_WIDTH = 8.1;
 
-    public static final double FIELD_HORIZONTAL_CENTER_LINE_Y = FIELD_WIDTH / 2.0;
+    public static final double FIELD_HORIZONTAL_CENTER_LINE_Y = 2.75;
 
     // Flip position
     public static Pose2d flipPose(Pose2d pose) {
