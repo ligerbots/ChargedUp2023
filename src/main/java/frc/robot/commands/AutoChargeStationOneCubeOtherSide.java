@@ -25,7 +25,6 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
     /** Creates a new AutoChargeStationOneCubeOtherSide */
     public AutoChargeStationOneCubeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
         m_initialPoseBlue = new Pose2d(2.0, FieldConstants.CHARGE_STATION_CENTER_Y, Rotation2d.fromDegrees(180));
-        m_centerPoseBlue = new Pose2d(5.8, 2.73, Rotation2d.fromDegrees(180));
 
         addCommands(
             new ScoreArm(arm, driveTrain, Position.CENTER_TOP, overrideButton).withTimeout(5),
@@ -37,7 +36,7 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
             // Drive over the CS to out of the Community 
-            new AutoXPositionDrive(driveTrain, m_centerPoseBlue.getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
+            new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));

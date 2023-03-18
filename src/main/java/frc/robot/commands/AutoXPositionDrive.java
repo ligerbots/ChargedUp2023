@@ -68,8 +68,8 @@ public class AutoXPositionDrive extends CommandBase {
         // this includes the Y direction for the robot to move 
         double yError = FieldConstants.CHARGE_STATION_CENTER_Y - curPose.getY();
         double driveSpeedY = MathUtil.clamp(yError * Y_PID_CONTROLLER_P, -Y_MAX_SPEED, Y_MAX_SPEED);
-        System.out.println(String.format("driveX yErr: %g - %g = %g", FieldConstants.CHARGE_STATION_CENTER_Y, curPose.getY(), yError));
-        System.out.println("driveX ySpeed = " + driveSpeedY);
+        // System.out.println(String.format("driveX yErr: %g - %g = %g", FieldConstants.CHARGE_STATION_CENTER_Y, curPose.getY(), yError));
+        // System.out.println("driveX ySpeed = " + driveSpeedY);
 
         // keep the heading (-180, 180]
         double curHeading = MathUtil.inputModulus(curPose.getRotation().getDegrees(), -180, 180);

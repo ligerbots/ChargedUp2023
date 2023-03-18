@@ -33,6 +33,9 @@ public final class FieldConstants {
     //public static final double CHARGE_STATION_MIDDLE_X_RED = FIELD_LENGTH - CHARGE_STATION_MIDDLE_X_BLUE;
     public static final double CHARGE_STATION_CENTER_Y = 2.75;
 
+    // x position outside Community for auto
+    public static final double CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE = 5.8;
+
     // Flip position
     public static Pose2d flipPose(Pose2d pose) {
         if (DriverStation.getAlliance() == Alliance.Blue)

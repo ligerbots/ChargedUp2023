@@ -21,7 +21,6 @@ import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup implements AutoCommandInterface {
     Pose2d m_initialPoseBlue;
-    Pose2d m_centerPoseBlue;
 
     /** Creates a new AutoChargeStationOneCube */
     public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, boolean wallPosition, JoystickButton overrideButton) {
@@ -33,7 +32,6 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
         }
 
         m_initialPoseBlue = new Pose2d(2.0, initY, Rotation2d.fromDegrees(180));
-        m_centerPoseBlue = new Pose2d(5.8, 2.73, Rotation2d.fromDegrees(180));
 
         addCommands(
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2),
@@ -45,7 +43,7 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
             // Drive over the CS to out of the Community 
-            new AutoXPositionDrive(driveTrain, m_centerPoseBlue.getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
+            new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             // Drive back to the center of the CS
             new ChargeStationDrive(driveTrain),
