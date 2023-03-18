@@ -22,7 +22,7 @@ public final class FieldConstants {
     // safeZone x limit on blue side, cannot stow in this zone
     public static final double BAD_ZONE_X_BLUE = 2.0;
     // safeZone x limit on red side, cannot stow in this zone
-    public static final double BAD_ZONE_X_RED = 14.6;
+    public static final double BAD_ZONE_X_RED = flipX(BAD_ZONE_X_BLUE);
 
     // Center (x) of the Charging Station (in meters)
     public static final double CHARGE_STATION_MIDDLE_X_BLUE = 3.9;
