@@ -31,7 +31,7 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
             new InstantCommand(claw::open),
             new WaitCommand(0.25),
 
-            // The robot is already outside the danger zone for stowing arm if we try to score a cone 
+            // We start outside the danger zone, so we are fine. 
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
             // Drive over the CS to out of the Community 
