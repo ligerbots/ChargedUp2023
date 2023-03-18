@@ -28,6 +28,9 @@ public final class FieldConstants {
     public static final double CHARGE_STATION_MIDDLE_X_BLUE = 3.9;
     public static final double CHARGE_STATION_MIDDLE_X_RED = flipX(CHARGE_STATION_MIDDLE_X_BLUE);
 
+    // the stopping x pos in the middle of the field
+    public static final double CHARGE_STATION_STOP_X = 5.80;
+
     public static final double FIELD_LENGTH = 16.6;
 
     // Flip position
