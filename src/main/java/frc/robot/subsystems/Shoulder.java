@@ -195,7 +195,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // Add some extra numbers to diagnose the load on the motors
         SmartDashboard.putNumber("shoulder/leaderOutput", m_motorLeader.get());
         SmartDashboard.putNumber("shoulder/encoder", Math.toDegrees(getAngle()));
-        SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()))
+        SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
         SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
         SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
