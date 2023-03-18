@@ -19,8 +19,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup implements AutoCommandInterface {
-    Pose2d m_initialPoseBlue;
-    Pose2d m_centerPoseBlue;
+    final Pose2d m_initialPoseBlue;
 
     /** Creates a new AutoChargeStationOneCubeOtherSide */
     public AutoChargeStationOneCubeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
