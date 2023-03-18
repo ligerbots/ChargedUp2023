@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -12,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 import frc.robot.FieldConstants;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
@@ -20,17 +20,19 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup implements AutoCommandInterface {
-
-    // private final double BACKING_MPS = 0.5;
-
-    AutoFollowTrajectory m_traj;
-
     Pose2d m_initialPoseBlue;
     Pose2d m_centerPoseBlue;
 
     /** Creates a new AutoChargeStationOneCube */
-    public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
-        m_initialPoseBlue = new Pose2d(2.0, FieldConstants.CHARGE_STATION_CENTER_Y + Units.inchesToMeters(22.0), Rotation2d.fromDegrees(180));
+    public AutoChargeStationOneConeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, boolean wallPosition, JoystickButton overrideButton) {
+        // barrier cone position
+        double initY = FieldConstants.CHARGE_STATION_CENTER_Y + Units.inchesToMeters(22.0);
+        if (wallPosition) {
+            // wall cone position
+            initY = FieldConstants.CHARGE_STATION_CENTER_Y - Units.inchesToMeters(22.0);
+        }
+
+        m_initialPoseBlue = new Pose2d(2.0, initY, Rotation2d.fromDegrees(180));
         m_centerPoseBlue = new Pose2d(5.8, 2.73, Rotation2d.fromDegrees(180));
 
         addCommands(

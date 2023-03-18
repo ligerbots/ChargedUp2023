@@ -77,7 +77,8 @@ public class Robot extends TimedRobot {
         m_chosenTrajectory.addOption("Wall Cone Cube", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP, overrideButton));
         // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCube(driveTrain, arm, vision, claw));
         // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCubeOtherSide(driveTrain, arm, vision, claw));
-        m_chosenTrajectory.addOption("Charge Station Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, overrideButton));
+        m_chosenTrajectory.addOption("Charge Station WALL Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, true, overrideButton));
+        m_chosenTrajectory.addOption("Charge Station BARRIER Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, false, overrideButton));
         // m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         // m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
         // m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
