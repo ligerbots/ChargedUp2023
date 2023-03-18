@@ -131,6 +131,10 @@ public class Vision {
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
     public int getCentralTagId(Boolean wantSubstationTarget) {
+        // SIMULATION - just return a fixed tag to test an Auto
+        // if (Robot.isSimulation())
+        //     return 2; // center red tag
+    
         // make sure camera connected
         if (!m_aprilTagCamera.isConnected())
             return -1;

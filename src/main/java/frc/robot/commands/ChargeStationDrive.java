@@ -26,13 +26,7 @@ public class ChargeStationDrive extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        double goalX;
-        if (DriverStation.getAlliance() == Alliance.Red)
-            goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_RED;
-        else 
-            goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE;
-        
-        m_command = new AutoXPositionDrive(m_driveTrain, goalX, DriveTrain.CHARGE_STATION_DRIVE_MPS);
+        m_command = new AutoXPositionDrive(m_driveTrain, FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS);
         m_command.initialize();
     }
 

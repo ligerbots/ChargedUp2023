@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -17,6 +19,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * reduce verbosity.
  */
 public final class FieldConstants {
+    // Field size, copied from AprilTag layout
+    public static final double FIELD_LENGTH = 16.54175;
+    public static final double FIELD_WIDTH = 8.0137;    
+    
     // safeZone x limit on blue side, cannot stow in this zone
     public static final double BAD_ZONE_X_BLUE = 2.0;
     // safeZone x limit on red side, cannot stow in this zone
@@ -24,23 +30,22 @@ public final class FieldConstants {
 
     // Center (x) of the Charging Station (in meters)
     public static final double CHARGE_STATION_MIDDLE_X_BLUE = 3.9;
-    public static final double CHARGE_STATION_MIDDLE_X_RED = flipX(CHARGE_STATION_MIDDLE_X_BLUE);
-
-    public static final double FIELD_LENGTH = 16.6;
-    public static final double FIELD_WIDTH = 8.1;
-
-    public static final double FIELD_HORIZONTAL_CENTER_LINE_Y = 2.75;
+    public static final double CHARGE_STATION_MIDDLE_X_RED = FIELD_LENGTH - CHARGE_STATION_MIDDLE_X_BLUE;
+    public static final double CHARGE_STATION_CENTER_Y = 2.75;
 
     // Flip position
     public static Pose2d flipPose(Pose2d pose) {
+        if (DriverStation.getAlliance() == Alliance.Blue)
+            return pose;
+
         Rotation2d rot = pose.getRotation();
         // reflect the pose over center line, flip both the X and the rotation
-        Pose2d flippedPose = new Pose2d(FIELD_LENGTH - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
-        return flippedPose;
+        return new Pose2d(FIELD_LENGTH - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
     }
 
     public static double flipX(double x){
+        if (DriverStation.getAlliance() == Alliance.Blue)
+            return x;
         return FIELD_LENGTH - x;
     }
-
 }

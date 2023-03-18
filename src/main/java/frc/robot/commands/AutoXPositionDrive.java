@@ -21,8 +21,9 @@ public class AutoXPositionDrive extends CommandBase {
 
     private DriveTrain m_driveTrain;
     private double m_driveMPSX;
-    private double m_goalX;
+    private double m_goalXBlue;
     private double m_directionX;
+    private double m_goalX;
 
     private final double Y_MAX_SPEED = 0.2; // we want 0.5 m/s
     private final double Y_PID_CONTROLLER_P = 1.0;
@@ -32,9 +33,9 @@ public class AutoXPositionDrive extends CommandBase {
     private final double ROT_PID_CONTROLLER_P = 1.0;
 
     /** Creates a new ChargeStationDrive. */
-    public AutoXPositionDrive(DriveTrain driveTrain, double goalX, double driveMPS) {
+    public AutoXPositionDrive(DriveTrain driveTrain, double goalXBlue, double driveMPS) {
         m_driveTrain = driveTrain;
-        m_goalX = goalX;
+        m_goalXBlue = goalXBlue;
         m_driveMPSX = driveMPS;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(driveTrain);
@@ -43,13 +44,15 @@ public class AutoXPositionDrive extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        m_goalX = FieldConstants.flipX(m_goalXBlue);
+
         // driving towards the goal
-        if(m_driveTrain.getPose().getX() < m_goalX)
+        if (m_driveTrain.getPose().getX() < m_goalX)
             m_directionX = 1.0;
         else
             m_directionX = -1.0;
 
-        if(DriverStation.getAlliance() == Alliance.Red)
+        if (DriverStation.getAlliance() == Alliance.Red)
             m_rotationHeading = Rotation2d.fromDegrees(0);
         else
             m_rotationHeading = Rotation2d.fromDegrees(180);
@@ -63,8 +66,10 @@ public class AutoXPositionDrive extends CommandBase {
         Pose2d curPose = m_driveTrain.getPose();
 
         // this includes the Y direction for the robot to move 
-        double driveSpeedY = (FieldConstants.FIELD_HORIZONTAL_CENTER_LINE_Y - curPose.getY()) * Y_PID_CONTROLLER_P;
-        driveSpeedY = MathUtil.clamp(driveSpeedX, -Y_MAX_SPEED, Y_MAX_SPEED);
+        double yError = FieldConstants.CHARGE_STATION_CENTER_Y - curPose.getY();
+        double driveSpeedY = MathUtil.clamp(yError * Y_PID_CONTROLLER_P, -Y_MAX_SPEED, Y_MAX_SPEED);
+        System.out.println(String.format("driveX yErr: %g - %g = %g", FieldConstants.CHARGE_STATION_CENTER_Y, curPose.getY(), yError));
+        System.out.println("driveX ySpeed = " + driveSpeedY);
 
         // keep the heading (-180, 180]
         double curHeading = MathUtil.inputModulus(curPose.getRotation().getDegrees(), -180, 180);
