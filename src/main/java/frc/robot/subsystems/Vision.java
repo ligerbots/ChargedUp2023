@@ -24,9 +24,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.Constants;
-import frc.robot.Constants.Position;
 
 public class Vision {
     // Values for the Shed in late January
@@ -67,12 +67,12 @@ public class Vision {
         // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
-        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
-                m_aprilTagCamera, m_robotToAprilTagCam);
-        m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
-        
-        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
         //         m_aprilTagCamera, m_robotToAprilTagCam);
+        // m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+        
+        m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+                m_aprilTagCamera, m_robotToAprilTagCam);
 
         // set the driver mode to false
         m_aprilTagCamera.setDriverMode(false);
@@ -114,12 +114,13 @@ public class Vision {
 
             // Only update if the estimated pose is reasonably close to the current pose.
             // This filters out really bad results.
-            double delta = odometry.getEstimatedPosition().getTranslation().getDistance(estimatedPose.getTranslation());
-            if (delta < 0.5) {
+            // double delta = odometry.getEstimatedPosition().getTranslation().getDistance(estimatedPose.getTranslation());
+            // if (DriverStation.isDisabled() || delta < 0.5) {
                 odometry.addVisionMeasurement(estimatedPose, curImageTimeStamp);
-            } else {
-                System.out.println("** rejecting vision measurement. delta = " + delta + "  z = " + camPose.estimatedPose.getZ());
-            }
+            // } else {
+            //     System.out.println("** rejecting vision measurement. delta = " + delta + "  z = " + camPose.estimatedPose.getZ());
+            // }
+
             // SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
             // SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
             // SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
