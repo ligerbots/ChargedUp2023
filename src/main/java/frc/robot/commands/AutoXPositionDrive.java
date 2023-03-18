@@ -6,12 +6,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
 
@@ -25,10 +24,11 @@ public class AutoXPositionDrive extends CommandBase {
     private double m_directionX;
     private double m_goalX;
 
-    private final double Y_MAX_SPEED = 0.2; // we want 0.5 m/s
+    private final double Y_MAX_SPEED = 0.25; // we want 0.5 m/s
     private final double Y_PID_CONTROLLER_P = 1.0;
 
-    private Rotation2d m_rotationHeading;
+    // Work in degrees
+    private double m_targetHeadingDegrees;
     private final double ROT_MAX_SPEED = 0.2; // we want 10.0 deg/s
     private final double ROT_PID_CONTROLLER_P = 1.0;
 
@@ -53,9 +53,9 @@ public class AutoXPositionDrive extends CommandBase {
             m_directionX = -1.0;
 
         if (DriverStation.getAlliance() == Alliance.Red)
-            m_rotationHeading = Rotation2d.fromDegrees(0);
+            m_targetHeadingDegrees = 0;
         else
-            m_rotationHeading = Rotation2d.fromDegrees(180);
+            m_targetHeadingDegrees = 180;
     }   
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -71,11 +71,12 @@ public class AutoXPositionDrive extends CommandBase {
         // System.out.println(String.format("driveX yErr: %g - %g = %g", FieldConstants.CHARGE_STATION_CENTER_Y, curPose.getY(), yError));
         // System.out.println("driveX ySpeed = " + driveSpeedY);
 
-        // keep the heading (-180, 180]
-        double curHeading = MathUtil.inputModulus(curPose.getRotation().getDegrees(), -180, 180);
-        // similarly, the direction of turning is handled
-        double driveSpeedRot = (m_rotationHeading.getDegrees() - curHeading) * ROT_PID_CONTROLLER_P;
-        driveSpeedRot = MathUtil.clamp(driveSpeedRot, -ROT_MAX_SPEED, ROT_MAX_SPEED);
+        // The angle error is the difference between the target and actual heading
+        // However, the result should be between -90 -> 90 degrees to choose the smallest possible turn.
+        double angError = MathUtil.inputModulus(m_targetHeadingDegrees - curPose.getRotation().getDegrees(), -90.0, 90.0);
+        double driveSpeedRot = MathUtil.clamp(angError * ROT_PID_CONTROLLER_P, -ROT_MAX_SPEED, ROT_MAX_SPEED);
+        // System.out.println(String.format("driveX angErr: %g - %g = %g", m_rotationHeading, curPose.getRotation().getDegrees(), angError));
+        // System.out.println("driveX angSpeed = " + driveSpeedRot);
 
         //robot drives at set speed in mps
         m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveSpeedX, driveSpeedY, driveSpeedRot, m_driveTrain.getHeading()));
