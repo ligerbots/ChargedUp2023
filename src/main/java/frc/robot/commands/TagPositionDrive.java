@@ -30,7 +30,6 @@ public class TagPositionDrive extends CommandBase {
     private Command m_followTrajectory;
     private Vision m_vision;
     private Position m_targetPosition;
-    private boolean m_isSubstationTarget;
 
     // Dictionary of robot positions for a desired operation
     // This is *relative* to the AprilTag pose, but left/right from the Driver's perspective
@@ -88,10 +87,10 @@ public class TagPositionDrive extends CommandBase {
         m_followTrajectory = null;
 
         // keep track if target is substation or grid
-        m_isSubstationTarget = isSubstationTarget(m_targetPosition);
+        boolean isSubTarget = isSubstationTarget(m_targetPosition);
         
         // getting central tag
-        int centralTagId = m_vision.getCentralTagId(m_isSubstationTarget);
+        int centralTagId = m_vision.getCentralTagId(isSubTarget);
 
         Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
@@ -130,7 +129,7 @@ public class TagPositionDrive extends CommandBase {
 
         double maxVel = SCORE_DRIVE_MAX_VELOCITY;
         double maxAcc = SCORE_DRIVE_MAX_ACCEL;
-        if (m_isSubstationTarget) {
+        if (isSubTarget) {
             maxVel = SUBSTATION_DRIVE_MAX_VELOCITY;
             maxAcc = SUBSTATION_DRIVE_MAX_ACCEL;    
         }
@@ -145,7 +144,7 @@ public class TagPositionDrive extends CommandBase {
         m_followTrajectory.initialize();
         
         // if we are trying to score, switch automatically into precisionMode
-        if (! m_isSubstationTarget) {
+        if (! isSubTarget) {
             m_driveTrain.setPrecisionMode(true);
         }
     }
