@@ -143,6 +143,11 @@ public class TagPositionDrive extends CommandBase {
 
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.initialize();
+        
+        // if we are trying to score, switch automatically into precisionMode
+        if (! m_isSubstationTarget) {
+            m_driveTrain.setPrecisionMode(true);
+        }
     }
 
     @Override
@@ -156,11 +161,6 @@ public class TagPositionDrive extends CommandBase {
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
         System.out.println("TagPositionDrive end interrupted = " + interrupted);
-
-        // if we are trying to score, switch automatically into precisionMode
-        if (! m_isSubstationTarget) {
-            m_driveTrain.setPrecisionMode(true);
-        }
 
         if (m_followTrajectory != null)
             m_followTrajectory.end(interrupted);
