@@ -24,7 +24,7 @@ public final class FieldConstants {
     public static final double FIELD_WIDTH = 8.0137;    
     
     // safeZone x limit on blue side, cannot stow in this zone
-    public static final double BAD_ZONE_X_BLUE = 2.0;
+    public static final double BAD_ZONE_X_BLUE = 1.8;
     // safeZone x limit on red side, cannot stow in this zone
     public static final double BAD_ZONE_X_RED = FIELD_LENGTH - BAD_ZONE_X_BLUE;
 
