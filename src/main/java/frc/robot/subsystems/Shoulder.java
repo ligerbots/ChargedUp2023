@@ -35,6 +35,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(3.0);
 
+    private static final double LEADER_CURRENT_LIMIT = 12.0;
+    private static final double FOLLOW_CURRENT_LIMIT = 6.0;
+
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
@@ -134,8 +137,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // limits for motor leader and folower
         // when feature activate there's a limit of 35 amps, limiting occurs when exceed 25 amps
-        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
-        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        // m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        // m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
+        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
 
         m_dutyEncoder = dutyCycleEncoder;
 
@@ -148,8 +153,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // Set the motor encoder and Position setpoint to the initialAngle from the absolute encoder
         m_encoder.setIntegratedSensorPosition(initialAngle / SHOULDER_RADIAN_PER_UNIT, 0);
-        // SmartDashboard.putNumber("shoulder/initialAngle_SHOULDER_RADIAN_PER_UNIT", initialAngle / SHOULDER_RADIAN_PER_UNIT);
-        // SmartDashboard.putNumber("shoulder/encoderIntegSensPos", m_encoder.getIntegratedSensorPosition());
+
+        SmartDashboard.putNumber("shoulder/leaderCurrentLimit", LEADER_CURRENT_LIMIT);
+        SmartDashboard.putNumber("shoulder/followCurrentLimit", FOLLOW_CURRENT_LIMIT);
         // m_motorLeader.setSelectedSensorPosition(-m_Duty_Encoder.getDistance());
         // m_motorLeader.setSelectedSensorPosition(m_encoder.getIntegratedSensorPosition());
         // m_motorLeader.setSelectedSensorPosition(initialAngle / SHOULDER_RADIAN_PER_UNIT);
