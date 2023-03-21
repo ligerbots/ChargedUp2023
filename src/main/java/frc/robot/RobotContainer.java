@@ -103,7 +103,10 @@ public class RobotContainer {
         xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
         JoystickButton leftBumper = new JoystickButton(m_controller, XBOX_LB);
-        leftBumper.onTrue(new InstantCommand(m_claw::open));
+        leftBumper.onTrue(
+            new InstantCommand(m_claw::open)
+            .alongWith(new InstantCommand(()->{ m_driveTrain.setPrecisionMode(false); }))
+        );
 
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
         rightBumper.onTrue(new InstantCommand(m_claw::close));
