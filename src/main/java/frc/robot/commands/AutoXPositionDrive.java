@@ -68,15 +68,11 @@ public class AutoXPositionDrive extends CommandBase {
         // this includes the Y direction for the robot to move 
         double yError = FieldConstants.CHARGE_STATION_CENTER_Y - curPose.getY();
         double driveSpeedY = MathUtil.clamp(yError * Y_PID_CONTROLLER_P, -Y_MAX_SPEED, Y_MAX_SPEED);
-        // System.out.println(String.format("driveX yErr: %g - %g = %g", FieldConstants.CHARGE_STATION_CENTER_Y, curPose.getY(), yError));
-        // System.out.println("driveX ySpeed = " + driveSpeedY);
 
         // The angle error is the difference between the target and actual heading
         // However, the result should be between -90 -> 90 degrees to choose the smallest possible turn.
         double angError = MathUtil.inputModulus(m_targetHeadingDegrees - curPose.getRotation().getDegrees(), -90.0, 90.0);
         double driveSpeedRot = MathUtil.clamp(angError * ROT_PID_CONTROLLER_P, -ROT_MAX_SPEED, ROT_MAX_SPEED);
-        // System.out.println(String.format("driveX angErr: %g - %g = %g", m_rotationHeading, curPose.getRotation().getDegrees(), angError));
-        // System.out.println("driveX angSpeed = " + driveSpeedRot);
 
         //robot drives at set speed in mps
         m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveSpeedX, driveSpeedY, driveSpeedRot, m_driveTrain.getHeading()));
