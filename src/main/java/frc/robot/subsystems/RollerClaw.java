@@ -55,18 +55,16 @@ public class RollerClaw extends Claw {
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
         // SmartDashboard.putNumber("claw/speed", 0.0);
         m_speed = 0.0;
-    }
-    // starts the sensor on initialization
-    public void initialize() {
+
         // starts the sensor on initialization
-        SmartDashboard.putNumber("Ultrasonic Sensor", -1.0);
+        SmartDashboard.putNumber("Ultrasonic Sensor Roller Claw", -1.0);
         ultrasonicSensor.setEnabled(true);
     }
+
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
         // display collected data from the ultrasonic sensor
-        ultrasonicSensor.setEnabled(true);
         SmartDashboard.putBoolean("isValid", ultrasonicSensor.isRangeValid());
         SmartDashboard.putNumber("Ultrasonic Sensor", ultrasonicSensor.getRangeInches());
         SmartDashboard.putBoolean("isEnabled", ultrasonicSensor.isEnabled());

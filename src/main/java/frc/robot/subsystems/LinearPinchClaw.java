@@ -25,11 +25,8 @@ public class LinearPinchClaw extends Claw {
     /** Creates a new Claw. */
     public LinearPinchClaw() {
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
-    }
-
-    // starts the sensor on initialization
-    public void initialize() {
-        SmartDashboard.putNumber("Ultrasonic Sensor", -1.0);
+        // starts the sensor on initialization
+        SmartDashboard.putNumber("Ultrasonic Sensor Linear Pinch", -1.0);
         ultrasonicSensor.setEnabled(true);
     }
 
@@ -37,7 +34,6 @@ public class LinearPinchClaw extends Claw {
     @Override
     public void periodic() {
         // display collected data from the ultrasonic sensor
-        ultrasonicSensor.setEnabled(true);
         SmartDashboard.putBoolean("isValid", ultrasonicSensor.isRangeValid());
         SmartDashboard.putNumber("Ultrasonic Sensor", ultrasonicSensor.getRangeInches());
         SmartDashboard.putBoolean("isEnabled", ultrasonicSensor.isEnabled());
