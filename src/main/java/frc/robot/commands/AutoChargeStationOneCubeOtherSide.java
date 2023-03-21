@@ -4,12 +4,14 @@
 
 package frc.robot.commands;
 
-
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import frc.robot.FieldConstants;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -17,35 +19,26 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup implements AutoCommandInterface {
+    final Pose2d m_initialPoseBlue;
 
-    private final double BACKING_MPS = 0.5;
-
-    AutoFollowTrajectory m_traj;
-
-    /** Creates a new AutoChargeStationOneCube */
+    /** Creates a new AutoChargeStationOneCubeOtherSide */
     public AutoChargeStationOneCubeOtherSide(DriveTrain driveTrain, Arm arm, Vision vision, Claw claw, JoystickButton overrideButton) {
-        // Note this is a quick hack: the trajectory is loaded to just get the initial Pose and the stop point for backing up.
-        //  Otherwise it is not actually used.
-        m_traj = new AutoFollowTrajectory(driveTrain, "c_out_the_zone_balance");
+        m_initialPoseBlue = new Pose2d(2.0, FieldConstants.CHARGE_STATION_CENTER_Y, Rotation2d.fromDegrees(180));
 
         addCommands(
             new InstantCommand(arm::retractArm),
             new WaitCommand(0.1),
 
             new ScoreArm(arm, driveTrain, Position.CENTER_TOP, overrideButton).withTimeout(5),
-            // drive to the correct position
-            new TagPositionDrive(driveTrain, vision, Position.CENTER_TOP),
 
-            // new PrintCommand("Step 2 of AutoCS"),
             new InstantCommand(claw::open),
             new WaitCommand(0.25),
 
-            // back up to stow the arm
-            new AutoXPositionDrive(driveTrain, m_traj.getInitialPose().getX(), BACKING_MPS),
-            
+            // We start outside the danger zone, so we are fine. 
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
             
-            new AutoXPositionDrive(driveTrain, m_traj.getEndPose().getX(), DriveTrain.CHARGE_STATION_DRIVE_MPS),
+            // Drive over the CS to out of the Community 
+            new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             new ChargeStationDrive(driveTrain),
             new ChargeStationBalance(driveTrain));
@@ -55,6 +48,6 @@ public class AutoChargeStationOneCubeOtherSide extends SequentialCommandGroup im
 
     @Override
     public Pose2d getInitialPose() {
-        return m_traj.getInitialPose();
+        return FieldConstants.flipPose(m_initialPoseBlue);
     }
 }
