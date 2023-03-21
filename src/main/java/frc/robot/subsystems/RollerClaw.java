@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 // import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,6 +21,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class RollerClaw extends Claw {
+    // TODO: fix ping channel and echo channel later
+    Ultrasonic ultrasonicSensor = new Ultrasonic(0, 1);
+
     // TODO: tune this current limit, borrowed from 2021 game
     private static final double MOTOR_CURRENT_LIMIT = 10.35;
 
@@ -52,10 +56,21 @@ public class RollerClaw extends Claw {
         // SmartDashboard.putNumber("claw/speed", 0.0);
         m_speed = 0.0;
     }
-
+    // starts the sensor on initialization
+    public void initialize() {
+        // starts the sensor on initialization
+        SmartDashboard.putNumber("Ultrasonic Sensor", -1.0);
+        ultrasonicSensor.setEnabled(true);
+    }
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
+        // display collected data from the ultrasonic sensor
+        ultrasonicSensor.setEnabled(true);
+        SmartDashboard.putBoolean("isValid", ultrasonicSensor.isRangeValid());
+        SmartDashboard.putNumber("Ultrasonic Sensor", ultrasonicSensor.getRangeInches());
+        SmartDashboard.putBoolean("isEnabled", ultrasonicSensor.isEnabled());
+
         // SmartDashboard.putNumber("claw/speed", m_speed);
 
         // setMotor(SmartDashboard.getNumber("claw/speed", 1.0));
