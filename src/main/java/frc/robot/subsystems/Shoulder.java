@@ -136,9 +136,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
         // limits for motor leader and folower
-        // when feature activate there's a limit of 35 amps, limiting occurs when exceed 25 amps
-        // m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
-        // m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        // always limit current to the values. Trigger limit = 0 so that it is always enforced.
         m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
         m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
 
