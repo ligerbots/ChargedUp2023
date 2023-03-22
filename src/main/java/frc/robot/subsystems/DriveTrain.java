@@ -249,9 +249,9 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void joystickDrive(double inputX, double inputY, double inputRotation) {
-        SmartDashboard.putNumber("drivetrain/joystickX", inputX);
-        SmartDashboard.putNumber("drivetrain/joystickY", inputY);
-        SmartDashboard.putNumber("drivetrain/joystickR", inputRotation);
+        // SmartDashboard.putNumber("drivetrain/joystickX", inputX);
+        // SmartDashboard.putNumber("drivetrain/joystickY", inputY);
+        // SmartDashboard.putNumber("drivetrain/joystickR", inputRotation);
 
         // apply SlewLimiters to the joystick values to control acceleration
         double newInputX = m_xLimiter.calculate(inputX);
@@ -395,14 +395,14 @@ public class DriveTrain extends SubsystemBase {
         m_vision.updateOdometry(m_odometry);
 
         Pose2d pose = m_odometry.getEstimatedPosition();
-        SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
-        SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
-        SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
-        SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
+        // SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
+        // SmartDashboard.putNumber("drivetrain/heading", pose.getRotation().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/gyro", getGyroscopeRotation().getDegrees());
 
-        // // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
-        // // SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
-        // // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/pitch", getPitch().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/roll", getRoll().getDegrees());
+        // SmartDashboard.putNumber("drivetrain/yaw", getYaw().getDegrees());
 
         SmartDashboard.putBoolean("drivetrain/precisionMode", m_precisionMode);
 

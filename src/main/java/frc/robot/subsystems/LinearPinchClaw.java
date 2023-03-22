@@ -28,8 +28,8 @@ public class LinearPinchClaw extends Claw {
     public void periodic() {
 
         // SmartDashboard.putBoolean("claw/not full?", m_phCompressor.getPressureSwitchValue());
-        SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
-        SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
+        // SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
+        // SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
         
         if (SmartDashboard.getBoolean("claw/isCompressorEnabled", false))
             enableCompressor();

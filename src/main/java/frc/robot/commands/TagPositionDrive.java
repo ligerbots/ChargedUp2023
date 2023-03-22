@@ -114,9 +114,9 @@ public class TagPositionDrive extends CommandBase {
         // System.out.println("Robot Target Pose Translation " + robotTargetTranslation.toString());
         Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
         // System.out.println("Robot Target Pose Rotation " + robotTargetRotation.toString());
-        SmartDashboard.putNumber("tagPosDrive/targetX", robotTargetTranslation.getX());
-        SmartDashboard.putNumber("tagPosDrive/targetY", robotTargetTranslation.getY());
-        SmartDashboard.putNumber("tagPosDrive/targetRot",  robotTargetRotation.getDegrees());
+        // SmartDashboard.putNumber("tagPosDrive/targetX", robotTargetTranslation.getX());
+        // SmartDashboard.putNumber("tagPosDrive/targetY", robotTargetTranslation.getY());
+        // SmartDashboard.putNumber("tagPosDrive/targetRot",  robotTargetRotation.getDegrees());
 
         // get robot current pose
         Pose2d currentPose = m_driveTrain.getPose();
