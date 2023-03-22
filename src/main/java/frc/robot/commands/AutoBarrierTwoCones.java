@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
@@ -26,6 +27,9 @@ public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoC
                 new AutoFollowTrajectory(driveTrain, "top_grid_s1") };
 
         addCommands(
+            new InstantCommand(arm::retractArm),
+            new WaitCommand(0.1),
+
             new ScoreArm(arm, driveTrain, Position.LEFT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
             m_traj[0].alongWith(new ScoreArm(arm, driveTrain, Position.PICK_UP, overrideButton).withTimeout(5).andThen(new InstantCommand(claw::startIntake))),

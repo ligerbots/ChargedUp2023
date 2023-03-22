@@ -35,6 +35,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(3.0);
 
+    private static final double LEADER_CURRENT_LIMIT = 12.0;
+    private static final double FOLLOW_CURRENT_LIMIT = 6.0;
+
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
 
@@ -132,10 +135,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 		m_motorLeader.config_kI(kPIDLoopIdx, SHOULDER_K_I, kTimeoutMs);
 		m_motorLeader.config_kD(kPIDLoopIdx, SHOULDER_K_D, kTimeoutMs);
 
-        //limits for motor leader and folower
-        //when feature activate there's a limit of 35 ampms, limiting occurs when exceed 25 amps
-        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
-        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 25, 100));
+        // limits for motor leader and folower
+        // always limit current to the values. Trigger limit = 0 so that it is always enforced.
+        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
+        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
 
         m_dutyEncoder = dutyCycleEncoder;
 
@@ -148,8 +151,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // Set the motor encoder and Position setpoint to the initialAngle from the absolute encoder
         m_encoder.setIntegratedSensorPosition(initialAngle / SHOULDER_RADIAN_PER_UNIT, 0);
-        // SmartDashboard.putNumber("shoulder/initialAngle_SHOULDER_RADIAN_PER_UNIT", initialAngle / SHOULDER_RADIAN_PER_UNIT);
-        SmartDashboard.putNumber("shoulder/encoderIntegSensPos", m_encoder.getIntegratedSensorPosition());
+
+        SmartDashboard.putNumber("shoulder/leaderCurrentLimit", LEADER_CURRENT_LIMIT);
+        SmartDashboard.putNumber("shoulder/followCurrentLimit", FOLLOW_CURRENT_LIMIT);
         // m_motorLeader.setSelectedSensorPosition(-m_Duty_Encoder.getDistance());
         // m_motorLeader.setSelectedSensorPosition(m_encoder.getIntegratedSensorPosition());
         // m_motorLeader.setSelectedSensorPosition(initialAngle / SHOULDER_RADIAN_PER_UNIT);
@@ -164,7 +168,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         setCoastMode(false);
         SmartDashboard.putBoolean("shoulder/coastMode", m_coastMode);
-        SmartDashboard.putNumber("shoulder/kFeadForward", m_kFeedForward);
+        SmartDashboard.putNumber("shoulder/kFeedForward", m_kFeedForward);
 
         // m_motorLeader.set(ControlMode.Position, )
         // m_motorLeader.set(ControlMode.Position, m_encoder.getIntegratedSensorPosition(), DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
@@ -192,14 +196,16 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     @Override
     public void periodic() {
         // Display current values on the SmartDashboard
-        // SmartDashboard.putNumber("shoulder/Output", m_motorLeader.get());
+        // Add some extra numbers to diagnose the load on the motors
+        SmartDashboard.putNumber("shoulder/leaderOutput", m_motorLeader.get());
         SmartDashboard.putNumber("shoulder/encoder", Math.toDegrees(getAngle()));
+        SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
         SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
         SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
-        SmartDashboard.putNumber("shoulder/currentMain", m_motorLeader.getStatorCurrent());
-        SmartDashboard.putNumber("shoulder/currentFollow", m_motorFollower.getStatorCurrent());
-  
+        SmartDashboard.putNumber("shoulder/leaderStatorI", m_motorLeader.getStatorCurrent());
+        SmartDashboard.putNumber("shoulder/followerStatorI", m_motorFollower.getStatorCurrent());
+
         m_coastMode = SmartDashboard.getBoolean("shoulder/coastMode", m_coastMode);
         if (m_coastMode)
             setCoastMode(m_coastMode);
@@ -256,6 +262,11 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         return m_encoder.getIntegratedSensorPosition() * SHOULDER_RADIAN_PER_UNIT;
     }
 
+    // return current shoulder angular speed in radians/sec
+    public double getSpeed() {
+        return m_encoder.getIntegratedSensorVelocity() * SHOULDER_RADIAN_PER_UNIT;
+    }
+    
     public void resetShoulderPos() {
         setAngle(getAngle());
         m_resetShoulderPos = true;

@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -113,6 +114,9 @@ public class TagPositionDrive extends CommandBase {
         // System.out.println("Robot Target Pose Translation " + robotTargetTranslation.toString());
         Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
         // System.out.println("Robot Target Pose Rotation " + robotTargetRotation.toString());
+        SmartDashboard.putNumber("tagPosDrive/targetX", robotTargetTranslation.getX());
+        SmartDashboard.putNumber("tagPosDrive/targetY", robotTargetTranslation.getY());
+        SmartDashboard.putNumber("tagPosDrive/targetRot",  robotTargetRotation.getDegrees());
 
         // get robot current pose
         Pose2d currentPose = m_driveTrain.getPose();
@@ -138,6 +142,11 @@ public class TagPositionDrive extends CommandBase {
 
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.initialize();
+        
+        // if we are trying to score, switch automatically into precisionMode
+        if (! isSubTarget) {
+            m_driveTrain.setPrecisionMode(true);
+        }
     }
 
     @Override
@@ -151,6 +160,7 @@ public class TagPositionDrive extends CommandBase {
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
         System.out.println("TagPositionDrive end interrupted = " + interrupted);
+
         if (m_followTrajectory != null)
             m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
