@@ -8,7 +8,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+// import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -137,8 +138,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // limits for motor leader and folower
         // always limit current to the values. Trigger limit = 0 so that it is always enforced.
-        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
-        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
+        m_motorLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
+        m_motorFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
 
         m_dutyEncoder = dutyCycleEncoder;
 
@@ -162,13 +163,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // m_Duty_Encoder.setPositionOffset(SHOULDER_OFFSET_RADIAN);
         // m_motorSim = new TalonFXSimCollection(m_motorLeader);
         // m_encoderSim = new TalonFXSimCollection(m_encoder);
-        SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
-        SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
+        // SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
+        // SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
         // SmartDashboard.putData("shoulder Sim", m_mech2d);
 
         setCoastMode(false);
         SmartDashboard.putBoolean("shoulder/coastMode", m_coastMode);
-        SmartDashboard.putNumber("shoulder/kFeedForward", m_kFeedForward);
+        // SmartDashboard.putNumber("shoulder/kFeedForward", m_kFeedForward);
 
         // m_motorLeader.set(ControlMode.Position, )
         // m_motorLeader.set(ControlMode.Position, m_encoder.getIntegratedSensorPosition(), DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
@@ -201,7 +202,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("shoulder/encoder", Math.toDegrees(getAngle()));
         SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
         SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
-        SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
+        // SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
         SmartDashboard.putNumber("shoulder/leaderStatorI", m_motorLeader.getStatorCurrent());
         SmartDashboard.putNumber("shoulder/followerStatorI", m_motorFollower.getStatorCurrent());
