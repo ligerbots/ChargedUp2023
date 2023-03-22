@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
@@ -57,11 +58,13 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // Define the motor and encoders
     private final CANSparkMax m_motor;
     private final RelativeEncoder m_encoder;
+    //initializing Potentiometer
+    private final AnalogPotentiometer m_pot = new AnalogPotentiometer(0, 35, 5);
+
     private final SparkMaxPIDController m_PIDController;
 
     private final ElevatorFeedforward m_feedForward = new ElevatorFeedforward(REACHER_KS,
                     REACHER_KG, REACHER_KV, REACHER_KA);
-
     private double m_kPReacher;
     private boolean m_resetReacherPos = false;
     private boolean m_coastMode = false;
@@ -85,10 +88,12 @@ public class Reacher extends TrapezoidProfileSubsystem {
         // m_motor.setInverted(true);
 
         m_encoder = m_motor.getEncoder();
-
         // Set the position conversion factor.
         m_encoder.setPositionConversionFactor(REACHER_METER_PER_REVOLUTION);
 
+        double reahcerLength = m_pot.get();
+        //conver reacherLength to values in 
+        SmartDashboard
         m_encoder.setPosition(REACHER_OFFSET_METER);
 
         setCoastMode(false);
