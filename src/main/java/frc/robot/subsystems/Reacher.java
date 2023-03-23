@@ -58,8 +58,12 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // Define the motor and encoders
     private final CANSparkMax m_motor;
     private final RelativeEncoder m_encoder;
+
     //initializing Potentiometer
-    private final AnalogPotentiometer m_pot = new AnalogPotentiometer(0, 35, 5);
+    private final int POTENTIOMETER_CHANNEL = 0;
+    private final int POTENTIOMETER_RANGE = 35; // inches, the string potentiometer on takes in range in integers
+    private final int POTENTIOMETER_OFFSET = 5; // inches
+    private final AnalogPotentiometer m_stringPotentiometer;
 
     private final SparkMaxPIDController m_PIDController;
 
@@ -94,10 +98,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
         // Set the position conversion factor.
         m_encoder.setPositionConversionFactor(REACHER_METER_PER_REVOLUTION);
 
-        double reahcerLength = m_pot.get();
-        //conver reacherLength to values in 
-        SmartDashboard
-        m_encoder.setPosition(REACHER_OFFSET_METER);
+        m_stringPotentiometer = new AnalogPotentiometer(POTENTIOMETER_CHANNEL, POTENTIOMETER_RANGE, POTENTIOMETER_OFFSET);
+        m_encoder.setPosition(getPotentiometerReadingMeters());
 
         setCoastMode(false);
         SmartDashboard.putBoolean("Reacher/coastMode", m_coastMode);
@@ -153,6 +155,10 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     public double getLength() {
         return m_encoder.getPosition();
+    }
+
+    public double getPotentiometerReadingMeters(){
+        return Units.inchesToMeters(m_stringPotentiometer.get());
     }
 
     public void resetReacherPos() {
