@@ -43,9 +43,13 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
             
             // The robot is already outside the danger zone for stowing arm if we try to score a cone 
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2).alongWith(new InstantCommand(claw::close)),
-            
+        
+            // TODO: AutoXPositionDrive seems to care about robot heading based on the setup of alliance color instead of current rotation (-90, 90)
             // Drive over the CS to out of the Community 
             new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
+
+            driveTrain.driveToPoseTrajectoryCommand(FieldConstants.GAME_PIECE_MIDDLE_1_BLUE),
+            // TODO: to add start intaking and stuff
 
             // Drive back to the center of the CS
             new ChargeStationDrive(driveTrain),
