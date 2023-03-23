@@ -4,65 +4,51 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class ChargeStationDrive extends CommandBase {
-    private static final double DRIVE_MPS = 3.0;
-
-    private static final double CHARGE_STATION_TOLERANCE = 0.15;
-
-    private DriveTrain m_driveTrain;
-    private double m_goalX;
-    private double m_direction;
+    Command m_command;
+    DriveTrain m_driveTrain;
 
     /** Creates a new ChargeStationDrive. */
     public ChargeStationDrive(DriveTrain driveTrain) {
         m_driveTrain = driveTrain;
 
-        // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(driveTrain);
+        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        // TODO handle driving from the middle of the field onto the CS
-        if (DriverStation.getAlliance() == Alliance.Red) {
-            m_goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_RED;
-            m_direction = -1.0;
-        } else {
-            m_goalX = FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE;
-            m_direction = 1.0;
-        }
-    }   
+        m_command = new AutoXPositionDrive(m_driveTrain, FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS);
+        m_command.initialize();
+    }
 
-    // Called every time the scheduler runs while the command is scheduled.
+    
     @Override
     public void execute() {
-        double driveSpeed = m_direction * DRIVE_MPS;
-        
-        //robot drives at set speed in mps
-        m_driveTrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(driveSpeed, 0.0, 0.0, m_driveTrain.getHeading()));
+        if (m_command != null)
+            m_command.execute();
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.stop();
+        // if interrupted, stop the follow trajectory
+        // System.out.println("TagPositionDrive end interrupted = " + interrupted);
+        if (m_command != null)
+            m_command.end(interrupted);
+        m_command = null;
     }
 
     // Returns true when the command should end.
     @Override
-    public boolean isFinished() {      
-        double curX = m_driveTrain.getPose().getX();
-
-        //stops when robot is on ramp of charge station 
-        return Math.abs(curX - m_goalX) < CHARGE_STATION_TOLERANCE;
+    public boolean isFinished() {
+        // if the FollowTrajectory commad is null or not scheduled, end
+        return m_command == null || m_command.isFinished();
     }
 }

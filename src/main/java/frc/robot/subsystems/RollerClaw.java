@@ -5,15 +5,16 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
+import com.revrobotics.CANSparkMax.IdleMode;
+// import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ColorSensorV3.RawColor;
+// import com.revrobotics.ColorSensorV3.RawColor;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.I2C;
+// import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -23,10 +24,12 @@ public class RollerClaw extends Claw {
     private static final double MOTOR_CURRENT_LIMIT = 10.35;
 
     // speed to run the motor for intake
-    private static final double INTAKE_MOTOR_SPEED = 0.5;
+    private static final double INTAKE_MOTOR_SPEED = 0.75;
+
+    private static final double INTAKE_STOP_SPEED = 0.05;
     
     // delay time for shutting off the motor
-    private static final double STOP_MOTOR_DELAY = 1.0;   // seconds
+    private static final double STOP_MOTOR_DELAY = 2.0;   // seconds
     private double m_speed;
 
     private Timer m_timer;
@@ -42,11 +45,12 @@ public class RollerClaw extends Claw {
         m_motor.setInverted(true);
         // limit the current to 15A
         m_motor.setSmartCurrentLimit(15);
+        m_motor.setIdleMode(IdleMode.kBrake);
+        
         m_timer = new Timer();
         SmartDashboard.putBoolean("claw/isCompressorEnabled", true);
-        SmartDashboard.putNumber("claw/speed", 0.0);
+        // SmartDashboard.putNumber("claw/speed", 0.0);
         m_speed = 0.0;
-        
     }
 
     // This method will be called once per scheduler run
@@ -61,49 +65,42 @@ public class RollerClaw extends Claw {
         // }
 
         // Timer is turned on only in close() method
-        if ( m_needStop && m_timer.hasElapsed(STOP_MOTOR_DELAY)) {
+        if (m_needStop && m_timer.hasElapsed(STOP_MOTOR_DELAY)) {
             m_timer.stop();
-            m_timer.reset();
-            setMotor(0.0);
+            setMotor(INTAKE_STOP_SPEED);
             m_needStop = false;
         }
 
-        // SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
-        SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
-        // SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
-        // SmartDashboard.putNumberArray("claw/colorRGB", getColor());
+        // // SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
+        // SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
+        // // SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
+        // // SmartDashboard.putNumberArray("claw/colorRGB", getColor());
 
-        SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
-        SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
-        if(SmartDashboard.getBoolean("claw/isCompressorEnabled", true))
-            m_pH.enableCompressorDigital();
+        // SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
+        // SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
+        if (SmartDashboard.getBoolean("claw/isCompressorEnabled", true))
+            enableCompressor();
         else
-            m_pH.disableCompressor();
+            disableCompressor();
     }
 
     @Override
     public void open(){
+        // System.out.println("RollerClaw open called");
         m_clawSolenoid.set(Value.kForward);
-        setMotor(0);
+        setMotor(0.0);
     }
 
     @Override
     public void close() {
         m_clawSolenoid.set(Value.kReverse);
-        // setMotor(0);
-        // TODO delay stopping the motor to let it completely grab the cone.
-        // This can't work. This is a subsystem not a command
-        // Need to use a Timer, and check in periodic()
-        // if(m_speed != 0.0)
-        // new WaitCommand(0.5).andThen(new InstantCommand(this::stopMotor)).schedule();
 
-        if (Math.abs(m_speed) >= 0.001) {
+        if (Math.abs(m_speed) >= (INTAKE_STOP_SPEED + 0.05)) {
             // Timer is turned on only in close() method
             m_timer.reset();
             m_timer.start();
             m_needStop = true;
         }
-        
     }
 
     @Override
@@ -114,7 +111,7 @@ public class RollerClaw extends Claw {
     }
 
     private void setMotor(double speed) {
-        System.out.println("Setting claw motor to " + speed);
+        // System.out.println("Setting claw motor to " + speed);
         m_motor.set(speed);
         m_speed = speed;
     }

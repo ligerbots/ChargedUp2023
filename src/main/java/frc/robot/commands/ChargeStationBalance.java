@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -16,7 +16,7 @@ public class ChargeStationBalance extends CommandBase {
 
     private static final double BALANCED_ERROR_DEGREES = 2.5; // max error for what counts as balanced
     private static final double BALANCED_DEGREES = 0;
-    private static final double BALANCE_KP = 0.03; // change to control how fast robot drives during balancing
+    private static final double BALANCE_KP = 0.035; // WPI 2023-03-15
     private static final double MAX_MPS = 1.0;
     private static final double BALANCE_SECONDS = 1; // how many seconds the robot has to be balanced before stopping
     private static final double ANGLE_KP = Units.degreesToRadians(1); 
@@ -30,9 +30,10 @@ public class ChargeStationBalance extends CommandBase {
         m_driveTrain = driveTrain;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
-        SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
-        SmartDashboard.putNumber("balanceCommand/error", 0.0);
-        SmartDashboard.putNumber("balanceCommand/driveAngle", 0);
+        
+        // SmartDashboard.putNumber("balanceCommand/driveMPS", 0.0);
+        // SmartDashboard.putNumber("balanceCommand/error", 0.0);
+        // SmartDashboard.putNumber("balanceCommand/driveAngle", 0);
     }
 
     // Called when the command is initially scheduled.
@@ -62,9 +63,9 @@ public class ChargeStationBalance extends CommandBase {
                 driveMPS = Math.copySign(MAX_MPS, driveMPS);
             }
 
-            SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
-            SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
-            SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
+            // SmartDashboard.putNumber("balanceCommand/driveMPS", driveMPS);
+            // SmartDashboard.putNumber("balanceCommand/error", errorDegrees);
+            // SmartDashboard.putNumber("balanceCommand/driveAngle", driveAngle.getDegrees());
 
             double angleError = driveAngle.getRadians();
             if (Math.abs(angleError) > Math.PI/2) {
@@ -75,7 +76,7 @@ public class ChargeStationBalance extends CommandBase {
             if (Math.abs(angleSpeed) > MAX_ANGLE_SPEED) {
                 angleSpeed = Math.copySign(MAX_ANGLE_SPEED, angleSpeed);
             }
-            SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
+            // SmartDashboard.putNumber("balanceCommand/angleSpeed", angleSpeed);
         }
 
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
@@ -102,7 +103,7 @@ public class ChargeStationBalance extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        //if robot is balanced and it has been for at least one second, robot ends
+        // if robot is balanced and it has been for at least one second, robot ends
         return m_timer.hasElapsed(BALANCE_SECONDS);
     }
 }

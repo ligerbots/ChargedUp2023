@@ -8,9 +8,11 @@ import java.util.HashMap;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.Constants.Position;
@@ -34,16 +36,18 @@ public class ScoreArm extends CommandBase {
     private static final double HIGH_GRID_CONE_ANGLE = Math.toRadians(18.0);
     private static final double HIGH_GRID_CONE_LENGTH = Units.inchesToMeters(33.0);
 
-    private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-55.0);
-    private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(9.0);
+    private static final double FLOOR_PICK_UP_CONE_ANGLE = Math.toRadians(-45.0);
+    private static final double FLOOR_PICK_UP_CONE_LENGTH = Units.inchesToMeters(15.0);
     // private static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
     // private static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
 
-    private static final double SUBSTATION_ANGLE = Math.toRadians(12.0);
+    private static final double SUBSTATION_ANGLE = Math.toRadians(13.0);
     private static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);
 
     private static final double STOW_ANGLE = Math.toRadians(-65.0);
     private static final double STOW_LENGTH = Units.inchesToMeters(1.0);
+
+    private static final double STOW_WAIT_TIME = 1.5;
 
     private static final HashMap<Position, Pair<Double, Double>> SCORE_POSITIONS = new HashMap<Position, Pair<Double, Double>>(){
         {
@@ -69,6 +73,7 @@ public class ScoreArm extends CommandBase {
         }
     };
 
+
     boolean m_goingDown;
     Arm m_arm;
     DriveTrain m_driveTrain;
@@ -78,14 +83,19 @@ public class ScoreArm extends CommandBase {
     Constants.Position m_position;
 
     boolean m_cancel;
+    Timer m_timer = new Timer();
+    JoystickButton m_overrideButton;
 
     /** Creates a new ScoreArm. */
-    public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position) {
+    public ScoreArm(Arm arm, DriveTrain driveTrain, Constants.Position position, JoystickButton overrideButton) {
         m_arm = arm;
         m_driveTrain = driveTrain;
         m_position = position;
-        m_desiredAngle = Shoulder.limitShoulderAngle(SCORE_POSITIONS.get(position).getFirst());
-        m_desiredLength = Reacher.limitReacherLength(SCORE_POSITIONS.get(position).getSecond());
+        m_overrideButton = overrideButton;
+
+        Pair<Double, Double> desiredPos = SCORE_POSITIONS.get(position);
+        m_desiredAngle = Shoulder.limitShoulderAngle(desiredPos.getFirst());
+        m_desiredLength = Reacher.limitReacherLength(desiredPos.getSecond());
         
         addRequirements(m_arm);
     }
@@ -96,16 +106,18 @@ public class ScoreArm extends CommandBase {
         SmartDashboard.putString("armCommands/CommandName", m_position.toString());
         SmartDashboard.putBoolean("armCommands/isCommandFinished", false);
 
-        // prevent from stowing in the bad zone
-        if (m_position == Position.STOW_ARM) {
-            double currentX = m_driveTrain.getPose().getX();
-            // System.out.println("testing stow " + currentX);
+        // override button pressed?
+        boolean override = m_overrideButton.getAsBoolean();
 
+        // prevent from stowing in the bad zone
+        if (!override && (m_position == Position.STOW_ARM || m_position == Position.CENTER_MIDDLE || m_position == Position.CENTER_TOP)) {
             // check if the robot position is within the safe zone on either side of field, if so then end command
-            if(currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED) {
+            if (inExclusionZone()) {
                 // System.out.println("***********cancelling***************");
                 m_cancel = true;
-                return ;
+                m_timer.reset();
+                m_timer.start();
+                return;
             }
         }
 
@@ -135,16 +147,33 @@ public class ScoreArm extends CommandBase {
         }
     }
 
+    // check if the robot position is within the danger zone on either side of field
+    private boolean inExclusionZone() {
+        double currentX = m_driveTrain.getPose().getX();
+        // System.out.println("testing stow " + currentX);
+
+        return currentX < FieldConstants.BAD_ZONE_X_BLUE || currentX > FieldConstants.BAD_ZONE_X_RED;
+    }
+
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        // System.out.println("*** ScoreArm end interrupted = " + interrupted);
         SmartDashboard.putBoolean("armCommands/isCommandFinished", true);
     }
 
     @Override
     public boolean isFinished() {
-        if (m_cancel)
-            return true;
+        if (m_cancel) {
+            if (!inExclusionZone()) {
+                // we are out of the zone. Go for it.
+                // m_cancel will be reset to false and command will move the arm in initialize() since the robot is no longer in the bad zone 
+                initialize();
+            } else if (m_timer.hasElapsed(STOW_WAIT_TIME)) {
+                // too much time has elapsed. Quit
+                return true;
+            }
+        }
 
         double curLength = m_arm.getArmLength();
         double curAngle = m_arm.getArmAngle();

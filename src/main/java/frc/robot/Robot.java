@@ -4,20 +4,22 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
 
 import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoBarrierTwoCones;
-import frc.robot.commands.AutoChargeStationOneCube;
+import frc.robot.commands.AutoChargeStationOneConeOtherSide;
+import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
 import frc.robot.commands.TrajectoryPlotter;
 
 import frc.robot.subsystems.Arm;
@@ -60,8 +62,13 @@ public class Robot extends TimedRobot {
         //   ntinst.startClient4("MainRobotProgram");
         // }
         
+        // Disable the LiveWindow telemetry to lower the network load
         LiveWindow.disableAllTelemetry();
 
+        // Enable local logging.
+        // ** CAREFUL: this probably should be disabled during competition.
+        DataLogManager.start();
+        
         // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();
 
@@ -69,15 +76,19 @@ public class Robot extends TimedRobot {
         Arm arm = m_robotContainer.getArm();
         Vision vision = m_robotContainer.getVision();
         Claw claw = m_robotContainer.getClaw();
-        
+        JoystickButton overrideButton = m_robotContainer.getOverRideButton();
+
         // Initialize the list of available Autonomous routines
         m_chosenTrajectory.setDefaultOption("drive_1m", new AutoFollowTrajectory(driveTrain, "drive_1m"));
-        m_chosenTrajectory.addOption("Barrier Cone Cube", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
-        m_chosenTrajectory.addOption("Wall Cone Cube", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP));
-        m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCube(driveTrain, arm, vision, claw));
-        m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
-        m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
-        m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
+        m_chosenTrajectory.addOption("Barrier Cone Cube", new AutoBarrierTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP, overrideButton));
+        m_chosenTrajectory.addOption("Wall Cone Cube", new AutoWallTwoCones(driveTrain, arm, vision, claw, Position.CENTER_TOP, overrideButton));
+        // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCube(driveTrain, arm, vision, claw));
+        // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCubeOtherSide(driveTrain, arm, vision, claw));
+        m_chosenTrajectory.addOption("Charge Station WALL Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, true, overrideButton));
+        m_chosenTrajectory.addOption("Charge Station BARRIER Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, false, overrideButton));
+        // m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
+        // m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
+        // m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
         // m_chosenTrajectory.addOption("top_grid_s1", new AutoFollowTrajectory(driveTrain, "top_grid_s1"));
 
         SmartDashboard.putData("Chosen Trajectory", m_chosenTrajectory);

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -64,6 +65,7 @@ public class RobotContainer {
     private final Arm m_arm = new Arm();
     private final Claw m_claw = new RollerClaw();
     private final LedLight m_ledLight = new LedLight();
+    private JoystickButton m_overrideButton;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -82,6 +84,13 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        if (Robot.isSimulation()) {
+            // for the simulation, silence warnings about missing joysticks
+            DriverStation.silenceJoystickConnectionWarning(true);
+        }
+      
+        m_overrideButton = new JoystickButton(m_controller, XBOX_Y);
+
         // when button A is pressed, toggle field-centric drive mode
         JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
         xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
@@ -91,8 +100,8 @@ public class RobotContainer {
         xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
 
         // when button X is pressed, toggle precision (slow) drive mode
-        // JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
+        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
+        xboxXButton.onTrue(new InstantCommand(m_driveTrain::togglePrecisionMode));
 
         // when button START is pressed, reset the robot heading
         // whichever way the robot is facing becomes the forward direction
@@ -100,81 +109,54 @@ public class RobotContainer {
         xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
 
         JoystickButton leftBumper = new JoystickButton(m_controller, XBOX_LB);
-        leftBumper.onTrue(new InstantCommand(m_claw::open));
+        leftBumper.onTrue(
+            new InstantCommand(m_claw::open)
+            .alongWith(new InstantCommand(()->{ m_driveTrain.setPrecisionMode(false); }))
+        );
 
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
         rightBumper.onTrue(new InstantCommand(m_claw::close));
                 
         // Turns analog triggers into buttons that actuate when it is half pressed 
         Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
-        rightTriggerButton.onTrue(new ScoreArm(m_arm, m_driveTrain, Constants.Position.PICK_UP).withTimeout(5).andThen(new InstantCommand(m_claw::startIntake)));
+        rightTriggerButton.onTrue(new ScoreArm(m_arm, m_driveTrain, Constants.Position.PICK_UP, m_overrideButton).withTimeout(5).andThen(new InstantCommand(m_claw::startIntake)));
         
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
-        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM).withTimeout(5)));
-
-        // ---- TESTING  ----
-        JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        JoystickButton xboxXButton = new JoystickButton(m_controller, XBOX_X);
-        // xboxYButton.onTrue(new InstantCommand(m_claw::close));
-        xboxYButton.onTrue(new SetArmAngleTest(m_arm));
-        xboxXButton.onTrue(new SetArmLengthTest(m_arm));
-        // testing if the command works by passing in a position, we need more buttons for all 11
-        // xboxYButton.onTrue(new TagPositionDrive(m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
-        
-        // // when button Y is pressed, attempt to balance on the Charging Station
-        // // assumes that the robot is already mostly up on the Station
-        xboxYButton.onTrue(new ChargeStationBalance(m_driveTrain));
-
-        // when button Y is pressed, attempt to drive up onto the Charging Station
-        // JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // xboxYButton.onTrue(new ChargeStationDrive());
-
-        /* //Commented out for now
-        // button B
-        JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
-        // inline command to create trajectory from robot pose to middle of the best apriltag
-        xboxBButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, false))));
-        //need a proxy so command is not created before button pressed
-        
-        // button Y
-        JoystickButton xboxYButton = new JoystickButton(m_controller, XBOX_Y);
-        // inline command to create trajectory from robot pose to right of the best apriltag
-        xboxYButton.onTrue(new ProxyCommand(() -> m_driveTrain.trajectoryToPose(m_driveTrain.getTagRobotPose(false, true))));
-        */
+        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM, m_overrideButton).withTimeout(5)));
 
         JoystickButton farm1 = new JoystickButton(m_farm, 1);
-        farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM));
+        farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM, m_overrideButton));
         
         JoystickButton farm2 = new JoystickButton(m_farm, 2);
-        farm2.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_BOTTOM));
+        farm2.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_BOTTOM, m_overrideButton));
 
         JoystickButton farm3 = new JoystickButton(m_farm, 3);
-        farm3.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_BOTTOM));
+        farm3.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_BOTTOM, m_overrideButton));
 
         JoystickButton farm6 = new JoystickButton(m_farm, 6);
-        farm6.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_MIDDLE));
+        farm6.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_MIDDLE, m_overrideButton));
 
         JoystickButton farm7 = new JoystickButton(m_farm, 7);
-        farm7.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_MIDDLE));
+        farm7.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_MIDDLE, m_overrideButton));
 
         JoystickButton farm8 = new JoystickButton(m_farm, 8);
-        farm8.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_MIDDLE));
+        farm8.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_MIDDLE, m_overrideButton));
 
         JoystickButton farm11 = new JoystickButton(m_farm, 11);
-        farm11.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_TOP));
+        farm11.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_TOP, m_overrideButton));
 
         JoystickButton farm13 = new JoystickButton(m_farm, 13);
-        farm13.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_TOP));
+        farm13.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_TOP, m_overrideButton));
 
         JoystickButton farm15 = new JoystickButton(m_farm, 15);
-        farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP));
+        farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP, m_overrideButton));
 
         // Feeder Stations 
         JoystickButton farm4 = new JoystickButton(m_farm, 4);
-        farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION));
+        farm4.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.LEFT_SUBSTATION, m_overrideButton));
 
         JoystickButton farm5 = new JoystickButton(m_farm, 5);
-        farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION));
+        farm5.onTrue(new FeederPickup(m_arm, m_driveTrain, m_vision, m_claw, Constants.Position.RIGHT_SUBSTATION, m_overrideButton));
 
         // LED Lights
         JoystickButton farm9 = new JoystickButton(m_farm, 9);
@@ -185,11 +167,17 @@ public class RobotContainer {
 
         // charge station drive
         JoystickButton farm22 = new JoystickButton(m_farm, 22);
-        farm22.onTrue(new ChargeStationDrive(m_driveTrain));
+        farm22.onTrue(new ChargeStationDrive(m_driveTrain).withTimeout(15.0));
 
         // charge station balancing
         JoystickButton farm23 = new JoystickButton(m_farm, 23);
-        farm23.onTrue(new ChargeStationBalance(m_driveTrain));
+        farm23.onTrue(new ChargeStationBalance(m_driveTrain).withTimeout(5.0));
+
+        // // ---- TESTING  ----
+        JoystickButton farm21 = new JoystickButton(m_farm, 21);
+        JoystickButton farm24 = new JoystickButton(m_farm, 24);
+        farm21.onTrue(new SetArmAngleTest(m_arm));
+        farm24.onTrue(new SetArmLengthTest(m_arm));
     }
 
     public Command getDriveCommand() {
@@ -240,5 +228,8 @@ public class RobotContainer {
     }
     public Vision getVision(){
         return m_vision;
+    }
+    public JoystickButton getOverRideButton(){
+        return m_overrideButton;
     }
 }

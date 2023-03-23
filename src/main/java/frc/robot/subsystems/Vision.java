@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.Constants;
 
@@ -49,7 +50,7 @@ public class Vision {
     // Forward B&W camera for Apriltags
     // relative position of the camera on the robot ot the robot center
     private final Transform3d m_robotToAprilTagCam = new Transform3d(
-            new Translation3d(Units.inchesToMeters(3.5), -0.136, Units.inchesToMeters(22.5)),
+            new Translation3d(Units.inchesToMeters(3.5), -0.136, Units.inchesToMeters(24.75)),
             new Rotation3d(0.0, 0.0, 0.0));
 
     private final PhotonPoseEstimator m_photonPoseEstimator;
@@ -66,6 +67,10 @@ public class Vision {
         // m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
         // System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
 
+        // m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP,
+        //         m_aprilTagCamera, m_robotToAprilTagCam);
+        // m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+        
         m_photonPoseEstimator = new PhotonPoseEstimator(m_aprilTagFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
                 m_aprilTagCamera, m_robotToAprilTagCam);
 
@@ -89,13 +94,13 @@ public class Vision {
         if (!targetResult.hasTargets())
             return;
 
-        // Get the current best target.
-        PhotonTrackedTarget target = targetResult.getBestTarget();
-        SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
-        Transform3d cameraToTarget = target.getBestCameraToTarget();
-        SmartDashboard.putNumber("vision/tagOffsetX", cameraToTarget.getX());
-        SmartDashboard.putNumber("vision/tagOffsetY", cameraToTarget.getY());
-        SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
+        // // Get the current best target.
+        // PhotonTrackedTarget target = targetResult.getBestTarget();
+        // SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
+        // Transform3d cameraToTarget = target.getBestCameraToTarget();
+        // SmartDashboard.putNumber("vision/tagOffsetX", Units.metersToInches(cameraToTarget.getX()));
+        // SmartDashboard.putNumber("vision/tagOffsetY", Units.metersToInches(cameraToTarget.getY()));
+        // SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
 
         if (m_aprilTagFieldLayout == null)
             return;
@@ -105,11 +110,20 @@ public class Vision {
         Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
         if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
-            var estimatedPose = camPose.estimatedPose;
-            odometry.addVisionMeasurement(estimatedPose.toPose2d(), curImageTimeStamp);
-            SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
-            SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
-            SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
+            Pose2d estimatedPose = camPose.estimatedPose.toPose2d();
+
+            // Only update if the estimated pose is reasonably close to the current pose.
+            // This filters out really bad results.
+            // double delta = odometry.getEstimatedPosition().getTranslation().getDistance(estimatedPose.getTranslation());
+            // if (DriverStation.isDisabled() || delta < 0.5) {
+                odometry.addVisionMeasurement(estimatedPose, curImageTimeStamp);
+            // } else {
+            //     System.out.println("** rejecting vision measurement. delta = " + delta + "  z = " + camPose.estimatedPose.getZ());
+            // }
+
+            // SmartDashboard.putNumber("vision/estimatedPoseX", estimatedPose.getX());
+            // SmartDashboard.putNumber("vision/estimatedPoseY", estimatedPose.getY());
+            // SmartDashboard.putNumber("vision/estimatedPoseZ", estimatedPose.getRotation().getAngle());
         // } else {
         //     // move it way off the screen to make it disappear
         //     SmartDashboard.putNumber("vision/estimatedPoseX", 0);
@@ -123,15 +137,46 @@ public class Vision {
         return m_photonPoseEstimator.update();
     }
 
-    public Optional<Pose2d> getCentralTagPose() { // gets target closets to center of camera
+    // get the tag ID closest to vertical center of camera
+    // we might want to use this to do fine adjustments on field element locations
+    public int getCentralTagId(Boolean wantSubstationTarget) {
+        // SIMULATION - just return a fixed tag to test an Auto
+        // if (Robot.isSimulation())
+        //     return 2; // center red tag
+    
+        // make sure camera connected
+        if (!m_aprilTagCamera.isConnected())
+            return -1;
+
         var targetResult = m_aprilTagCamera.getLatestResult();
-        if (!targetResult.hasTargets()) {
-            return Optional.empty();
-        }
+        // if (!targetResult.hasTargets()) {
+        //     return -1;
+        // }
+
         // make a temp holder var for least Y translation, set to first tags translation
         double minY = 1.0e6; // big number
         int targetID = -1;
-        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera
+        for (PhotonTrackedTarget tag : targetResult.getTargets()) { // for every target in camera            
+            // find id for current tag we are focusing on
+            int tempTagID = tag.getFiducialId();
+
+            // if tag has an invalid ID then skip this tag
+            if (tempTagID < 1 || tempTagID > 8) {
+                continue;
+            }
+
+            boolean isSubstation = tempTagID == 5 || tempTagID == 4;
+
+            // if aiming for substation
+            if (wantSubstationTarget) {
+                if (!isSubstation) { //exit if tags are grids
+                    continue; //continue the for loop
+                }
+            } else { //if aiming for aiming for grid/not substation
+                if (isSubstation) { // exit if tag is substation
+                    continue;
+                }
+            }
             // get transformation to target
             Transform3d tagTransform = tag.getBestCameraToTarget();
             // get abs translation to target from transformation
@@ -141,13 +186,19 @@ public class Vision {
             // if abs Y translation of new tag is less then holder tag, it becomes holder tag
             if (tagY < minY) {
                 minY = tagY;
-                targetID = tag.getFiducialId(); // set targetID
+                targetID = tempTagID; // remember targetID
             }
         }
         
-        //optional in case no target is found
-        Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(targetID);
-        if(tagPose.isEmpty()){
+        return targetID;
+    }
+
+    // get the pose for a tag.
+    // will return null if the tag is not in the field map (eg -1)
+    public Optional<Pose2d> getTagPose(int tagId) {
+        // optional in case no target is found
+        Optional<Pose3d> tagPose = m_aprilTagFieldLayout.getTagPose(tagId);
+        if (tagPose.isEmpty()) {
             return Optional.empty(); //returns an empty optional
         }
         return Optional.of(tagPose.get().toPose2d());

@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -39,8 +40,15 @@ public class TagPositionDrive extends CommandBase {
     private static final double SCORE_OFFSET_Y_METERS = Units.inchesToMeters(22.0);
 
     // left/right offset for pickup at the Substation
-    private static final double SUBSTATION_OFFSET_X_METERS = 0.49;
+    private static final double SUBSTATION_OFFSET_X_METERS = 0.54;
     private static final double SUBSTATION_OFFSET_Y_METERS = 0.7;
+
+    private static final double SUBSTATION_DRIVE_MAX_VELOCITY = 2.0;
+    private static final double SUBSTATION_DRIVE_MAX_ACCEL = 2.0;
+    
+    private static final double SCORE_DRIVE_MAX_VELOCITY = 2.0;
+    private static final double SCORE_DRIVE_MAX_ACCEL = 1.0;
+
 
     private static final Map<Position, Pose2d> ROBOT_POSITIONS = new HashMap<Position, Pose2d>() {
         {
@@ -64,22 +72,31 @@ public class TagPositionDrive extends CommandBase {
     };
 
     public TagPositionDrive(DriveTrain driveTrain, Vision vision, Position targetPosition) {
-        this.m_driveTrain = driveTrain;
-        this.m_vision = vision;
-        this.m_targetPosition = targetPosition;
+        m_driveTrain = driveTrain;
+        m_vision = vision;
+        m_targetPosition = targetPosition;
+
+        // The scheduler does not know about the sub-command, so include the requirements
+        addRequirements(m_driveTrain);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         // for safety, set command to null
-        this.m_followTrajectory = null;
+        m_followTrajectory = null;
 
-        Optional<Pose2d> centralTagPose = m_vision.getCentralTagPose();
+        // keep track if target is substation or grid
+        boolean isSubTarget = isSubstationTarget(m_targetPosition);
+        
+        // getting central tag
+        int centralTagId = m_vision.getCentralTagId(isSubTarget);
+
+        Optional<Pose2d> centralTagPose = m_vision.getTagPose(centralTagId);
         if (centralTagPose.isEmpty()) {
             return; // return a null, stop command
-
         }
+
         // get from the optional if its not null, check if central tag exists
         Pose2d tagPose = centralTagPose.get(); // get AprilTag pose of target ID tag
         // System.out.println("Target Tag Pose " + tagPose.toString());
@@ -97,6 +114,9 @@ public class TagPositionDrive extends CommandBase {
         // System.out.println("Robot Target Pose Translation " + robotTargetTranslation.toString());
         Rotation2d robotTargetRotation = tagPose.getRotation().plus(robotTransformation.getRotation());
         // System.out.println("Robot Target Pose Rotation " + robotTargetRotation.toString());
+        SmartDashboard.putNumber("tagPosDrive/targetX", robotTargetTranslation.getX());
+        SmartDashboard.putNumber("tagPosDrive/targetY", robotTargetTranslation.getY());
+        SmartDashboard.putNumber("tagPosDrive/targetRot",  robotTargetRotation.getDegrees());
 
         // get robot current pose
         Pose2d currentPose = m_driveTrain.getPose();
@@ -107,21 +127,42 @@ public class TagPositionDrive extends CommandBase {
         Rotation2d heading = robotTargetTranslation.minus(currentPose.getTranslation()).getAngle();
         // System.out.println("Heading angle " + heading.getDegrees());
 
-        PathPlannerTrajectory traj = PathPlanner.generatePath(new PathConstraints(2.0, 1.0), // velocity, acceleration
+        double maxVel = SCORE_DRIVE_MAX_VELOCITY;
+        double maxAcc = SCORE_DRIVE_MAX_ACCEL;
+        if (isSubTarget) {
+            maxVel = SUBSTATION_DRIVE_MAX_VELOCITY;
+            maxAcc = SUBSTATION_DRIVE_MAX_ACCEL;    
+        }
+
+        PathPlannerTrajectory traj = PathPlanner.generatePath(
+                new PathConstraints(maxVel, maxAcc), // velocity, acceleration
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
+
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
-        m_followTrajectory.schedule();
+        m_followTrajectory.initialize();
+        
+        // if we are trying to score, switch automatically into precisionMode
+        if (! isSubTarget) {
+            m_driveTrain.setPrecisionMode(true);
+        }
+    }
+
+    @Override
+    public void execute() {
+        if (m_followTrajectory != null)
+            m_followTrajectory.execute();
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         // if interrupted, stop the follow trajectory
-        if (interrupted) {
-            m_followTrajectory.cancel();
-        }
+        System.out.println("TagPositionDrive end interrupted = " + interrupted);
+
+        if (m_followTrajectory != null)
+            m_followTrajectory.end(interrupted);
         m_followTrajectory = null;
     }
 
@@ -129,6 +170,10 @@ public class TagPositionDrive extends CommandBase {
     @Override
     public boolean isFinished() {
         // if the FollowTrajectory commad is null or not scheduled, end
-        return m_followTrajectory == null || !m_followTrajectory.isScheduled();
+        return m_followTrajectory == null || m_followTrajectory.isFinished();
+    }
+
+    private boolean isSubstationTarget(Position pos) {
+        return pos == Position.LEFT_SUBSTATION || pos == Position.RIGHT_SUBSTATION;
     }
 }
