@@ -110,7 +110,8 @@ public class RollerClaw extends Claw {
 
     @Override
     public void open(){
-        m_waitingToClose = true;
+        // used to release claw and drop pieces
+        m_waitingToClose = false;
 
         // System.out.println("RollerClaw open called");
         m_clawSolenoid.set(Value.kForward);
