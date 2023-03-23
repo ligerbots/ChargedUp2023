@@ -36,6 +36,9 @@ public final class FieldConstants {
     // x position outside Community for auto
     public static final double CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE = 5.8;
 
+    public static final Pose2d GAME_PIECE_MIDDLE_1_BLUE = new Pose2d(7.07, 3.36, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d GAME_PIECE_MIDDLE_2_BLUE = new Pose2d(7.07, 2.14, Rotation2d.fromDegrees(0.0));
+    
     // Flip position
     public static Pose2d flipPose(Pose2d pose) {
         if (DriverStation.getAlliance() == Alliance.Blue)
