@@ -6,17 +6,13 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
-// import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-// import com.revrobotics.ColorSensorV3.RawColor;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-// import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -49,7 +45,6 @@ public class RollerClaw extends Claw {
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);
-    // private ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
     /** Creates a new RollerClaw. */
     public RollerClaw() {
@@ -78,11 +73,11 @@ public class RollerClaw extends Claw {
 
         // display collected data from the ultrasonic sensor
         SmartDashboard.putBoolean("claw/isValid", m_ultrasonicSensor.isRangeValid());
-        SmartDashboard.putNumber("claw/Ultrasonic Sensor Raw", m_ultrasonicSensor.getRangeInches());
-        SmartDashboard.putNumber("claw/Ultrasonic Sensor Exponential Averaged", m_ultrasonicReading);
+        SmartDashboard.putNumber("claw/UltrasonicRaw", m_ultrasonicSensor.getRangeInches());
+        SmartDashboard.putNumber("claw/UltrasonicAveraged", m_ultrasonicReading);
         SmartDashboard.putBoolean("claw/isEnabled", m_ultrasonicSensor.isEnabled());
 
-        if(m_waitingToClose && m_ultrasonicReading <= ULTRASONIC_CLOSE_CLAW_DISTANCE_INCHES){
+        if (m_waitingToClose && m_ultrasonicReading <= ULTRASONIC_CLOSE_CLAW_DISTANCE_INCHES) {
             // close the claw
             // m_waitingToClose is set to false in close() so that when driver closes the claw manually, the distance won't be checked again
             close();
@@ -103,10 +98,7 @@ public class RollerClaw extends Claw {
             m_needStop = false;
         }
 
-        // // SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
         // SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
-        // // SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
-        // // SmartDashboard.putNumberArray("claw/colorRGB", getColor());
 
         // SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
         // SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());
@@ -167,13 +159,4 @@ public class RollerClaw extends Claw {
     public void disableCompressor() {
         m_pH.disableCompressor();
     }
-
-    // public int getColorSensorProximity() {
-    //     return m_colorSensor.getProximity();
-    // }
-
-    // public double[] getColor(){
-    //     RawColor color = m_colorSensor.getRawColor();
-    //     return new double[]{color.red, color.green, color.blue};
-    // }
 }
