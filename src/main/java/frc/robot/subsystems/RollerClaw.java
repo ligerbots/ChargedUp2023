@@ -22,7 +22,7 @@ import frc.robot.Constants;
 
 public class RollerClaw extends Claw {
     // TODO: fix ping channel and echo channel later
-    Ultrasonic ultrasonicSensor = new Ultrasonic(0, 1);
+    Ultrasonic m_ultrasonicSensor = new Ultrasonic(0, 1);
 
     // TODO: tune this current limit, borrowed from 2021 game
     private static final double MOTOR_CURRENT_LIMIT = 10.35;
@@ -58,16 +58,16 @@ public class RollerClaw extends Claw {
 
         // starts the sensor on initialization
         SmartDashboard.putNumber("Ultrasonic Sensor Roller Claw", -1.0);
-        ultrasonicSensor.setEnabled(true);
+        m_ultrasonicSensor.setEnabled(true);
     }
 
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
         // display collected data from the ultrasonic sensor
-        SmartDashboard.putBoolean("isValid", ultrasonicSensor.isRangeValid());
-        SmartDashboard.putNumber("Ultrasonic Sensor", ultrasonicSensor.getRangeInches());
-        SmartDashboard.putBoolean("isEnabled", ultrasonicSensor.isEnabled());
+        SmartDashboard.putBoolean("isValid", m_ultrasonicSensor.isRangeValid());
+        SmartDashboard.putNumber("Ultrasonic Sensor", m_ultrasonicSensor.getRangeInches());
+        SmartDashboard.putBoolean("isEnabled", m_ultrasonicSensor.isEnabled());
 
         // SmartDashboard.putNumber("claw/speed", m_speed);
 
