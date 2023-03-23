@@ -24,6 +24,8 @@ import frc.robot.Constants;
 public class RollerClaw extends Claw {
 
     private final double ULTRASONIC_CLOSE_CLAW_DISTANCE_INCHES = 2;
+    private boolean m_waitingToClose;
+
     private final double EMA_MULTIPLER = 0.5; // exponential moving average multipler for a steady reading from ultrasonic sensors
     private double m_ultrasonicReading; // in inches
     // TODO: fix ping channel and echo channel later
@@ -64,6 +66,8 @@ public class RollerClaw extends Claw {
         // starts the sensor on initialization
         m_ultrasonicSensor.setEnabled(true);
         m_ultrasonicReading = m_ultrasonicSensor.getRangeInches();
+
+        m_waitingToClose = false;
     }
 
     // This method will be called once per scheduler run
@@ -77,6 +81,12 @@ public class RollerClaw extends Claw {
         SmartDashboard.putNumber("claw/Ultrasonic Sensor Raw", m_ultrasonicSensor.getRangeInches());
         SmartDashboard.putNumber("claw/Ultrasonic Sensor Exponential Averaged", m_ultrasonicReading);
         SmartDashboard.putBoolean("claw/isEnabled", m_ultrasonicSensor.isEnabled());
+
+        if(m_waitingToClose && m_ultrasonicReading <= ULTRASONIC_CLOSE_CLAW_DISTANCE_INCHES){
+            // close the claw
+            // m_waitingToClose is set to false in close() so that when driver closes the claw manually, the distance won't be checked again
+            close();
+        }
 
         // SmartDashboard.putNumber("claw/speed", m_speed);
 
@@ -108,6 +118,8 @@ public class RollerClaw extends Claw {
 
     @Override
     public void open(){
+        m_waitingToClose = true;
+
         // System.out.println("RollerClaw open called");
         m_clawSolenoid.set(Value.kForward);
         setMotor(0.0);
@@ -115,6 +127,8 @@ public class RollerClaw extends Claw {
 
     @Override
     public void close() {
+        m_waitingToClose = false; // making it false here so if the driver closes the claw manually, the periodic won't check for game pieces
+
         m_clawSolenoid.set(Value.kReverse);
 
         if (Math.abs(m_speed) >= (INTAKE_STOP_SPEED + 0.05)) {
@@ -127,6 +141,8 @@ public class RollerClaw extends Claw {
 
     @Override
     public void startIntake() {
+        m_waitingToClose = true;
+
         // don't call open, since it does extra stuff
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
