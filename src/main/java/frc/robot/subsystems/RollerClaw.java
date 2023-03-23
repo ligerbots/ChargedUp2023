@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 // import com.revrobotics.ColorSensorV3.RawColor;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
@@ -21,6 +22,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class RollerClaw extends Claw {
+
+    private final double ULTRASONIC_CLOSE_CLAW_DISTANCE_INCHES = 2;
+    private final double EMA_MULTIPLER = 0.5; // exponential moving average multipler for a steady reading from ultrasonic sensors
+    private double m_ultrasonicReading; // in inches
     // TODO: fix ping channel and echo channel later
     Ultrasonic m_ultrasonicSensor = new Ultrasonic(0, 1);
 
@@ -41,7 +46,7 @@ public class RollerClaw extends Claw {
 
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
-    private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
+    private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);
     // private ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
     /** Creates a new RollerClaw. */
@@ -57,17 +62,21 @@ public class RollerClaw extends Claw {
         m_speed = 0.0;
 
         // starts the sensor on initialization
-        SmartDashboard.putNumber("Ultrasonic Sensor Roller Claw", -1.0);
         m_ultrasonicSensor.setEnabled(true);
+        m_ultrasonicReading = m_ultrasonicSensor.getRangeInches();
     }
 
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
+        // apply exponential averaging
+        m_ultrasonicReading = m_ultrasonicSensor.getRangeInches() * EMA_MULTIPLER + m_ultrasonicReading * (1.0 - EMA_MULTIPLER);
+
         // display collected data from the ultrasonic sensor
-        SmartDashboard.putBoolean("isValid", m_ultrasonicSensor.isRangeValid());
-        SmartDashboard.putNumber("Ultrasonic Sensor", m_ultrasonicSensor.getRangeInches());
-        SmartDashboard.putBoolean("isEnabled", m_ultrasonicSensor.isEnabled());
+        SmartDashboard.putBoolean("claw/isValid", m_ultrasonicSensor.isRangeValid());
+        SmartDashboard.putNumber("claw/Ultrasonic Sensor Raw", m_ultrasonicSensor.getRangeInches());
+        SmartDashboard.putNumber("claw/Ultrasonic Sensor Exponential Averaged", m_ultrasonicReading);
+        SmartDashboard.putBoolean("claw/isEnabled", m_ultrasonicSensor.isEnabled());
 
         // SmartDashboard.putNumber("claw/speed", m_speed);
 
@@ -121,6 +130,10 @@ public class RollerClaw extends Claw {
         // don't call open, since it does extra stuff
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
+    }
+
+    public double getUltrasonicDistance(){
+        return m_ultrasonicReading;
     }
 
     private void setMotor(double speed) {
