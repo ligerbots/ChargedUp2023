@@ -25,7 +25,7 @@ public class RollerClaw extends Claw {
     private final double EMA_MULTIPLER = 0.5; // exponential moving average multipler for a steady reading from ultrasonic sensors
     private double m_ultrasonicReading; // in inches
     // TODO: fix ping channel and echo channel later
-    Ultrasonic m_ultrasonicSensor = new Ultrasonic(0, 1);
+    Ultrasonic m_ultrasonicSensor = new Ultrasonic(Constants.CLAW_ULTRASONIC_PING_CHANNEL, Constants.CLAW_ULTRASONIC_ECHO_CHANNEL);
 
     // TODO: tune this current limit, borrowed from 2021 game
     private static final double MOTOR_CURRENT_LIMIT = 10.35;

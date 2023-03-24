@@ -49,6 +49,9 @@ public final class Constants {
     // This is a SparkMax
     public static final int CLAW_MOTOR_CAN_ID = 11;
 
+    public static final int CLAW_ULTRASONIC_PING_CHANNEL = 2;
+    public static final int CLAW_ULTRASONIC_ECHO_CHANNEL = 1;
+
     // Constants for the Arm, place holder
     public static final double STARTING_ARM_ANGLE = Math.toRadians(0.0);
     public static final double STARTING_ARM_LENGTH = Units.inchesToMeters(0.0);
