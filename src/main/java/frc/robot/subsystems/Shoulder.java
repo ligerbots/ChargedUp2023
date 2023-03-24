@@ -8,8 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
-// import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -125,6 +124,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
+
+        m_motorLeader.configFactoryDefault();
+        m_motorFollower.configFactoryDefault();
+
         m_encoder = m_motorLeader.getSensorCollection();
 
         m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
@@ -138,8 +141,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         // limits for motor leader and folower
         // always limit current to the values. Trigger limit = 0 so that it is always enforced.
-        m_motorLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
-        m_motorFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
+        m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
+        m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
 
         m_dutyEncoder = dutyCycleEncoder;
 
