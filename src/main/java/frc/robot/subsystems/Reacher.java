@@ -61,8 +61,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     //initializing Potentiometer
     private final int POTENTIOMETER_CHANNEL = 0;
-    private final double POTENTIOMETER_RANGE = 1.0; // inches, the string potentiometer on takes in range in integers
-    private final double POTENTIOMETER_OFFSET = 0.0; // inches
+    private final double POTENTIOMETER_RANGE = -2.605; // meters, the string potentiometer on takes in range in integers
+    private final double POTENTIOMETER_OFFSET = 2.5; // meters
     private final AnalogPotentiometer m_stringPotentiometer;
 
     private final SparkMaxPIDController m_PIDController;
@@ -99,8 +99,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_encoder.setPositionConversionFactor(REACHER_METER_PER_REVOLUTION);
 
         m_stringPotentiometer = new AnalogPotentiometer(POTENTIOMETER_CHANNEL, POTENTIOMETER_RANGE, POTENTIOMETER_OFFSET);
-        m_encoder.setPosition(REACHER_OFFSET_METER);
-        // m_encoder.setPosition(getPotentiometerReadingMeters());
+        // m_encoder.setPosition(REACHER_OFFSET_METER);
+        m_encoder.setPosition(getPotentiometerReadingMeters());
 
         setCoastMode(false);
         SmartDashboard.putBoolean("Reacher/coastMode", m_coastMode);
@@ -112,9 +112,12 @@ public class Reacher extends TrapezoidProfileSubsystem {
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
         SmartDashboard.putNumber("Reacher/encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/encoderMeter", encoderValue);
         SmartDashboard.putNumber("Reacher/goal", Units.metersToInches(m_goal));
         // SmartDashboard.putBoolean("Reacher/mesetReacherPos", m_resetReacherPos);
         
+        SmartDashboard.putNumber("Reacher/stringPotMeter", getPotentiometerReadingMeters());
+
         m_coastMode = SmartDashboard.getBoolean("Reacher/coastMode", m_coastMode);
         if (m_coastMode)
             setCoastMode(m_coastMode);
