@@ -48,7 +48,7 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
             // Drive over the CS to out of the Community 
             new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
-            driveTrain.driveToPoseTrajectoryCommand(FieldConstants.GAME_PIECE_MIDDLE_1_BLUE),
+            // driveTrain.driveToPoseTrajectoryCommand(FieldConstants.GAME_PIECE_MIDDLE_1_BLUE),
             // TODO: to add start intaking and stuff
 
             // Drive back to the center of the CS
