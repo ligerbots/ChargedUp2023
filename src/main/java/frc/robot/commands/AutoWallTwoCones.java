@@ -33,7 +33,7 @@ public class AutoWallTwoCones extends SequentialCommandGroup implements AutoComm
             new InstantCommand(claw::open),
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton),
             m_traj[0].alongWith(
-                new WaitCommand(2.0)
+                new WaitCommand(1.0)
                 .andThen(new ScoreArm(arm, driveTrain, Position.PICK_UP, overrideButton).withTimeout(5))
                 .andThen(new InstantCommand(claw::startIntake))
             ),
