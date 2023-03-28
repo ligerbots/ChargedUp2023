@@ -431,25 +431,27 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("drivetrain/simHeading", Math.toDegrees(newHeading));
     }
 
-    public Command driveToPoseTrajectoryCommand(Pose2d targetPose){
-        targetPose = FieldConstants.flipPose(targetPose);
+    // // WARNING: this must not be called in a Command *constructor*. The Pose flip and currentPose values will be all wrong.
+    // Not currently used. Not tested.
+    // public Command driveToPoseTrajectoryCommand(Pose2d targetPose){
+    //     targetPose = FieldConstants.flipPose(targetPose);
         
-        Pose2d currentPose = getPose();
+    //     Pose2d currentPose = getPose();
 
-        boolean isTargetBelow = targetPose.getY() < currentPose.getY();
-        Rotation2d headingVertical = isTargetBelow ? Rotation2d.fromDegrees(270) : Rotation2d.fromDegrees(90);
-        boolean isTargetLeft = targetPose.getX() < currentPose.getX();
-        Rotation2d headingHorizontal = isTargetLeft ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0);
+    //     boolean isTargetBelow = targetPose.getY() < currentPose.getY();
+    //     Rotation2d headingVertical = isTargetBelow ? Rotation2d.fromDegrees(270) : Rotation2d.fromDegrees(90);
+    //     boolean isTargetLeft = targetPose.getX() < currentPose.getX();
+    //     Rotation2d headingHorizontal = isTargetLeft ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0);
 
-        PathPlannerTrajectory traj = PathPlanner.generatePath(
-            new PathConstraints(2.0, 2.0), // velocity, acceleration
-            new PathPoint(currentPose.getTranslation(), headingVertical, currentPose.getRotation()), // starting pose
-            new PathPoint(new Translation2d(currentPose.getTranslation().getX(), targetPose.getY()), headingHorizontal, targetPose.getRotation()), // moving up/down sideways and turn facing the cone
-            new PathPoint(targetPose.getTranslation(), headingHorizontal, targetPose.getRotation()) // move horizontally to grab pieces
-        );
+    //     PathPlannerTrajectory traj = PathPlanner.generatePath(
+    //         new PathConstraints(2.0, 2.0), // velocity, acceleration
+    //         new PathPoint(currentPose.getTranslation(), headingVertical, currentPose.getRotation()), // starting pose
+    //         new PathPoint(new Translation2d(currentPose.getTranslation().getX(), targetPose.getY()), headingHorizontal, targetPose.getRotation()), // moving up/down sideways and turn facing the cone
+    //         new PathPoint(targetPose.getTranslation(), headingHorizontal, targetPose.getRotation()) // move horizontally to grab pieces
+    //     );
 
-        return makeFollowTrajectoryCommand(traj);
-    }
+    //     return makeFollowTrajectoryCommand(traj);
+    // }
 
     // Make a command to follow a given trajectory
     // Note this does NOT include stopping at the end
