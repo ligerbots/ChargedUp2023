@@ -44,16 +44,12 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
                 .alongWith(new WaitCommand(0.25).andThen(new InstantCommand(claw::close))),
         
-            // TODO: AutoXPositionDrive seems to care about robot heading based on the setup of alliance color instead of current rotation (-90, 90)
             // Drive over the CS to out of the Community 
             new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
 
             // wait a bit for the CS to settle before going up the ramp
             // can be removed to save time
             new WaitCommand(0.25),
-
-            // driveTrain.driveToPoseTrajectoryCommand(FieldConstants.GAME_PIECE_MIDDLE_1_BLUE),
-            // TODO: to add start intaking and stuff
 
             // Drive back to the center of the CS
             new ChargeStationDrive(driveTrain),
