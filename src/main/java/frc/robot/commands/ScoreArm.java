@@ -9,7 +9,6 @@ import java.util.HashMap;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -41,7 +40,8 @@ public class ScoreArm extends CommandBase {
     // private static final double FLOOR_PICK_UP_CUBE_ANGLE = Math.toRadians(-56.0);
     // private static final double FLOOR_PICK_UP_CUBE_LENGTH = Units.inchesToMeters(6.0);
 
-    private static final double SUBSTATION_ANGLE = Math.toRadians(13.0);
+    // angle lowered by 1 degree at Revere
+    private static final double SUBSTATION_ANGLE = Math.toRadians(12.0);
     private static final double SUBSTATION_LENGTH = Units.inchesToMeters(1.0);
 
     private static final double STOW_ANGLE = Math.toRadians(-65.0);

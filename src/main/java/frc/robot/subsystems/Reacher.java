@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
@@ -57,11 +58,17 @@ public class Reacher extends TrapezoidProfileSubsystem {
     // Define the motor and encoders
     private final CANSparkMax m_motor;
     private final RelativeEncoder m_encoder;
+
+    //initializing Potentiometer
+    private final int POTENTIOMETER_CHANNEL = 0;
+    private final double POTENTIOMETER_RANGE = -2.605; // meters, the string potentiometer on takes in range in integers
+    private final double POTENTIOMETER_OFFSET = 2.5; // meters
+    private final AnalogPotentiometer m_stringPotentiometer;
+
     private final SparkMaxPIDController m_PIDController;
 
     private final ElevatorFeedforward m_feedForward = new ElevatorFeedforward(REACHER_KS,
                     REACHER_KG, REACHER_KV, REACHER_KA);
-
     private double m_kPReacher;
     private boolean m_resetReacherPos = false;
     private boolean m_coastMode = false;
@@ -88,11 +95,12 @@ public class Reacher extends TrapezoidProfileSubsystem {
         // m_motor.setInverted(true);
 
         m_encoder = m_motor.getEncoder();
-
         // Set the position conversion factor.
         m_encoder.setPositionConversionFactor(REACHER_METER_PER_REVOLUTION);
 
-        m_encoder.setPosition(REACHER_OFFSET_METER);
+        m_stringPotentiometer = new AnalogPotentiometer(POTENTIOMETER_CHANNEL, POTENTIOMETER_RANGE, POTENTIOMETER_OFFSET);
+        // m_encoder.setPosition(REACHER_OFFSET_METER);
+        m_encoder.setPosition(getPotentiometerReadingMeters());
 
         setCoastMode(false);
         SmartDashboard.putBoolean("Reacher/coastMode", m_coastMode);
@@ -104,9 +112,12 @@ public class Reacher extends TrapezoidProfileSubsystem {
     public void periodic() {
         double encoderValue = m_encoder.getPosition();
         SmartDashboard.putNumber("Reacher/encoder", Units.metersToInches(encoderValue));
+        SmartDashboard.putNumber("Reacher/encoderMeter", encoderValue);
         SmartDashboard.putNumber("Reacher/goal", Units.metersToInches(m_goal));
         // SmartDashboard.putBoolean("Reacher/mesetReacherPos", m_resetReacherPos);
         
+        SmartDashboard.putNumber("Reacher/stringPotMeter", getPotentiometerReadingMeters());
+
         m_coastMode = SmartDashboard.getBoolean("Reacher/coastMode", m_coastMode);
         if (m_coastMode)
             setCoastMode(m_coastMode);
@@ -148,6 +159,10 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     public double getLength() {
         return m_encoder.getPosition();
+    }
+
+    public double getPotentiometerReadingMeters(){
+        return m_stringPotentiometer.get();
     }
 
     public void resetReacherPos() {

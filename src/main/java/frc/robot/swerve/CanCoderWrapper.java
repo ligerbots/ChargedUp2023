@@ -22,7 +22,7 @@ public class CanCoderWrapper {
     public static void checkCtreError(ErrorCode errorCode, String message) {
         if (errorCode != ErrorCode.OK) {
             DriverStation.reportError(String.format("%s: %s", message, errorCode.toString()), false);
-            System.out.println("** ERROR in config of CANCoder: " + errorCode.toString());
+            // System.out.println("** ERROR in config of CANCoder: " + errorCode.toString());
         }
     }
 

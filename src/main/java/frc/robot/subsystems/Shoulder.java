@@ -124,6 +124,10 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
+
+        m_motorLeader.configFactoryDefault();
+        m_motorFollower.configFactoryDefault();
+
         m_encoder = m_motorLeader.getSensorCollection();
 
         m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
@@ -162,13 +166,13 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // m_Duty_Encoder.setPositionOffset(SHOULDER_OFFSET_RADIAN);
         // m_motorSim = new TalonFXSimCollection(m_motorLeader);
         // m_encoderSim = new TalonFXSimCollection(m_encoder);
-        SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
-        SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
+        // SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
+        // SmartDashboard.putNumber("shoulder/P Gain", m_kPShoulder);
         // SmartDashboard.putData("shoulder Sim", m_mech2d);
 
         setCoastMode(false);
         SmartDashboard.putBoolean("shoulder/coastMode", m_coastMode);
-        SmartDashboard.putNumber("shoulder/kFeedForward", m_kFeedForward);
+        // SmartDashboard.putNumber("shoulder/kFeedForward", m_kFeedForward);
 
         // m_motorLeader.set(ControlMode.Position, )
         // m_motorLeader.set(ControlMode.Position, m_encoder.getIntegratedSensorPosition(), DemandType.ArbitraryFeedForward, 0.0);//feedforward/12.0);
@@ -199,7 +203,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // Add some extra numbers to diagnose the load on the motors
         SmartDashboard.putNumber("shoulder/leaderOutput", m_motorLeader.get());
         SmartDashboard.putNumber("shoulder/encoder", Math.toDegrees(getAngle()));
-        SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
+        // SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
         SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
         SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);

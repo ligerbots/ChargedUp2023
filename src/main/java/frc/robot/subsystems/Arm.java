@@ -19,6 +19,7 @@ public class Arm extends SubsystemBase {
         m_shoulder = new Shoulder(m_Duty_Encoder);
         m_reacher = new Reacher();
     
+        // SD variables for the manual setting commands
         SmartDashboard.putNumber("Testing/SetArmLengthTest", 0.0);
         SmartDashboard.putNumber("Testing/SetArmAngleTest", 0.0);
     }

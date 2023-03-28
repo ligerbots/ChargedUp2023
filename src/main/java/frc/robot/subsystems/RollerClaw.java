@@ -6,9 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
-// import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-// import com.revrobotics.ColorSensorV3.RawColor;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
@@ -71,10 +69,7 @@ public class RollerClaw extends Claw {
             m_needStop = false;
         }
 
-        // // SmartDashboard.putBoolean("claw/color sensor is Connected", m_colorSensor.isConnected());
         // SmartDashboard.putNumber("claw/motorCurrent", m_motor.getOutputCurrent());
-        // // SmartDashboard.putNumber("claw/Color Sensor distance", getColorSensorProximity());
-        // // SmartDashboard.putNumberArray("claw/colorRGB", getColor());
 
         // SmartDashboard.putBoolean("claw/isFwdSolenoidDisabled", m_clawSolenoid.isFwdSolenoidDisabled());
         // SmartDashboard.putBoolean("claw/isRevSolenoidDisabled", m_clawSolenoid.isRevSolenoidDisabled());

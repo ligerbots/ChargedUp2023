@@ -18,6 +18,7 @@ import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.FeederPickup;
 import frc.robot.commands.MoveArmAndDrive;
 import frc.robot.commands.ScoreArm;
+import frc.robot.commands.ScoreCube;
 import frc.robot.commands.SetArmAngleTest;
 import frc.robot.commands.SetArmLengthTest;
 import frc.robot.commands.ChargeStationBalance;
@@ -137,7 +138,7 @@ public class RobotContainer {
         farm6.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_MIDDLE, m_overrideButton));
 
         JoystickButton farm7 = new JoystickButton(m_farm, 7);
-        farm7.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_MIDDLE, m_overrideButton));
+        farm7.onTrue(new ScoreCube(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_MIDDLE, m_overrideButton));
 
         JoystickButton farm8 = new JoystickButton(m_farm, 8);
         farm8.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_MIDDLE, m_overrideButton));
@@ -146,7 +147,7 @@ public class RobotContainer {
         farm11.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_TOP, m_overrideButton));
 
         JoystickButton farm13 = new JoystickButton(m_farm, 13);
-        farm13.onTrue(new MoveArmAndDrive(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_TOP, m_overrideButton));
+        farm13.onTrue(new ScoreCube(m_arm, m_driveTrain, m_vision, Constants.Position.CENTER_TOP, m_overrideButton));
 
         JoystickButton farm15 = new JoystickButton(m_farm, 15);
         farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP, m_overrideButton));
