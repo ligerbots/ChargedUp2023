@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,6 +18,7 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.FeederPickup;
 import frc.robot.commands.MoveArmAndDrive;
+import frc.robot.commands.Rumble;
 import frc.robot.commands.ScoreArm;
 import frc.robot.commands.ScoreCube;
 import frc.robot.commands.SetArmAngleTest;
@@ -191,6 +193,10 @@ public class RobotContainer {
                 () -> -modifyAxis(m_controller.getLeftY()),
                 () -> -modifyAxis(m_controller.getLeftX()),
                 () -> -modifyAxis(m_controller.getRightX()));
+    }
+
+    public Command getRumbleCommand(){
+        return new Rumble(m_controller);
     }
 
     private static double deadband(double value, double deadband) {
