@@ -80,6 +80,8 @@ public class RollerClaw extends Claw {
             enableCompressor();
         else
             disableCompressor();
+
+        SmartDashboard.putNumber("claw/curIRSensorReading", super.m_curIRSensorReading);
     }
 
     @Override

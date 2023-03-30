@@ -19,7 +19,7 @@ public abstract class Claw extends SubsystemBase {
     // median filter to filter the IR sensor reading
     private final MedianFilter m_medianFilter = new MedianFilter(12);
 
-    private double m_curIRSensorReading = 0.0;
+    protected double m_curIRSensorReading = 0.0;
 
     // open the claw, but don't start the motor
     public abstract void open();
