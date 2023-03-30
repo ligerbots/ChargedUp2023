@@ -97,6 +97,9 @@ public class Robot extends TimedRobot {
 
         m_robotContainer.getLED().setColor(Color.OFF);
         m_robotContainer.getClaw().enableCompressor();
+
+        // TODO: tune the period
+        addPeriodic(claw.updateIRSensorPeriodic(), 0.01);
     }
 
     /**
