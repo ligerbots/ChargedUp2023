@@ -12,9 +12,8 @@ public abstract class Claw extends SubsystemBase {
         
     private AnalogInput m_infraredSensor = new AnalogInput(1);
 
-    // TODO: tune the threshold
     // threshold to detect the game pieces in the claw 
-    private static final double INTAKE_DISTANCE_VOLTAGE_THRESHOLD = 0.5; // a voltage between 0 and 1
+    private static final double INTAKE_DISTANCE_VOLTAGE_THRESHOLD = 1.5;
 
     // median filter to filter the IR sensor reading
     private final MedianFilter m_medianFilter = new MedianFilter(12);

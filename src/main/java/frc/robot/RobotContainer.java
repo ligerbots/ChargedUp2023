@@ -59,7 +59,7 @@ public class RobotContainer {
     // private static final int XBOX_JL = 9;
     // private static final int XBOX_JR = 10;
 
-    private final XboxController m_controller = new XboxController(0);
+    private static final XboxController m_controller = new XboxController(0);
     private final Joystick m_farm = new Joystick(1);
 
     // The robot's subsystems and commands are defined here...
@@ -195,7 +195,7 @@ public class RobotContainer {
                 () -> -modifyAxis(m_controller.getRightX()));
     }
 
-    public Command getRumbleCommand(){
+    public static Command getRumbleCommand(){
         return new Rumble(m_controller);
     }
 

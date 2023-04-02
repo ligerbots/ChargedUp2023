@@ -12,13 +12,14 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 // import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 public class RollerClaw extends Claw {
     // TODO: tune this current limit, borrowed from 2021 game
@@ -35,6 +36,8 @@ public class RollerClaw extends Claw {
 
     private Timer m_timer;
     private boolean m_needStop = false;
+
+    private boolean m_waitForPiece = false;
 
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
@@ -65,6 +68,14 @@ public class RollerClaw extends Claw {
         //     setMotor(0);
         // }
 
+        if(m_waitForPiece && hasGamePiece()){
+            // rumble when there is a game piece inside the claw
+            // only rumble in teleop mode
+            if(DriverStation.isTeleopEnabled())
+                RobotContainer.getRumbleCommand().schedule();
+            close();
+        }
+
         // Timer is turned on only in close() method
         if (m_needStop && m_timer.hasElapsed(STOP_MOTOR_DELAY)) {
             m_timer.stop();
@@ -93,6 +104,7 @@ public class RollerClaw extends Claw {
 
     @Override
     public void close() {
+        m_waitForPiece = false;
         m_clawSolenoid.set(Value.kReverse);
 
         if (Math.abs(m_speed) >= (INTAKE_STOP_SPEED + 0.05)) {
@@ -106,6 +118,7 @@ public class RollerClaw extends Claw {
     @Override
     public void startIntake() {
         // don't call open, since it does extra stuff
+        m_waitForPiece = true;
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
     }
