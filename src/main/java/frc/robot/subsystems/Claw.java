@@ -16,7 +16,7 @@ public abstract class Claw extends SubsystemBase {
     private static final double INTAKE_DISTANCE_VOLTAGE_THRESHOLD = 1.5;
 
     // median filter to filter the IR sensor reading
-    private final MedianFilter m_medianFilter = new MedianFilter(12);
+    private final MedianFilter m_medianFilter = new MedianFilter(10);
 
     protected double m_curIRSensorReading = 0.0;
 
