@@ -4,18 +4,14 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.DoubleSupplier;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.filter.MedianFilter;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-// import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -39,7 +35,6 @@ public class RollerClaw extends Claw {
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
-    // private ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
     /** Creates a new RollerClaw. */
     public RollerClaw() {
@@ -57,10 +52,6 @@ public class RollerClaw extends Claw {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("claw/speed", m_speed);
-
-        // setMotor(SmartDashboard.getNumber("claw/speed", 1.0));
-
         // if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT) {
         //     setMotor(0);
         // }
@@ -125,13 +116,4 @@ public class RollerClaw extends Claw {
     public void disableCompressor() {
         m_pH.disableCompressor();
     }
-
-    // public int getColorSensorProximity() {
-    //     return m_colorSensor.getProximity();
-    // }
-
-    // public double[] getColor(){
-    //     RawColor color = m_colorSensor.getRawColor();
-    //     return new double[]{color.red, color.green, color.blue};
-    // }
 }
