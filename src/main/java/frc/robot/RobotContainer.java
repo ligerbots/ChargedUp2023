@@ -57,14 +57,14 @@ public class RobotContainer {
     // private static final int XBOX_JL = 9;
     // private static final int XBOX_JR = 10;
 
-    private static final XboxController m_controller = new XboxController(0);
+    private final XboxController m_controller = new XboxController(0);
     private final Joystick m_farm = new Joystick(1);
 
     // The robot's subsystems and commands are defined here...
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    private final Claw m_claw = new RollerClaw();
+    private final Claw m_claw = new RollerClaw(new Rumble(m_controller));
     private final LedLight m_ledLight = new LedLight();
     private JoystickButton m_overrideButton;
 
@@ -191,10 +191,6 @@ public class RobotContainer {
                 () -> -modifyAxis(m_controller.getLeftY()),
                 () -> -modifyAxis(m_controller.getLeftX()),
                 () -> -modifyAxis(m_controller.getRightX()));
-    }
-
-    public static Command getRumbleCommand(){
-        return new Rumble(m_controller);
     }
 
     private static double deadband(double value, double deadband) {

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
+import frc.robot.commands.Rumble;
 
 public class RollerClaw extends Claw {
     // TODO: tune this current limit, borrowed from 2021 game
@@ -40,7 +40,8 @@ public class RollerClaw extends Claw {
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
 
     /** Creates a new RollerClaw. */
-    public RollerClaw() {
+    public RollerClaw(Rumble rumbleCommand) {
+        m_rumbleCommand = rumbleCommand;
         m_motor.setInverted(true);
         // limit the current to 15A
         m_motor.setSmartCurrentLimit(15);
@@ -63,7 +64,7 @@ public class RollerClaw extends Claw {
             // rumble when there is a game piece inside the claw
             // only rumble in teleop mode
             if(DriverStation.isTeleopEnabled())
-                RobotContainer.getRumbleCommand().schedule();
+                m_rumbleCommand.schedule();
             close();
         }
 

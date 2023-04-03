@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.getClaw().enableCompressor();
 
         // TODO: tune the period
-        addPeriodic(claw.updateIRSensorPeriodic(), 0.001);
+        addPeriodic(claw.updateIRSensorPeriodic(), 0.002);
     }
 
     /**
