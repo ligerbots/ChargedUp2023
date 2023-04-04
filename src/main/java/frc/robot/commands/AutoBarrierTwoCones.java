@@ -5,12 +5,12 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -18,7 +18,6 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
-    private static final double HIGH_GRID_CUBE_ANGLE = Math.toRadians(10.0);
     // save the trajectories so we can plot them in the simulation
     AutoFollowTrajectory[] m_traj;
 

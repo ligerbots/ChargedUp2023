@@ -7,14 +7,13 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.ScoreArm;
 
 public class Arm extends SubsystemBase {
-    private static final double HIGH_CUBE_ANGLE = Math.toRadians(10.0);
-    private boolean m_raiseArmAfterAuto = false;
-
     private Shoulder m_shoulder;
     private Reacher m_reacher;
     private DutyCycleEncoder m_Duty_Encoder = new DutyCycleEncoder(0);
+    private boolean m_raiseArmAfterAuto = false;
 
     public Arm() {
         // Construct the shoulder and reacher trapezoid subsystems
@@ -66,15 +65,15 @@ public class Arm extends SubsystemBase {
         m_reacher.resetReacherPos();
     }
 
-    public boolean getRaiseArmAfterAuto(){
-        return m_raiseArmAfterAuto;
-    }
-
     public void setRaiseArmAfterAuto(boolean raiseArm){
         m_raiseArmAfterAuto = raiseArm;
     }
 
+    // If needed, raise the arm up after autonomous period for BarrierAuto
     public void raiseArmAfterAuto(){
-        setArmAngle(HIGH_CUBE_ANGLE);
+        if (m_raiseArmAfterAuto) {
+            setArmAngle(ScoreArm.HIGH_GRID_CUBE_ANGLE);
+        }        
+        m_raiseArmAfterAuto = false;        
     }
 }
