@@ -19,7 +19,6 @@ import frc.robot.subsystems.Vision;
 
 public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
     private static final double HIGH_GRID_CUBE_ANGLE = Math.toRadians(10.0);
-    private static final double HIGH_GRID_CUBE_LENGTH = Units.inchesToMeters(31.0);
     // save the trajectories so we can plot them in the simulation
     AutoFollowTrajectory[] m_traj;
 
