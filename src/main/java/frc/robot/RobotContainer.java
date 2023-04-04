@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Drive;
 import frc.robot.commands.DriveAndMoveArm;
 import frc.robot.commands.FeederPickup;
-import frc.robot.commands.MoveArmAndDrive;
+import frc.robot.commands.Rumble;
 import frc.robot.commands.ScoreArm;
 import frc.robot.commands.ScoreCube;
 import frc.robot.commands.SetArmAngleTest;
@@ -64,7 +64,7 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    private final Claw m_claw = new RollerClaw();
+    private final Claw m_claw = new RollerClaw(new Rumble(m_controller));
     private final LedLight m_ledLight = new LedLight();
     private JoystickButton m_overrideButton;
 

@@ -9,17 +9,17 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-// import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.Constants;
+import frc.robot.commands.Rumble;
 
 public class RollerClaw extends Claw {
     // TODO: tune this current limit, borrowed from 2021 game
-    private static final double MOTOR_CURRENT_LIMIT = 10.35;
+    // private static final double MOTOR_CURRENT_LIMIT = 10.35;
 
     // speed to run the motor for intake
     private static final double INTAKE_MOTOR_SPEED = 0.75;
@@ -33,13 +33,15 @@ public class RollerClaw extends Claw {
     private Timer m_timer;
     private boolean m_needStop = false;
 
+    private boolean m_waitForPiece = false;
+
     PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
     DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
-    // private ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
     /** Creates a new RollerClaw. */
-    public RollerClaw() {
+    public RollerClaw(Rumble rumbleCommand) {
+        m_rumbleCommand = rumbleCommand;
         m_motor.setInverted(true);
         // limit the current to 15A
         m_motor.setSmartCurrentLimit(15);
@@ -54,13 +56,17 @@ public class RollerClaw extends Claw {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("claw/speed", m_speed);
-
-        // setMotor(SmartDashboard.getNumber("claw/speed", 1.0));
-
         // if (m_motor.getOutputCurrent() > MOTOR_CURRENT_LIMIT) {
         //     setMotor(0);
         // }
+
+        if(m_waitForPiece && hasGamePiece()){
+            // rumble when there is a game piece inside the claw
+            // only rumble in teleop mode
+            if(DriverStation.isTeleopEnabled())
+                m_rumbleCommand.schedule();
+            close();
+        }
 
         // Timer is turned on only in close() method
         if (m_needStop && m_timer.hasElapsed(STOP_MOTOR_DELAY)) {
@@ -77,6 +83,8 @@ public class RollerClaw extends Claw {
             enableCompressor();
         else
             disableCompressor();
+
+        SmartDashboard.putNumber("claw/curIRSensorReading", super.m_curIRSensorReading);
     }
 
     @Override
@@ -88,6 +96,7 @@ public class RollerClaw extends Claw {
 
     @Override
     public void close() {
+        m_waitForPiece = false;
         m_clawSolenoid.set(Value.kReverse);
 
         if (Math.abs(m_speed) >= (INTAKE_STOP_SPEED + 0.05)) {
@@ -101,6 +110,7 @@ public class RollerClaw extends Claw {
     @Override
     public void startIntake() {
         // don't call open, since it does extra stuff
+        m_waitForPiece = true;
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
     }
@@ -120,13 +130,4 @@ public class RollerClaw extends Claw {
     public void disableCompressor() {
         m_pH.disableCompressor();
     }
-
-    // public int getColorSensorProximity() {
-    //     return m_colorSensor.getProximity();
-    // }
-
-    // public double[] getColor(){
-    //     RawColor color = m_colorSensor.getRawColor();
-    //     return new double[]{color.red, color.green, color.blue};
-    // }
 }

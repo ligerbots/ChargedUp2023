@@ -4,9 +4,25 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.Rumble;
 
 public abstract class Claw extends SubsystemBase {
+        
+    private AnalogInput m_infraredSensor = new AnalogInput(1);
+
+    protected Rumble m_rumbleCommand = null;
+
+    // threshold to detect the game pieces in the claw 
+    private static final double INTAKE_DISTANCE_VOLTAGE_THRESHOLD = 1.5;
+
+    // median filter to filter the IR sensor reading
+    private final MedianFilter m_medianFilter = new MedianFilter(10);
+
+    protected double m_curIRSensorReading = 0.0;
+
     // open the claw, but don't start the motor
     public abstract void open();
     
@@ -19,4 +35,14 @@ public abstract class Claw extends SubsystemBase {
     // enable/disable the compressor
     public abstract void enableCompressor();
     public abstract void disableCompressor();
+
+    public Runnable updateIRSensorPeriodic(){
+        return () -> {
+            m_curIRSensorReading = m_medianFilter.calculate(m_infraredSensor.getVoltage());
+        };
+    }
+
+    public boolean hasGamePiece(){
+        return m_curIRSensorReading > INTAKE_DISTANCE_VOLTAGE_THRESHOLD;
+    }
 }

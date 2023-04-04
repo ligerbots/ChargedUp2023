@@ -61,8 +61,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
 
     //initializing Potentiometer
     private final int POTENTIOMETER_CHANNEL = 0;
-    private final double POTENTIOMETER_RANGE = -2.605; // meters, the string potentiometer on takes in range in integers
-    private final double POTENTIOMETER_OFFSET = 2.5; // meters
+    private final double POTENTIOMETER_RANGE = -2.625; // meters, the string potentiometer on takes in range in integers
+    private final double POTENTIOMETER_OFFSET = 2.51; // meters
     private final AnalogPotentiometer m_stringPotentiometer;
 
     private final SparkMaxPIDController m_PIDController;
