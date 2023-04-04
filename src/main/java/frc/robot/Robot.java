@@ -184,6 +184,13 @@ public class Robot extends TimedRobot {
         }
         m_robotContainer.getDriveCommand().schedule();
 
+        // raise the arm up after autonomous period for BarrierAuto
+        Arm arm = m_robotContainer.getArm();
+        if(arm.getRaiseArmAfterAuto()){
+            arm.setRaiseArmAfterAuto(false);
+            arm.raiseArmAfterAuto();
+        }
+
         // m_robotContainer.getClaw().enableCompressor();
     }
 

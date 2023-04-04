@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
+    private static final double HIGH_CUBE_ANGLE = Math.toRadians(10.0);
+    private boolean m_raiseArmAfterAuto = false;
 
     private Shoulder m_shoulder;
     private Reacher m_reacher;
@@ -62,5 +64,17 @@ public class Arm extends SubsystemBase {
 
     public void resetReacherPos(){
         m_reacher.resetReacherPos();
+    }
+
+    public boolean getRaiseArmAfterAuto(){
+        return m_raiseArmAfterAuto;
+    }
+
+    public void setRaiseArmAfterAuto(boolean raiseArm){
+        m_raiseArmAfterAuto = raiseArm;
+    }
+
+    public void raiseArmAfterAuto(){
+        setArmAngle(HIGH_CUBE_ANGLE);
     }
 }
