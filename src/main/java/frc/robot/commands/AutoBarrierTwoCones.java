@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -17,7 +18,8 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Vision;
 
 public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoCommandInterface {
-    
+    private static final double HIGH_GRID_CUBE_ANGLE = Math.toRadians(10.0);
+    private static final double HIGH_GRID_CUBE_LENGTH = Units.inchesToMeters(31.0);
     // save the trajectories so we can plot them in the simulation
     AutoFollowTrajectory[] m_traj;
 
@@ -45,6 +47,14 @@ public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoC
             new WaitUntilCommand(claw::hasGamePiece),
             
             m_traj[1].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5)),
+            
+            // TODO: test this below instead by commmenting out the line above (49) and the line below (58), see if it speeds up
+            // m_traj[1].alongWith(
+            //     new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5)
+            //         .andThen(new SetArmAngle(arm, HIGH_GRID_CUBE_ANGLE)
+            //             .alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))))),
+            // new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton),
+
             new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton).alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))),
             new InstantCommand(claw::open)
             // m_traj[2].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5))
