@@ -41,8 +41,10 @@ public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoC
                 // new WaitCommand(1.0)
                 new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton)
                 .andThen(new ScoreArm(arm, driveTrain, Position.PICK_UP, overrideButton).withTimeout(5)
-                    .alongWith(new InstantCommand(claw::startIntake)))),
-            new InstantCommand(driveTrain::stop),//.alongWith(new InstantCommand(claw::close)),
+                            .alongWith(new InstantCommand(claw::startIntake)))),
+
+            new InstantCommand(driveTrain::stop),
+            // claw will close on its own if it detects a game piece
             new WaitUntilCommand(claw::hasGamePiece),
             
             m_traj[1].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5)),
