@@ -188,7 +188,8 @@ public class Robot extends TimedRobot {
         m_robotContainer.getArm().raiseArmAfterAuto();
 
         m_robotContainer.getDriveCommand().schedule();
-
+        m_robotContainer.getDriveTrain().resetDrivingModes();
+        
         // m_robotContainer.getClaw().enableCompressor();
     }
 
