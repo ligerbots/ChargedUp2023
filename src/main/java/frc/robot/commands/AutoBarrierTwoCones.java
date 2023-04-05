@@ -43,16 +43,16 @@ public class AutoBarrierTwoCones extends SequentialCommandGroup implements AutoC
             // claw will close on its own if it detects a game piece
             new WaitUntilCommand(claw::hasGamePiece),
             
-            m_traj[1].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)),
-            new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton).alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))),
+            // m_traj[1].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)),
+            // new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton).alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))),
             
             // TODO: test this below instead by commmenting out the lines above (46-47), see if it speeds up
-            // m_traj[1].alongWith(
-            //     new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5)
-            //     .andThen(new WaitCommand(1.0))
-            //     .andThen(new SetArmAngle(arm, ScoreArm.HIGH_GRID_CUBE_ANGLE)
-            //             .alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))))),
-            // new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton),
+            m_traj[1].alongWith(
+                new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5)
+                .andThen(new WaitCommand(1.0))
+                .andThen(new SetArmAngle(arm, ScoreArm.HIGH_GRID_CUBE_ANGLE)
+                        .alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))))),
+            new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton),
 
             new InstantCommand(claw::open)
             // m_traj[2].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5))
