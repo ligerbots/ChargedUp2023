@@ -45,8 +45,4 @@ public abstract class Claw extends SubsystemBase {
     public boolean hasGamePiece(){
         return m_curIRSensorReading > INTAKE_DISTANCE_VOLTAGE_THRESHOLD;
     }
-
-    public Rumble getRumbleCommand(){
-        return m_rumbleCommand;
-    }
 }

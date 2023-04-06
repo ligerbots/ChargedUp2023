@@ -19,7 +19,7 @@ import frc.robot.commands.Rumble;
 
 public class RollerClaw extends Claw {
     // TODO: tune this current limit, borrowed from 2021 game
-    private static final double MOTOR_CURRENT_LIMIT = 10.35;
+    // private static final double MOTOR_CURRENT_LIMIT = 10.35;
 
     // speed to run the motor for intake
     private static final double INTAKE_MOTOR_SPEED = 0.75;
