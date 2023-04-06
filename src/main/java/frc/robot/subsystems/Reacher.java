@@ -60,7 +60,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
     private final RelativeEncoder m_encoder;
 
     //initializing Potentiometer
-    private final int POTENTIOMETER_CHANNEL = 0;
+    private final int POTENTIOMETER_CHANNEL = 2;
     private final double POTENTIOMETER_RANGE = -2.625; // meters, the string potentiometer on takes in range in integers
     private final double POTENTIOMETER_OFFSET = 2.51; // meters
     private final AnalogPotentiometer m_stringPotentiometer;

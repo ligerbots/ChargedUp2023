@@ -11,7 +11,7 @@ import frc.robot.commands.Rumble;
 
 public abstract class Claw extends SubsystemBase {
         
-    private AnalogInput m_infraredSensor = new AnalogInput(1);
+    private AnalogInput m_infraredSensor = new AnalogInput(0);
 
     protected Rumble m_rumbleCommand = null;
 
