@@ -44,8 +44,14 @@ public class AutoWallTwoCones extends SequentialCommandGroup implements AutoComm
             new InstantCommand(driveTrain::stop), //.alongWith(new InstantCommand(claw::close)),
             new WaitUntilCommand(claw::hasGamePiece),
             
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
-            // m_traj[1],
+            m_traj[1].alongWith(
+                new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
+                .andThen(new WaitCommand(1.0))
+                .andThen(new SetArmAngle(arm, ScoreArm.HIGH_GRID_CUBE_ANGLE)
+                        .alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))))),
+            new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton),
+
+            new InstantCommand(claw::open)
             // new DriveAndMoveArm(arm, driveTrain, vision, secondConePos),
             // new InstantCommand(claw::open),
             // m_traj[2].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5))
