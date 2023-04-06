@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
 import frc.robot.subsystems.Arm;
@@ -37,11 +38,13 @@ public class AutoWallTwoCones extends SequentialCommandGroup implements AutoComm
             
             m_traj[0].alongWith(
                 new WaitCommand(1.0)
-                .andThen(new ScoreArm(arm, driveTrain, Position.PICK_UP, overrideButton).withTimeout(5))
+                .andThen(new ScoreArm(arm, driveTrain, Position.PICK_UP, overrideButton).withTimeout(2))
                 .andThen(new InstantCommand(claw::startIntake))
             ),
-            new InstantCommand(driveTrain::stop).alongWith(new InstantCommand(claw::close)),
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(5)
+            new InstantCommand(driveTrain::stop), //.alongWith(new InstantCommand(claw::close)),
+            new WaitUntilCommand(claw::hasGamePiece),
+            
+            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
             // m_traj[1],
             // new DriveAndMoveArm(arm, driveTrain, vision, secondConePos),
             // new InstantCommand(claw::open),

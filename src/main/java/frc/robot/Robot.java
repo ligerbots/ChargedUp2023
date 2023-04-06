@@ -182,8 +182,14 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-        m_robotContainer.getDriveCommand().schedule();
 
+        // for safety, some autos need to raise the arm 
+        //  because it can fall while disabled
+        m_robotContainer.getArm().raiseArmAfterAuto();
+
+        m_robotContainer.getDriveCommand().schedule();
+        m_robotContainer.getDriveTrain().resetDrivingModes();
+        
         // m_robotContainer.getClaw().enableCompressor();
     }
 
