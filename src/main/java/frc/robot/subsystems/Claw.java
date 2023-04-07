@@ -23,6 +23,8 @@ public abstract class Claw extends SubsystemBase {
 
     protected double m_curIRSensorReading = 0.0;
 
+    protected boolean m_hasGamePiece = false;
+
     // open the claw, but don't start the motor
     public abstract void open();
     
@@ -42,7 +44,11 @@ public abstract class Claw extends SubsystemBase {
         };
     }
 
-    public boolean hasGamePiece(){
+    public boolean detectedGamePiece(){
         return m_curIRSensorReading > INTAKE_DISTANCE_VOLTAGE_THRESHOLD;
+    }
+
+    public boolean hasGamePiece(){
+        return m_hasGamePiece;
     }
 }
