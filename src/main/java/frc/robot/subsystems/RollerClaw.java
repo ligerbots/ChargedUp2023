@@ -113,6 +113,8 @@ public class RollerClaw extends Claw {
     public void startIntake() {
         // don't call open, since it does extra stuff
         m_waitForPiece = true;
+        m_hasGamePiece = false;
+
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
     }
