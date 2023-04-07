@@ -46,7 +46,7 @@ public class AutoWallTwoCones extends SequentialCommandGroup implements AutoComm
             
             m_traj[1].alongWith(
                 new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
-                .andThen(new WaitCommand(1.0))
+                .andThen(new WaitCommand(0.5))
                 .andThen(new SetArmAngle(arm, ScoreArm.HIGH_GRID_CUBE_ANGLE)
                         .alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))))),
             new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton),
