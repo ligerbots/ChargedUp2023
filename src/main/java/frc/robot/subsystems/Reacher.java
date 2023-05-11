@@ -99,8 +99,8 @@ public class Reacher extends TrapezoidProfileSubsystem {
         m_encoder.setPositionConversionFactor(REACHER_METER_PER_REVOLUTION);
 
         m_stringPotentiometer = new AnalogPotentiometer(POTENTIOMETER_CHANNEL, POTENTIOMETER_RANGE, POTENTIOMETER_OFFSET);
-        // m_encoder.setPosition(REACHER_OFFSET_METER);
-        m_encoder.setPosition(getPotentiometerReadingMeters());
+        m_encoder.setPosition(REACHER_OFFSET_METER);
+        // m_encoder.setPosition(getPotentiometerReadingMeters());
 
         setCoastMode(false);
         SmartDashboard.putBoolean("Reacher/coastMode", m_coastMode);
