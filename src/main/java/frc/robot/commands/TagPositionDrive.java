@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -30,6 +29,7 @@ public class TagPositionDrive extends CommandBase {
     private Command m_followTrajectory;
     private Vision m_vision;
     private Position m_targetPosition;
+    private double m_trajectoryTime;
 
     // Dictionary of robot positions for a desired operation
     // This is *relative* to the AprilTag pose, but left/right from the Driver's perspective
@@ -79,7 +79,9 @@ public class TagPositionDrive extends CommandBase {
         // The scheduler does not know about the sub-command, so include the requirements
         addRequirements(m_driveTrain);
     }
-
+    public double getTrajectoryTime(){
+       return m_trajectoryTime;   
+    }
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
@@ -139,10 +141,13 @@ public class TagPositionDrive extends CommandBase {
                 new PathPoint(currentPose.getTranslation(), heading, currentPose.getRotation()), // starting pose
                 new PathPoint(robotTargetTranslation, heading, robotTargetRotation) // position, heading
         );
+        
+        m_trajectoryTime = traj.getTotalTimeSeconds();
 
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.initialize();
-        
+        System.out.println("*******tajectory time********* = " + traj.getTotalTimeSeconds());
+
         // if we are trying to score, switch automatically into precisionMode
         if (! isSubTarget) {
             m_driveTrain.setPrecisionMode(true);
