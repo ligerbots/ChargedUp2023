@@ -60,12 +60,13 @@ public class RollerClaw extends Claw {
         //     setMotor(0);
         // }
 
-        if(m_waitForPiece && hasGamePiece()){
+        if(m_waitForPiece && detectedGamePiece()){
             // rumble when there is a game piece inside the claw
             // only rumble in teleop mode
             if(DriverStation.isTeleopEnabled())
                 m_rumbleCommand.schedule();
             close();
+            m_hasGamePiece = true;
         }
 
         // Timer is turned on only in close() method
@@ -92,6 +93,7 @@ public class RollerClaw extends Claw {
         // System.out.println("RollerClaw open called");
         m_clawSolenoid.set(Value.kForward);
         setMotor(0.0);
+        m_hasGamePiece = false;
     }
 
     @Override
@@ -111,6 +113,8 @@ public class RollerClaw extends Claw {
     public void startIntake() {
         // don't call open, since it does extra stuff
         m_waitForPiece = true;
+        m_hasGamePiece = false;
+
         m_clawSolenoid.set(Value.kForward);
         setMotor(INTAKE_MOTOR_SPEED);
     }

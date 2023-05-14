@@ -35,8 +35,8 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     public static final double SHOULDER_ANGLE_TOLERANCE_RADIAN = Math.toRadians(3.0);
 
-    private static final double LEADER_CURRENT_LIMIT = 12.0;
-    private static final double FOLLOW_CURRENT_LIMIT = 6.0;
+    private static final double LEADER_CURRENT_LIMIT = 40.0;
+    private static final double FOLLOW_CURRENT_LIMIT = 40.0;
 
     // TODO: The following constants came from the 2022 robot.
     // These need to be set for this robot.
@@ -52,18 +52,19 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     
   
     // Constants to limit the shoulder rotation speed
-    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(120.0); // 120 deg/sec
-    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(300.0); // 120 deg/sec^2
+    private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(300.0); // 120 deg/sec
+    private static final double SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ = Units.degreesToRadians(450.0); // 120 deg/sec^2
 
     private static final double SHOULDER_POSITION_OFFSET = 62.0/360.0;
     private static final double SHOULDER_OFFSET_RADIAN = SHOULDER_POSITION_OFFSET * 2 * Math.PI;
 
     // The Shoulder gear ratio is 288, but let's get it exactly.
-    private static final double SHOULDER_GEAR_RATIO = (84.0 /12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 22.0);
+    // private static final double SHOULDER_GEAR_RATIO = (84.0 /12.0) * (84.0 / 18.0) * (84.0 / 26.0) * (60.0 / 22.0);
+    private static final double SHOULDER_GEAR_RATIO = (84.0 /12.0) * (84.0 / 18.0) * (70.0 / 40.0) * (60.0 / 22.0);
 
     // PID Constants for the shoulder PID controller
     // Since we're using Trapeziodal control, all values will be 0 except for P
-    private static final double SHOULDER_K_P = 0.1;
+    private static final double SHOULDER_K_P = 0.15;
     private static final double SHOULDER_K_I = 0.0;
     private static final double SHOULDER_K_D = 0.0;
     private static final double SHOULDER_K_FF = 0.0;
@@ -203,12 +204,14 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // Add some extra numbers to diagnose the load on the motors
         SmartDashboard.putNumber("shoulder/leaderOutput", m_motorLeader.get());
         SmartDashboard.putNumber("shoulder/encoder", Math.toDegrees(getAngle()));
-        // SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
+        SmartDashboard.putNumber("shoulder/encoderSpeed", Math.toDegrees(getSpeed()));
         SmartDashboard.putNumber("shoulder/goal", Math.toDegrees(m_goal));
         SmartDashboard.putNumber("shoulder/absoluteEncoder", Math.toDegrees(-m_dutyEncoder.getDistance()));
         // SmartDashboard.putBoolean("shoulder/m_resetShoulderPos", m_resetShoulderPos);
         SmartDashboard.putNumber("shoulder/leaderStatorI", m_motorLeader.getStatorCurrent());
         SmartDashboard.putNumber("shoulder/followerStatorI", m_motorFollower.getStatorCurrent());
+        SmartDashboard.putNumber("shoulder/leaderSupplyI", m_motorLeader.getSupplyCurrent());
+        SmartDashboard.putNumber("shoulder/followerSupplyI", m_motorFollower.getSupplyCurrent());
 
         m_coastMode = SmartDashboard.getBoolean("shoulder/coastMode", m_coastMode);
         if (m_coastMode)

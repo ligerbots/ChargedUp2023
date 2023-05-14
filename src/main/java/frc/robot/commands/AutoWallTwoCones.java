@@ -33,19 +33,25 @@ public class AutoWallTwoCones extends SequentialCommandGroup implements AutoComm
             new ScoreArm(arm, driveTrain, Position.RIGHT_TOP, overrideButton).withTimeout(5),
             new InstantCommand(claw::open),
 
-            // need to STOW arm before moving/spinning so that it does not hit anything
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton),
             
             m_traj[0].alongWith(
-                new WaitCommand(1.0)
+                // need to STOW arm before moving/spinning so that it does not hit anything
+                new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
+                .andThen(new WaitCommand(0.5))
                 .andThen(new ScoreArm(arm, driveTrain, Position.PICK_UP, overrideButton).withTimeout(2))
                 .andThen(new InstantCommand(claw::startIntake))
             ),
             new InstantCommand(driveTrain::stop), //.alongWith(new InstantCommand(claw::close)),
             new WaitUntilCommand(claw::hasGamePiece),
             
-            new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
-            // m_traj[1],
+            m_traj[1].alongWith(
+                new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
+                .andThen(new WaitCommand(0.5))
+                .andThen(new SetArmAngle(arm, ScoreArm.HIGH_GRID_CUBE_ANGLE)
+                        .alongWith(new InstantCommand(() -> arm.setRaiseArmAfterAuto(true))))),
+            new ScoreCube(arm, driveTrain, vision, secondConePos, overrideButton),
+
+            new InstantCommand(claw::open)
             // new DriveAndMoveArm(arm, driveTrain, vision, secondConePos),
             // new InstantCommand(claw::open),
             // m_traj[2].alongWith(new ScoreArm(arm, driveTrain, Position.STOW_ARM).withTimeout(5))

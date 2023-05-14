@@ -67,7 +67,7 @@ public class Robot extends TimedRobot {
 
         // Enable local logging.
         // ** CAREFUL: this probably should be disabled during competition.
-        // DataLogManager.start();
+        DataLogManager.start();
         
         // Instantiate our RobotContainer.  This will perform all our button bindings.
         m_robotContainer = new RobotContainer();
