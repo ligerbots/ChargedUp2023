@@ -143,10 +143,10 @@ public class TagPositionDrive extends CommandBase {
         );
         
         m_trajectoryTime = traj.getTotalTimeSeconds();
+        // System.out.println("*******tajectory time********* = " + m_trajectoryTime);
 
         m_followTrajectory = m_driveTrain.makeFollowTrajectoryCommand(traj);
         m_followTrajectory.initialize();
-        System.out.println("*******tajectory time********* = " + traj.getTotalTimeSeconds());
 
         // if we are trying to score, switch automatically into precisionMode
         if (! isSubTarget) {
