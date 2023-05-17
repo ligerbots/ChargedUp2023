@@ -13,10 +13,19 @@ import frc.robot.subsystems.DriveTrain;
 public class ChargeStationDrive extends CommandBase {
     Command m_command;
     DriveTrain m_driveTrain;
+    double m_goalY;
 
-    /** Creates a new ChargeStationDrive. */
     public ChargeStationDrive(DriveTrain driveTrain) {
         m_driveTrain = driveTrain;
+        m_goalY = FieldConstants.CHARGE_STATION_CENTER_Y;
+
+        addRequirements(m_driveTrain);
+    }
+
+    /** Creates a new ChargeStationDrive. */
+    public ChargeStationDrive(DriveTrain driveTrain, double goalY) {
+        m_driveTrain = driveTrain;
+        m_goalY = goalY;
 
         addRequirements(m_driveTrain);
     }
@@ -24,7 +33,7 @@ public class ChargeStationDrive extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_command = new AutoXPositionDrive(m_driveTrain, FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS);
+        m_command = new AutoXPositionDrive(m_driveTrain, FieldConstants.CHARGE_STATION_MIDDLE_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS, m_goalY);
         m_command.initialize();
     }
 

@@ -43,16 +43,9 @@ public class AutoChargeStationOneConeOtherSide extends SequentialCommandGroup im
             // The robot is already outside the danger zone for stowing arm if we try to score a cone 
             new ScoreArm(arm, driveTrain, Position.STOW_ARM, overrideButton).withTimeout(2)
                 .alongWith(new WaitCommand(0.25).andThen(new InstantCommand(claw::close))),
-        
-            // Drive over the CS to out of the Community 
-            new AutoXPositionDrive(driveTrain, FieldConstants.CENTER_AUTO_OUTSIDE_COMMUNITY_X_BLUE, DriveTrain.CHARGE_STATION_DRIVE_MPS),
-
-            // wait a bit for the CS to settle before going up the ramp
-            // can be removed to save time
-            new WaitCommand(0.25),
 
             // Drive back to the center of the CS
-            new ChargeStationDrive(driveTrain),
+            new ChargeStationDrive(driveTrain, initY),
             new ChargeStationBalance(driveTrain));
                     
         // Do NOT require any Subsystems. That is handled by the subcommands.
