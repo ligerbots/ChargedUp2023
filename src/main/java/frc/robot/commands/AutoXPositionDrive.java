@@ -34,12 +34,7 @@ public class AutoXPositionDrive extends CommandBase {
     private final double ROT_PID_CONTROLLER_P = 1.0;
 
     public AutoXPositionDrive(DriveTrain driveTrain, double goalXBlue, double driveMPS) {
-        m_driveTrain = driveTrain;
-        m_goalXBlue = goalXBlue;
-        m_driveMPSX = driveMPS;
-        m_goalY = FieldConstants.CHARGE_STATION_CENTER_Y;
-        // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(driveTrain);
+        this(driveTrain, goalXBlue, driveMPS, FieldConstants.CHARGE_STATION_CENTER_Y);
     }
     
     /** Creates a new ChargeStationDrive. */
@@ -48,6 +43,7 @@ public class AutoXPositionDrive extends CommandBase {
         m_goalXBlue = goalXBlue;
         m_driveMPSX = driveMPS;
         m_goalY = goalY;
+        
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(driveTrain);
     }
