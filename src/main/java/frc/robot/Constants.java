@@ -71,6 +71,19 @@ public final class Constants {
         PICK_UP, STOW_ARM
     }
 
+    // cube shooter speeds
+    public enum CubeShooterSpeed{
+        LOW, MIDDLE, HIGH
+    }
+    //change these speeds later
+    public static final double CUBE_SHOOTER_LOW_SPEED = 1.0;
+    public static final double CUBE_SHOOTER_MIDDLE_SPEED = 2.0;
+    public static final double CUBE_SHOOTER_HIGH_SPEED = 3.0;
+
+    //Cube Shooter
+    public static final int CUBE_SHOOTER_CAN_ID = 12;
+
+
     public static final double TRAJ_MAX_VEL = 2.0;
     public static final double TRAJ_MAX_ACC = 1.0;
 
