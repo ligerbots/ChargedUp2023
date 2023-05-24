@@ -4,46 +4,36 @@
 
 package frc.robot.commands;
 
+import javax.xml.namespace.QName;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.CubeShooterSpeed;
+import frc.robot.subsystems.CubeShooter;
 
 public class IntakeCube extends CommandBase {
-
-    //check if it first DigitalInput
-    DigitalInput m_beamBreak = new DigitalInput(0);
+    private CubeShooter m_cubeShooter; 
 
     public IntakeCube() {
-
+        m_cubeShooter = new CubeShooter();
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        
+        m_cubeShooter.startIntake();
+
     }
 
     @Override
     public void execute() {
-        SmartDashboard.putBoolean("On?", m_beamBreak.get());
-        
-        //run motor
-
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
 
-    }
-
-    // Returns true when the command should end.
-    @Override
-    public boolean isFinished() {
-        // finish if there is a cube present
-        return m_beamBreak.get() == false;
-        
     }
 
 }

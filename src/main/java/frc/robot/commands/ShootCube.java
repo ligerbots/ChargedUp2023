@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -12,10 +15,19 @@ import frc.robot.subsystems.CubeShooter;
 
 public class ShootCube extends CommandBase {
     private CubeShooter m_cubeShooter;
-
     private CubeShooterSpeed m_cubeShooterSpeed;
-    //take from port 
 
+    DigitalInput m_beamBreak = new DigitalInput(0);
+
+    // speeds of shooter, change later
+    private static final Map<CubeShooterSpeed, Double> SHOOTER_SPEEDS = new HashMap<CubeShooterSpeed, Double>() {
+        {
+            put(CubeShooterSpeed.LOW, 1.0);
+            put(CubeShooterSpeed.MIDDLE, 2.0);
+            put(CubeShooterSpeed.HIGH, 3.0);
+        }
+    };
+    
     public ShootCube(CubeShooterSpeed cubeShooterSpeed) {
         m_cubeShooter = new CubeShooter();
         m_cubeShooterSpeed = cubeShooterSpeed;
@@ -29,7 +41,8 @@ public class ShootCube extends CommandBase {
 
     @Override
     public void execute() {
-
+        // make the motor run at the corresponding speed of the requested enum speed
+        m_cubeShooter.shootCube(SHOOTER_SPEEDS.get(m_cubeShooterSpeed));
     }
 
     // Called once the command ends or is interrupted.
@@ -38,5 +51,11 @@ public class ShootCube extends CommandBase {
 
     }
 
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        // stop shooting if there is a cube present
+        return m_beamBreak.get() == false;
+    }
 
 }

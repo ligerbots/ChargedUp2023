@@ -15,4 +15,14 @@ public class CubeShooter {
         m_cubeShooterMotor.restoreFactoryDefaults();    
     }
 
+    // intake a cube
+    public void startIntake() {
+        //change speed later
+        m_cubeShooterMotor.set(-1.0);
+    }
+
+    // shoot a cube by inputting desired speed
+    public void shootCube(double shooterSpeed) {
+        m_cubeShooterMotor.set(shooterSpeed);
+    }
 }
