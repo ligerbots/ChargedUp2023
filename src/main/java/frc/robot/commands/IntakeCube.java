@@ -4,19 +4,17 @@
 
 package frc.robot.commands;
 
-import javax.xml.namespace.QName;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.CubeShooterSpeed;
 import frc.robot.subsystems.CubeShooter;
 
 public class IntakeCube extends CommandBase {
     private CubeShooter m_cubeShooter; 
 
-    public IntakeCube() {
-        m_cubeShooter = new CubeShooter();
+
+    public IntakeCube(CubeShooter cubeShooter) {
+        m_cubeShooter = cubeShooter;
     }
 
     // Called when the command is initially scheduled.
@@ -35,5 +33,13 @@ public class IntakeCube extends CommandBase {
     public void end(boolean interrupted) {
 
     }
+    
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        // stop intaking if there is a cube present
+        return m_cubeShooter.isBeamBreak() == false;
+    }
+
 
 }

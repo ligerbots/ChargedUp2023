@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.CubeShooterSpeed;
 import frc.robot.subsystems.CubeShooter;
@@ -16,8 +15,6 @@ import frc.robot.subsystems.CubeShooter;
 public class ShootCube extends CommandBase {
     private CubeShooter m_cubeShooter;
     private CubeShooterSpeed m_cubeShooterSpeed;
-
-    DigitalInput m_beamBreak = new DigitalInput(0);
 
     // speeds of shooter, change later
     private static final Map<CubeShooterSpeed, Double> SHOOTER_SPEEDS = new HashMap<CubeShooterSpeed, Double>() {
@@ -28,8 +25,8 @@ public class ShootCube extends CommandBase {
         }
     };
     
-    public ShootCube(CubeShooterSpeed cubeShooterSpeed) {
-        m_cubeShooter = new CubeShooter();
+    public ShootCube(CubeShooter cubeShooter, CubeShooterSpeed cubeShooterSpeed) {
+        m_cubeShooter = cubeShooter;
         m_cubeShooterSpeed = cubeShooterSpeed;
     }
 
@@ -54,8 +51,8 @@ public class ShootCube extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        // stop shooting if there is a cube present
-        return m_beamBreak.get() == false;
+        // run until there is no cube
+        return m_cubeShooter.isBeamBreak();
     }
 
 }

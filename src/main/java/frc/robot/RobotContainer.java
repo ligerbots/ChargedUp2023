@@ -29,6 +29,7 @@ import frc.robot.subsystems.RollerClaw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.CubeShooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -66,6 +67,7 @@ public class RobotContainer {
     private final Arm m_arm = new Arm();
     private final Claw m_claw = new RollerClaw(new Rumble(m_controller));
     private final LedLight m_ledLight = new LedLight();
+    private final CubeShooter m_cubeShooter = new CubeShooter();
     private JoystickButton m_overrideButton;
 
     /**
@@ -232,5 +234,8 @@ public class RobotContainer {
     }
     public JoystickButton getOverRideButton(){
         return m_overrideButton;
+    }
+    public CubeShooter getCubeShooter(){
+        return m_cubeShooter;
     }
 }

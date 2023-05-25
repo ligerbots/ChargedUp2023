@@ -2,12 +2,15 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 
 public class CubeShooter {
     private final CANSparkMax m_cubeShooterMotor;
-    
+    DigitalInput m_beamBreak = new DigitalInput(0);
+
 
     public CubeShooter() {
         // motor for cube shooting
@@ -15,6 +18,10 @@ public class CubeShooter {
         m_cubeShooterMotor.restoreFactoryDefaults();    
     }
 
+    // is there a clear path between sensors
+    public boolean isBeamBreak(){
+        return m_beamBreak.get();
+    }
     // intake a cube
     public void startIntake() {
         //change speed later
