@@ -7,7 +7,6 @@ package frc.robot.commands;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.CubeShooterSpeed;
 import frc.robot.subsystems.CubeShooter;
