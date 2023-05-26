@@ -45,6 +45,14 @@ public final class Constants {
     public static final int PNEUMATIC_HUB_PORT = 1;
     public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL = 9;
     public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL = 8;
+
+    // CAN ID and channels for the cube shooter subsystem
+
+    // change what these values set to
+    public static final int PNEUMATIC_HUB_CUBE_SHOOTER = 2;
+    public static final int DOUBLE_SOLENOID_FORWARD_CHANNEL_CUBE = 11;
+    public static final int DOUBLE_SOLENOID_REVERSE_CHANNEL_CUBE = 10;
+
     // CAN ID for the motor on the end effector
     // This is a SparkMax
     public static final int CLAW_MOTOR_CAN_ID = 11;
@@ -77,7 +85,9 @@ public final class Constants {
     }
 
     //Cube Shooter
-    public static final int CUBE_SHOOTER_CAN_ID = 12;
+    public static final int CUBE_SHOOTER_CAN_ID_1 = 12;
+    public static final int CUBE_SHOOTER_CAN_ID_2 = 13;
+
 
 
     public static final double TRAJ_MAX_VEL = 2.0;
