@@ -7,8 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -68,10 +70,14 @@ public class RobotContainer {
     private final Vision m_vision = new Vision();
     private final DriveTrain m_driveTrain = new DriveTrain(m_vision);
     private final Arm m_arm = new Arm();
-    private final Claw m_claw = new RollerClaw(new Rumble(m_controller));
+
+    private final PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
+    private final Claw m_claw = new RollerClaw(m_pH, new Rumble(m_controller));
     private final LedLight m_ledLight = new LedLight();
-    private final CubeShooter m_cubeShooter = new CubeShooter();
+    private final CubeShooter m_cubeShooter = new CubeShooter(m_pH);
     private JoystickButton m_overrideButton;
+
+    private boolean m_inArmMode = true; 
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -101,6 +107,16 @@ public class RobotContainer {
         JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
         xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
+        // //cube shooter buttons 
+        // JoystickButton farm12 = new JoystickButton(m_farm, 12);
+        // farm12.onTrue(
+        //     new ConditionalCommand(
+        //         new InstantCommand(m_claw::close)
+        //             .andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM, m_overrideButton).withTimeout(5)),
+        //         new RetractCubeShooter(), 
+        //         m_inArmMode)
+        //     .andThen(new InstantCommand(()->{m_inArmMode = !m_inArmMode;})));
+
         // when button B is pressed, lock wheels
         JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
         xboxBButton.onTrue(new InstantCommand(m_driveTrain::lockWheels, m_driveTrain));
@@ -113,11 +129,10 @@ public class RobotContainer {
         // whichever way the robot is facing becomes the forward direction
         JoystickButton xboxStartButton = new JoystickButton(m_controller, XBOX_START);
         xboxStartButton.onTrue(new InstantCommand(m_driveTrain::resetHeading));
-
+        
         JoystickButton leftBumper = new JoystickButton(m_controller, XBOX_LB);
         leftBumper.onTrue(
-            new InstantCommand(m_claw::open)
-            .alongWith(new InstantCommand(()->{ m_driveTrain.setPrecisionMode(false); }))
+            new InstantCommand(m_claw::open).alongWith(new InstantCommand(()->{ m_driveTrain.setPrecisionMode(false); }))
         );
 
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
@@ -194,6 +209,7 @@ public class RobotContainer {
         // charge station balancing
         JoystickButton farm23 = new JoystickButton(m_farm, 23);
         farm23.onTrue(new ChargeStationBalance(m_driveTrain).withTimeout(5.0));
+
 
         // // ---- TESTING  ----
         JoystickButton farm21 = new JoystickButton(m_farm, 21);

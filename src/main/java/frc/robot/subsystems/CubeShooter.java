@@ -12,28 +12,26 @@ import frc.robot.Constants;
 
 
 public class CubeShooter {
-    private final CANSparkMax m_motor1;
-    private final CANSparkMax m_motor2;
+    private final CANSparkMax m_intakeMotor;
+    private final CANSparkMax m_shootMotor;
+
+    //change speed later
+    private final double INTAKE_SPEED = 0.3;
+
     DigitalInput m_beamBreak = new DigitalInput(0);
 
-    // pneumatic cylinder
-    PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_CUBE_SHOOTER);
-    DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL_CUBE, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL_CUBE);
+    DoubleSolenoid m_clawSolenoid;
 
-    public CubeShooter() {
-        m_motor1 = new CANSparkMax(Constants.CUBE_SHOOTER_CAN_ID_1, MotorType.kBrushless);
-        m_motor1.restoreFactoryDefaults();    
-        m_motor2 = new CANSparkMax(Constants.CUBE_SHOOTER_CAN_ID_2, MotorType.kBrushless);
-        m_motor2.restoreFactoryDefaults();  
-        SmartDashboard.putBoolean("cubeShooter/isCompressorEnabled", true);
-  
-    }
+    public CubeShooter(PneumaticHub pneuHub) {
+        // motor for cube shooting
+        m_intakeMotor = new CANSparkMax(Constants.CUBE_SHOOTER_INTAKE_CAN_ID, MotorType.kBrushless);
+        m_shootMotor = new CANSparkMax(Constants.CUBE_SHOOTER_SHOOT_CAN_ID, MotorType.kBrushless);
 
-    public void periodic(){
-        if (SmartDashboard.getBoolean("claw/isCompressorEnabled", true))
-            enableCompressor();
-        else
-            disableCompressor();
+        m_intakeMotor.restoreFactoryDefaults();
+        m_shootMotor.restoreFactoryDefaults();     
+        m_shootMotor.setInverted(true);
+        
+        m_clawSolenoid = pneuHub.makeDoubleSolenoid(Constants.CUBE_SHOOTER_CYLINDER_FORWARD, Constants.CUBE_SHOOTER_CYLINDER_REVERSE);
 
     }
 
@@ -41,25 +39,24 @@ public class CubeShooter {
     public boolean isBeamBreak(){
         return m_beamBreak.get();
     }
+     
+    // deploy or retract
+    public void deployIntake(boolean deploy) {
+        // TODO!!
+        if (deploy) {
+            // set cylinder
+        }
+    }
+
     // intake a cube
     public void startIntake() {
-        m_clawSolenoid.set(Value.kForward);
         //change speed later
-        m_motor1.set(-1.0);
+        m_intakeMotor.set(INTAKE_SPEED);
     }
 
     // shoot a cube by inputting desired speed
     public void shootCube(double shooterSpeed) {
-        // 2 motors used for shootign cube
-        m_motor1.set(shooterSpeed);
-        m_motor2.set(shooterSpeed);
-
-    }
-    public void enableCompressor() {
-        m_pH.enableCompressorDigital();
-    }
-
-    public void disableCompressor() {
-        m_pH.disableCompressor();
+        m_intakeMotor.set(shooterSpeed);
+        m_shootMotor.set(shooterSpeed);
     }
 }

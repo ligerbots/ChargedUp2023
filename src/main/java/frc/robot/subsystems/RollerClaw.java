@@ -35,12 +35,15 @@ public class RollerClaw extends Claw {
 
     private boolean m_waitForPiece = false;
 
-    PneumaticHub m_pH = new PneumaticHub(Constants.PNEUMATIC_HUB_PORT);
-    DoubleSolenoid m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
+    PneumaticHub m_pH;
+    DoubleSolenoid m_clawSolenoid;
     private CANSparkMax m_motor = new CANSparkMax(Constants.CLAW_MOTOR_CAN_ID, MotorType.kBrushless);;
 
     /** Creates a new RollerClaw. */
-    public RollerClaw(Rumble rumbleCommand) {
+    public RollerClaw(PneumaticHub pneuHub, Rumble rumbleCommand) {
+        m_pH = pneuHub;
+        m_clawSolenoid = m_pH.makeDoubleSolenoid(Constants.DOUBLE_SOLENOID_FORWARD_CHANNEL, Constants.DOUBLE_SOLENOID_REVERSE_CHANNEL);
+
         m_rumbleCommand = rumbleCommand;
         m_motor.setInverted(true);
         // limit the current to 15A
