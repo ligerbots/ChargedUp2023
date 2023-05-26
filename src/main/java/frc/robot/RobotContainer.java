@@ -136,14 +136,31 @@ public class RobotContainer {
         );
 
         JoystickButton rightBumper = new JoystickButton(m_controller, XBOX_RB);
-        rightBumper.onTrue(new InstantCommand(m_claw::close));
+        rightBumper.onTrue(
+            new ConditionalCommand(
+                new InstantCommand(m_claw::close),
+                new ShootCube(m_cubeShooter, CubeShooterSpeed.HIGH),
+            ()->{return m_inArmMode;})
+            );
                 
         // Turns analog triggers into buttons that actuate when it is half pressed 
         Trigger rightTriggerButton = new Trigger(() -> m_controller.getRightTriggerAxis() >= 0.5);
-        rightTriggerButton.onTrue(new ScoreArm(m_arm, m_driveTrain, Constants.Position.PICK_UP, m_overrideButton).withTimeout(5).andThen(new InstantCommand(m_claw::startIntake)));
+        rightTriggerButton.onTrue(
+            new ConditionalCommand(
+                new ScoreArm(m_arm, m_driveTrain, Constants.Position.PICK_UP, m_overrideButton).withTimeout(5)
+                    .andThen(new InstantCommand(m_claw::startIntake)),
+                new ShootCube(m_cubeShooter, CubeShooterSpeed.LOW),
+            ()->{return m_inArmMode;})
+            );
         
         Trigger leftTriggerButton = new Trigger(() -> m_controller.getLeftTriggerAxis() >= 0.5);
-        leftTriggerButton.onTrue(new InstantCommand(m_claw::close).andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM, m_overrideButton).withTimeout(5)));
+        leftTriggerButton.onTrue(
+            new ConditionalCommand(
+                new InstantCommand(m_claw::close)
+                    .andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM, m_overrideButton).withTimeout(5)),
+                new IntakeCube(m_cubeShooter),
+                ()->{return m_inArmMode;})
+            );
 
         JoystickButton farm1 = new JoystickButton(m_farm, 1);
         farm1.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.LEFT_BOTTOM, m_overrideButton));
