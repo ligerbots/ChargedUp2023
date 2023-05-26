@@ -38,7 +38,7 @@ public class ShootCube extends CommandBase {
     @Override
     public void execute() {
         // make the motor run at the corresponding speed of the requested enum speed
-        m_cubeShooter.shootCube(SHOOTER_SPEEDS.get(m_cubeShooterSpeed));
+        m_cubeShooter.setSpeed(SHOOTER_SPEEDS.get(m_cubeShooterSpeed));
     }
 
     // Called once the command ends or is interrupted.

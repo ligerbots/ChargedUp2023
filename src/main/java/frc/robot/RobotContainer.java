@@ -107,15 +107,15 @@ public class RobotContainer {
         JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
         xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
-        // //cube shooter buttons 
-        // JoystickButton farm12 = new JoystickButton(m_farm, 12);
-        // farm12.onTrue(
-        //     new ConditionalCommand(
-        //         new InstantCommand(m_claw::close)
-        //             .andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM, m_overrideButton).withTimeout(5)),
-        //         new RetractCubeShooter(), 
-        //         m_inArmMode)
-        //     .andThen(new InstantCommand(()->{m_inArmMode = !m_inArmMode;})));
+        //cube shooter buttons 
+        JoystickButton farm12 = new JoystickButton(m_farm, 12);
+        farm12.onTrue(
+            new ConditionalCommand(
+                new InstantCommand(m_claw::close)
+                    .andThen(new ScoreArm(m_arm, m_driveTrain, Constants.Position.STOW_ARM, m_overrideButton).withTimeout(5)),
+                new InstantCommand( ()->{m_cubeShooter.deployIntake(false);} ),
+                ()->{return m_inArmMode;})
+            .andThen(new InstantCommand(()->{m_inArmMode = !m_inArmMode;})));
 
         // when button B is pressed, lock wheels
         JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
@@ -173,20 +173,19 @@ public class RobotContainer {
         JoystickButton farm15 = new JoystickButton(m_farm, 15);
         farm15.onTrue(new DriveAndMoveArm(m_arm, m_driveTrain, m_vision, Constants.Position.RIGHT_TOP, m_overrideButton));
 
-
-        // Cube Shooter Speeds
-        JoystickButton farm12 = new JoystickButton(m_farm, 12);
-        farm12.onTrue(new ShootCube(m_cubeShooter, CubeShooterSpeed.LOW));
+        // // Cube Shooter Speeds
+        // JoystickButton farm12 = new JoystickButton(m_farm, 12);
+        // farm12.onTrue(new ShootCube(m_cubeShooter, CubeShooterSpeed.LOW));
         
-        JoystickButton farm14 = new JoystickButton(m_farm, 14);
-        farm14.onTrue(new ShootCube(m_cubeShooter, CubeShooterSpeed.MIDDLE));
+        // JoystickButton farm14 = new JoystickButton(m_farm, 14);
+        // farm14.onTrue(new ShootCube(m_cubeShooter, CubeShooterSpeed.MIDDLE));
 
-        JoystickButton farm16 = new JoystickButton(m_farm, 16);
-        farm16.onTrue(new ShootCube(m_cubeShooter, CubeShooterSpeed.HIGH));
+        // JoystickButton farm16 = new JoystickButton(m_farm, 16);
+        // farm16.onTrue(new ShootCube(m_cubeShooter, CubeShooterSpeed.HIGH));
 
-        // Cube Shooter Intake
-        JoystickButton xboxBackButton = new JoystickButton(m_controller, XBOX_BACK);
-        xboxBackButton.onTrue(new IntakeCube(m_cubeShooter));
+        // // Cube Shooter Intake
+        // JoystickButton xboxBackButton = new JoystickButton(m_controller, XBOX_BACK);
+        // xboxBackButton.onTrue(new IntakeCube(m_cubeShooter));
 
         // Feeder Stations 
         JoystickButton farm4 = new JoystickButton(m_farm, 4);

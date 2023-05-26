@@ -20,7 +20,7 @@ public class CubeShooter {
 
     DigitalInput m_beamBreak = new DigitalInput(0);
 
-    DoubleSolenoid m_clawSolenoid;
+    DoubleSolenoid m_deploySolenoid;
 
     public CubeShooter(PneumaticHub pneuHub) {
         // motor for cube shooting
@@ -30,9 +30,8 @@ public class CubeShooter {
         m_intakeMotor.restoreFactoryDefaults();
         m_shootMotor.restoreFactoryDefaults();     
         m_shootMotor.setInverted(true);
-        
-        m_clawSolenoid = pneuHub.makeDoubleSolenoid(Constants.CUBE_SHOOTER_CYLINDER_FORWARD, Constants.CUBE_SHOOTER_CYLINDER_REVERSE);
 
+        m_deploySolenoid = pneuHub.makeDoubleSolenoid(Constants.CUBE_SHOOTER_CYLINDER_FORWARD, Constants.CUBE_SHOOTER_CYLINDER_REVERSE);
     }
 
     // is there a clear path between sensors
@@ -42,9 +41,14 @@ public class CubeShooter {
      
     // deploy or retract
     public void deployIntake(boolean deploy) {
-        // TODO!!
         if (deploy) {
-            // set cylinder
+            // set shooter out
+            m_deploySolenoid.set(Value.kForward);
+        }
+        else
+        {
+            // retract
+            m_deploySolenoid.set(Value.kReverse);
         }
     }
 
@@ -55,7 +59,7 @@ public class CubeShooter {
     }
 
     // shoot a cube by inputting desired speed
-    public void shootCube(double shooterSpeed) {
+    public void setSpeed(double shooterSpeed) {
         m_intakeMotor.set(shooterSpeed);
         m_shootMotor.set(shooterSpeed);
     }
