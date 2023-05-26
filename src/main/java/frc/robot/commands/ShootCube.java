@@ -18,33 +18,36 @@ public class ShootCube extends CommandBase {
     // speeds of shooter, change later
     private static final Map<CubeShooterSpeed, Double> SHOOTER_SPEEDS = new HashMap<CubeShooterSpeed, Double>() {
         {
-            put(CubeShooterSpeed.LOW, 1.0);
-            put(CubeShooterSpeed.MIDDLE, 2.0);
-            put(CubeShooterSpeed.HIGH, 3.0);
+            // speeds are 0->1  
+            //TODO Tune these
+            put(CubeShooterSpeed.LOW, 0.2);
+            put(CubeShooterSpeed.MIDDLE, 0.3);
+            put(CubeShooterSpeed.HIGH, 0.5);
         }
     };
     
     public ShootCube(CubeShooter cubeShooter, CubeShooterSpeed cubeShooterSpeed) {
         m_cubeShooter = cubeShooter;
         m_cubeShooterSpeed = cubeShooterSpeed;
+
+        addRequirements(m_cubeShooter);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        
+        // make the motor run at the corresponding speed of the requested enum speed
+        m_cubeShooter.setSpeed(SHOOTER_SPEEDS.get(m_cubeShooterSpeed));
     }
 
     @Override
     public void execute() {
-        // make the motor run at the corresponding speed of the requested enum speed
-        m_cubeShooter.setSpeed(SHOOTER_SPEEDS.get(m_cubeShooterSpeed));
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-
+        m_cubeShooter.setSpeed(0);
     }
 
     // Returns true when the command should end.
@@ -53,5 +56,4 @@ public class ShootCube extends CommandBase {
         // run until there is no cube
         return m_cubeShooter.isBeamBreak();
     }
-
 }

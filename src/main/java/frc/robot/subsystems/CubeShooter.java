@@ -7,11 +7,11 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 
-public class CubeShooter {
+public class CubeShooter extends SubsystemBase {
     private final CANSparkMax m_intakeMotor;
     private final CANSparkMax m_shootMotor;
 
@@ -48,6 +48,7 @@ public class CubeShooter {
         else
         {
             // retract
+            setSpeed(0);
             m_deploySolenoid.set(Value.kReverse);
         }
     }

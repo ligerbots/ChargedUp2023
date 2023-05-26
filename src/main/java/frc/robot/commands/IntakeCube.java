@@ -14,6 +14,7 @@ public class IntakeCube extends CommandBase {
 
     public IntakeCube(CubeShooter cubeShooter) {
         m_cubeShooter = cubeShooter;
+        addRequirements(m_cubeShooter);
     }
 
     // Called when the command is initially scheduled.
