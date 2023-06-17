@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -43,6 +44,9 @@ public class Robot extends TimedRobot {
     private RobotContainer m_robotContainer;
     private TrajectoryPlotter m_plotter;
     private AutoCommandInterface m_prevAutoCommand = null;
+
+    private final Joystick m_joystick = new Joystick(Constants.kJoystickPort);
+
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -196,6 +200,14 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        Arm arm = m_robotContainer.getArm();
+        if (m_joystick.getTrigger()) {
+            // Here, we run PID control like normal.
+            arm.setArmAngle(0);
+          } else {
+            // Otherwise, we disable the motor.
+            
+        }
     }
 
     @Override

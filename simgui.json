@@ -2,8 +2,18 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Shoulder": "Subsystem",
+      "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
+      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/Talon FX [1]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [2]": "Motor Controller",
+      "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
       "/SmartDashboard/Chosen Trajectory": "String Chooser",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/shoulder Sim": "Mechanism2d"
     },
     "windows": {
       "/SmartDashboard/Chosen Trajectory": {
@@ -14,7 +24,6 @@
       "/SmartDashboard/Field": {
         "bottom": 544,
         "height": 8.013679504394531,
-        "image": "/scratch/ligerbots/projects/ChargedUp2023/2023-field.png",
         "left": 46,
         "right": 1088,
         "top": 36,
@@ -38,6 +47,11 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/shoulder Sim": {
+        "window": {
+          "visible": true
+        }
       }
     }
   },
@@ -50,8 +64,5 @@
         "open": true
       }
     }
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }
