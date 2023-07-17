@@ -94,7 +94,8 @@ public class RobotContainer {
 
         // when button A is pressed, toggle field-centric drive mode
         JoystickButton xboxAButton = new JoystickButton(m_controller, XBOX_A);
-        xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
+        xboxAButton.onTrue(new SetArmAngleTest(m_arm));
+        // xboxAButton.onTrue(new InstantCommand(m_driveTrain::toggleFieldCentric));
 
         // when button B is pressed, lock wheels
         JoystickButton xboxBButton = new JoystickButton(m_controller, XBOX_B);
