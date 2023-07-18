@@ -12,12 +12,11 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-// import edu.wpi.first.math.controller.ArmFeedforward;
-// import edu.wpi.first.math.system.plant.DCMotor;
+
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 
@@ -32,16 +31,6 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     private static final double LEADER_CURRENT_LIMIT = 40.0;
     private static final double FOLLOW_CURRENT_LIMIT = 40.0;
-
-    // All units are MKS with angles in Radians
-
-    // // Feedforward constants for the shoulder
-    // private static final double SHOULDER_KS = 0.182; // TODO: This may need to be tuned
-    // // The following constants are computed from https://www.reca.lc/arm
-    // private static final double SHOULDER_KG = 0.09; // V
-    // private static final double SHOULDER_KV = 6.60; // V*sec/rad
-    // private static final double SHOULDER_KA = 0.01; // V*sec^2/rad
-    
 
     // Constants to limit the shoulder rotation speed
     private static final double SHOULDER_MAX_VEL_RADIAN_PER_SEC = Units.degreesToRadians(300.0); // 120 deg/sec
@@ -87,7 +76,6 @@ public class Shoulder extends TrapezoidProfileSubsystem {
 
     // Use null to indicate if we should use the simulation
     private ShoulderSim m_armSim = null;
-    private EncoderSim m_encoderSim = null;
 
     // Construct a new Shoulder subsystem
     public Shoulder(DutyCycleEncoder dutyCycleEncoder) {
@@ -136,10 +124,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putBoolean("shoulder/coastMode", m_coastMode);
 
         if (Robot.isSimulation()) {
-            // not sure how to sim and Talon encoder
-            m_encoderSim = EncoderSim.createForIndex(10);
-            m_encoderSim.setDistancePerPulse(SHOULDER_RADIAN_PER_UNIT);
-            m_armSim = new ShoulderSim(m_motorLeader, m_encoderSim);
+            m_armSim = new ShoulderSim(m_motorLeader, SHOULDER_RADIAN_PER_UNIT);
         }
     }
 
@@ -209,24 +194,15 @@ public class Shoulder extends TrapezoidProfileSubsystem {
     //     }
     // }
 
-    // return current shoulder angle in radians
-    public double getAngle() {
-        if (m_armSim != null) {
-            // simulation
-            return m_encoderSim.getDistance();
-        }
-        else
-            return m_encoder.getIntegratedSensorPosition() * SHOULDER_RADIAN_PER_UNIT;
-    }
-
     double getEncoderCount() {
-        if (m_encoderSim != null) {
-            // simulation
-            return m_encoderSim.getCount();
-        } else
-            return m_encoder.getIntegratedSensorPosition();
+        return m_encoder.getIntegratedSensorPosition();
     }
     
+    // return current shoulder angle in radians
+    public double getAngle() {
+        return getEncoderCount() * SHOULDER_RADIAN_PER_UNIT;
+    }
+
     // return current shoulder angular speed in radians/sec
     public double getSpeed() {
         return m_encoder.getIntegratedSensorVelocity() * SHOULDER_RADIAN_PER_UNIT;
@@ -247,6 +223,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_goal = limitShoulderAngle(angle);
         super.setGoal(m_goal / SHOULDER_RADIAN_PER_UNIT);
     }
+    
     public void resetGoal(){
         // m_encoder.setIntegratedSensorPosition(getAngle()/SHOULDER_RADIAN_PER_UNIT, kTimeoutMs);
         setAngle(getAngle());
