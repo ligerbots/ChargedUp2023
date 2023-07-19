@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
@@ -61,21 +62,22 @@ public class ShoulderSim {
     // this is not called automatically, since it is not a Subsystem
     public void simulationPeriodic() {
         // First, we set our "inputs" (voltages)
-        double motorSpeed = m_motor.get();
+        // double motorVolts = MathUtil.clamp(m_motor.getMotorOutputVoltage(), -12.0, 12.0);
+        double motorVolts = m_motor.getMotorOutputVoltage();
+        SmartDashboard.putNumber("shoulder/simVolts", motorVolts);
+        m_shoulderSim.setInput(motorVolts);
 
-        SmartDashboard.putNumber("shoulder/simSpeed", motorSpeed);
-        m_shoulderSim.setInput(motorSpeed * RobotController.getBatteryVoltage());
         // Next, we update it. The standard loop time is 20ms.
         m_shoulderSim.update(0.020);
 
+        // Now, update the simulated encoders to match
         double angle = m_shoulderSim.getAngleRads();
-
-        // set the simulated encoder to match
         m_motorSim.setIntegratedSensorRawPosition((int)(angle / m_radiansPerTick));
-        // TODO?? set the speed?
+        m_motorSim.setIntegratedSensorVelocity((int)(m_shoulderSim.getVelocityRadPerSec() / m_radiansPerTick));
 
         // SimBattery estimates loaded battery voltages
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shoulderSim.getCurrentDrawAmps()));
+        m_motorSim.setBusVoltage(RobotController.getBatteryVoltage());
 
         // Update the Mechanism Arm angle based on the simulated arm angle
         m_arm.setAngle(Math.toDegrees(angle));
