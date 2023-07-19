@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
@@ -17,6 +16,10 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+
+// Simulation of the Shoulder
+// This uses Falcons, so it is a little specific to that.
+// Does not yet account for the varying length of the arm.
 
 public class ShoulderSim {
     TalonFXSimCollection m_motorSim;
