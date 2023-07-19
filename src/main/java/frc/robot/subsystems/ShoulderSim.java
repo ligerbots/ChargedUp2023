@@ -22,18 +22,17 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 // Does not yet account for the varying length of the arm.
 
 public class ShoulderSim {
-    TalonFXSimCollection m_motorSim;
-    WPI_TalonFX m_motor;
-    double m_radiansPerTick;
+    private final TalonFXSimCollection m_motorSim;
+    private final WPI_TalonFX m_motor;
+    private final double m_radiansPerTick;
 
     // The arm gearbox represents a gearbox containing two Falcon motors.
     private final DCMotor m_shoulderGearbox = DCMotor.getFalcon500(2);
 
     // Simulation classes help us simulate what's going on, including gravity.
     private static final double SHOULDER_MASS = 10; // Kilograms
+    // should use an average or typical length, because it is fixed in the simulation
     private static final double SHOULDER_LENGTH = Units.inchesToMeters(30);
-
-    // private TalonFXSimCollection m_motorSim;
 
     private final SingleJointedArmSim m_shoulderSim;
 
