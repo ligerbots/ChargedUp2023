@@ -62,7 +62,6 @@ public class ShoulderSim {
     // this is not called automatically, since it is not a Subsystem
     public void simulationPeriodic() {
         // First, we set our "inputs" (voltages)
-        // double motorVolts = MathUtil.clamp(m_motor.getMotorOutputVoltage(), -12.0, 12.0);
         double motorVolts = m_motor.getMotorOutputVoltage();
         SmartDashboard.putNumber("shoulder/simVolts", motorVolts);
         m_shoulderSim.setInput(motorVolts);
