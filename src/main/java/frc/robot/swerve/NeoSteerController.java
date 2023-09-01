@@ -40,6 +40,13 @@ public class NeoSteerController {
         }
     }
 
+    // wrap any angle (in radians) to the range [0, 2PI)
+    public static double wrapAngle(double radians) {
+        radians %= TWO_PI;
+        if (radians < 0.0) radians += TWO_PI;
+        return radians;
+    }
+
     public NeoSteerController(int canId, int canCoderCanId, double angleOffsetRadians) {
         // absolute angle encoder CANcoder
         m_absoluteEncoder = new CanCoderWrapper(canCoderCanId, angleOffsetRadians);
@@ -119,19 +126,22 @@ public class NeoSteerController {
 
     // set the angle we want for the wheel (radians)
     public void setReferenceAngle(double referenceAngleRadians) {
+        // get the value from the encoder, but do not wrap it on the circle
+        // we need to set the target position to the closest matching angle, 
+        //  with all the extra loops included.
         double currentAngleRadians = m_motorEncoder.getPosition();
 
         // force into 0 -> 2*PI
-        double currentAngleRadiansMod = currentAngleRadians % TWO_PI;
-        if (currentAngleRadiansMod < 0.0) {
-            currentAngleRadiansMod += TWO_PI;
-        }
+        double currentAngleRadiansMod = wrapAngle(currentAngleRadians);
 
         // The reference angle has the range [0, 2pi) but the Neo's encoder can go above that
-        double adjustedReferenceAngleRadians = referenceAngleRadians + currentAngleRadians - currentAngleRadiansMod;
-        if (referenceAngleRadians - currentAngleRadiansMod > Math.PI) {
+        // currentAng - currentAngMod is the number of extra full turns
+        double adjustedReferenceAngleRadians = referenceAngleRadians + (currentAngleRadians - currentAngleRadiansMod);
+
+        double delta = referenceAngleRadians - currentAngleRadiansMod;
+        if (delta > Math.PI) {
             adjustedReferenceAngleRadians -= TWO_PI;
-        } else if (referenceAngleRadians - currentAngleRadiansMod < -Math.PI) {
+        } else if (delta < -Math.PI) {
             adjustedReferenceAngleRadians += TWO_PI;
         }
 
@@ -142,12 +152,7 @@ public class NeoSteerController {
 
     // get the current module angle in radians
     public Rotation2d getStateAngle() {
-        double motorAngleRadians = m_motorEncoder.getPosition();
-        motorAngleRadians %= TWO_PI;
-        if (motorAngleRadians < 0.0) {
-            motorAngleRadians += TWO_PI;
-        }
-
+        double motorAngleRadians = wrapAngle(m_motorEncoder.getPosition());
         return Rotation2d.fromRadians(motorAngleRadians);
     }
 
