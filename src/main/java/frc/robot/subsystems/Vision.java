@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -54,9 +55,6 @@ public class Vision {
             add(constructTag(20, 8.780, 2.392, 0.946, 180));
         }
     }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
-
-    // allow the Vision system to a field, so it can plot possible solutions
-    private Field2d m_field = null;
 
     // Simulation support
     private SimVisionSystem m_aprilTagCamSim = null;
@@ -111,12 +109,15 @@ public class Vision {
         m_aprilTagCamSim.processFrame(pose);
     }
 
-    public void updateOdometry(SwerveDrivePoseEstimator odometry) {
+    public void updateOdometry(SwerveDrivePoseEstimator odometry, Field2d field) {
         if (!m_aprilTagCamera.isConnected())
             return;
 
         PhotonPipelineResult targetResult = m_aprilTagCamera.getLatestResult();
-        double curImageTimeStamp = targetResult.getTimestampSeconds();
+
+        if (PLOT_TAG_SOLUTIONS) {
+            plotTagSolutions(field, targetResult);
+        }
 
         SmartDashboard.putBoolean("vision/hasTargets", targetResult.hasTargets());
         if (!targetResult.hasTargets()) {
@@ -136,10 +137,6 @@ public class Vision {
             SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
         }
 
-        // if (PLOT_TAG_SOLUTIONS) {
-        //     plotTagSolutions(targetResult);
-        // }
-
         if (m_aprilTagFieldLayout == null)
             return;
 
@@ -150,14 +147,12 @@ public class Vision {
             EstimatedRobotPose camPose = result.get();
             Pose2d estimatedPose = camPose.estimatedPose.toPose2d();
 
-            // Only update if the estimated pose is reasonably close to the current pose.
-            // This filters out really bad results.
-            // double delta = odometry.getEstimatedPosition().getTranslation().getDistance(estimatedPose.getTranslation());
-            // if (DriverStation.isDisabled() || delta < 0.5) {
-                odometry.addVisionMeasurement(estimatedPose, curImageTimeStamp);
-            // } else {
-            //     System.out.println("** rejecting vision measurement. delta = " + delta + "  z = " + camPose.estimatedPose.getZ());
-            // }
+            double curImageTimeStamp = targetResult.getTimestampSeconds();
+            odometry.addVisionMeasurement(estimatedPose, curImageTimeStamp);
+
+            if (PLOT_TAG_SOLUTIONS) {
+                plotEstimatedPose(field, estimatedPose);
+            }
         }
     }
 
@@ -237,11 +232,40 @@ public class Vision {
         return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
     }
 
-    private void initializeSimulation() 
-    {
-        m_aprilTagCamSim = new SimVisionSystem(CAMERA_NAME, CAM_FOV_DEG, m_robotToAprilTagCam, 
-                10.0, CAM_RES_X, CAM_RES_Y, 10.0);
+    private void initializeSimulation() {
+        m_aprilTagCamSim = new SimVisionSystem(CAMERA_NAME, CAM_FOV_DEG, m_robotToAprilTagCam, 10.0, CAM_RES_X,
+                CAM_RES_Y, 10.0);
 
         m_aprilTagCamSim.addVisionTargets(m_aprilTagFieldLayout);
+    }
+
+    private void plotTagSolutions(Field2d field, PhotonPipelineResult result) {
+        if (field == null) return;
+
+        List<Pose2d> poses = new ArrayList<Pose2d>();
+        for (PhotonTrackedTarget target : result.getTargets()) {
+            int targetFiducialId = target.getFiducialId();
+            if (targetFiducialId == -1) continue;
+            
+            Optional<Pose3d> targetPosition = m_aprilTagFieldLayout.getTagPose(targetFiducialId);
+            if (targetPosition.isEmpty()) continue;
+
+            Pose3d pose3d = targetPosition.get().transformBy(target.getAlternateCameraToTarget().inverse())
+                            .transformBy(m_robotToAprilTagCam.inverse());
+            poses.add(pose3d.toPose2d());
+            
+            pose3d = targetPosition.get().transformBy(target.getBestCameraToTarget().inverse())
+                            .transformBy(m_robotToAprilTagCam.inverse());
+            poses.add(pose3d.toPose2d());
+        }
+
+        field.getObject("tagSolutions").setPoses(poses);
+
+        // clear the visionPose, just in case
+        field.getObject("visionPose").setPoses();        
+    }
+
+    private void plotEstimatedPose(Field2d field, Pose2d pose) {
+        if (field != null) field.getObject("visionPose").setPose(pose);
     }
 }

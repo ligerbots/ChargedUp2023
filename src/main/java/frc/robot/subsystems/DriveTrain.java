@@ -400,7 +400,7 @@ public class DriveTrain extends SubsystemBase {
         }
 
         // Have the vision system update based on the Apriltags, if seen
-        m_vision.updateOdometry(m_odometry);
+        m_vision.updateOdometry(m_odometry, m_field);
 
         // Pose2d pose = m_odometry.getEstimatedPosition();
         // SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
