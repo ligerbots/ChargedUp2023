@@ -427,7 +427,8 @@ public class DriveTrain extends SubsystemBase {
         double newHeading = m_simPose.getRotation().getRadians() + m_simChassisSpeeds.omegaRadiansPerSecond * SIM_LOOP_TIME;
         // double newHeading = m_simPose.getRotation().getRadians();
                 
-        m_simPose = new Pose2d(newX, newY, Rotation2d.fromRadians(newHeading));
+        // set the sim variable, and force the odometry to match
+        setPose(new Pose2d(newX, newY, Rotation2d.fromRadians(newHeading)));
         m_field.setRobotPose(m_simPose);
 
         SmartDashboard.putNumber("drivetrain/simX", newX);

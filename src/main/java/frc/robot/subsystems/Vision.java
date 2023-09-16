@@ -13,6 +13,9 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.SimVisionSystem;
+// NOTE: code tested against updated PV, but wait for release
+// import org.photonvision.simulation.PhotonCameraSim;
+// import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -57,8 +60,9 @@ public class Vision {
     }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
 
     // Simulation support
+    // private VisionSystemSim m_visionSim = null;  // future version
     private SimVisionSystem m_aprilTagCamSim = null;
-    private static final double CAM_FOV_DEG = 110.0;
+    private static final double CAM_FOV_DEG = 100.0;
     private static final int CAM_RES_X = 800;
     private static final int CAM_RES_Y = 600;
 
@@ -106,6 +110,7 @@ public class Vision {
     }
 
     public void updateSimulation(Pose2d pose) {
+        // m_visionSim.update(pose);   // future version
         m_aprilTagCamSim.processFrame(pose);
     }
 
@@ -143,6 +148,7 @@ public class Vision {
         // Estimate the robot pose.
         // If successful, update the odometry using the timestamp of the measurement
         Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
+        SmartDashboard.putBoolean("vision/foundSolution", result.isPresent());
         if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
             Pose2d estimatedPose = camPose.estimatedPose.toPose2d();
@@ -164,10 +170,6 @@ public class Vision {
     // get the tag ID closest to vertical center of camera
     // we might want to use this to do fine adjustments on field element locations
     public int getCentralTagId(boolean wantSubstationTarget) {
-        // SIMULATION - just return a fixed tag to test an Auto
-        // if (Robot.isSimulation())
-        //     return 2; // center red tag
-    
         // make sure camera connected
         if (!m_aprilTagCamera.isConnected())
             return -1;
@@ -233,6 +235,13 @@ public class Vision {
     }
 
     private void initializeSimulation() {
+        // m_visionSim = new VisionSystemSim("LigerVision");
+        // // for now, cheat on the specs of the camera
+        // PhotonCameraSim cam = new PhotonCameraSim(m_aprilTagCamera);
+        // m_visionSim.addCamera(cam, m_robotToAprilTagCam);
+
+        // m_visionSim.addVisionTargets(m_aprilTagFieldLayout);
+        
         m_aprilTagCamSim = new SimVisionSystem(CAMERA_NAME, CAM_FOV_DEG, m_robotToAprilTagCam, 10.0, CAM_RES_X,
                 CAM_RES_Y, 10.0);
 
