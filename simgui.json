@@ -2,10 +2,17 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/ApriltagCamera Sim Field": "Field2d",
       "/SmartDashboard/Chosen Trajectory": "String Chooser",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/aprilTag Sim Field": "Field2d"
     },
     "windows": {
+      "/SmartDashboard/ApriltagCamera Sim Field": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Chosen Trajectory": {
         "window": {
           "visible": true

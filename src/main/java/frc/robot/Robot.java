@@ -139,7 +139,7 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
 
-        // Make sure the Arm Sooulder and Reacher won't move again when we re-enable.
+        // Make sure the Arm Shoulder and Reacher won't move again when we re-enable.
         m_robotContainer.getArm().resetGoal();
 
         // auto trajectory plotter
@@ -186,6 +186,7 @@ public class Robot extends TimedRobot {
         // this line or comment it out.
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
+            m_plotter.clear();
         }
 
         // for safety, some autos need to raise the arm 
@@ -194,8 +195,6 @@ public class Robot extends TimedRobot {
 
         m_robotContainer.getDriveCommand().schedule();
         m_robotContainer.getDriveTrain().resetDrivingModes();
-        
-        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during operator control. */

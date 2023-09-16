@@ -16,6 +16,10 @@ import edu.wpi.first.math.util.Units;
  * reduce verbosity.
  */
 public final class Constants {
+    // Feature flag: enable simulation in the classes
+    // Can turn this off for competition to save a tiny bit of speed
+    public static final boolean SIMULATION_SUPPORT = true;
+
     // Reminder: all CAN IDs of the same device/motor type need to be unique.
     // You don't actually need SparkMax IDs to be different from Falcon IDs
 

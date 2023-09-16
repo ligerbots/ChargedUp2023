@@ -395,6 +395,10 @@ public class DriveTrain extends SubsystemBase {
     public void periodic() {
         m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
+        if (Constants.SIMULATION_SUPPORT) {
+            m_vision.updateSimulation(getPose());
+        }
+
         // Have the vision system update based on the Apriltags, if seen
         m_vision.updateOdometry(m_odometry);
 
