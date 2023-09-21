@@ -16,6 +16,7 @@ import org.photonvision.SimVisionSystem;
 // NOTE: code tested against updated PV, but wait for release
 // import org.photonvision.simulation.PhotonCameraSim;
 // import org.photonvision.simulation.VisionSystemSim;
+// import org.photonvision.estimation.VisionEstimation;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -157,7 +158,13 @@ public class Vision {
             odometry.addVisionMeasurement(estimatedPose, curImageTimeStamp);
 
             if (PLOT_TAG_SOLUTIONS) {
-                plotEstimatedPose(field, estimatedPose);
+                plotPose(field, "visionPose", estimatedPose);
+
+                // // NOTE this the new PV version as for Sept 2023
+                // var pnpResults = VisionEstimation.estimateCamPosePNP(m_aprilTagCamera.getCameraMatrix().get(),
+                //         m_aprilTagCamera.getDistCoeffs().get(), targetResult.getTargets(), m_aprilTagFieldLayout);
+                // Pose3d alt = new Pose3d().plus(pnpResults.alt).plus(m_robotToAprilTagCam.inverse());
+                // plotPose(field, "visionAltPose", alt.toPose2d());
             }
         }
     }
@@ -272,9 +279,10 @@ public class Vision {
 
         // clear the visionPose, just in case
         field.getObject("visionPose").setPoses();        
+        field.getObject("visionAltPose").setPoses();        
     }
 
-    private void plotEstimatedPose(Field2d field, Pose2d pose) {
-        if (field != null) field.getObject("visionPose").setPose(pose);
+    private void plotPose(Field2d field, String label, Pose2d pose) {
+        if (field != null) field.getObject(label).setPose(pose);
     }
 }
