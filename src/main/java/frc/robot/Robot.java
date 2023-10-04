@@ -18,9 +18,9 @@ import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoBarrierTwoCones;
-import frc.robot.commands.AutoChargeStationOneCone;
+// import frc.robot.commands.AutoChargeStationOneCone;
 import frc.robot.commands.AutoChargeStationOneConeOtherSide;
-import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
+// import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
 import frc.robot.commands.TrajectoryPlotter;
 
 import frc.robot.subsystems.Arm;
