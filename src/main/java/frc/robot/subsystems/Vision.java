@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -39,7 +40,7 @@ import frc.robot.Constants;
 public class Vision {
     // variable to turn on/off our private tag layout
     // if this is false, the compiler should remove all the unused code.
-    public static final boolean USE_PRIVATE_TAG_LAYOUT = false;
+    public static final boolean USE_PRIVATE_TAG_LAYOUT = true;
     
     // Use the multitag pose estimator
     public static final boolean USE_MULTITAG = true;
@@ -47,18 +48,23 @@ public class Vision {
     // Plot vision solutions
     public static final boolean PLOT_TAG_SOLUTIONS = true;
     
-    // Values for the Shed in late January
-    private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
-        {
-            add(constructTag(26, 0, 1.636, 0.865, 0));
-            add(constructTag(25, 0, 3.24, 0.895, 0));
-            add(constructTag(24, 1.915, 0, 0.857, 90));
-            add(constructTag(23, 4.958, 0, 0.845, 90));
-            add(constructTag(22, 7.763, 0, 0.896, 90));
-            add(constructTag(21, 8.780, 1.373, 0.895, 180));
-            add(constructTag(20, 8.780, 2.392, 0.946, 180));
-        }
-    }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
+    // constants for extra tags in the shed  (lengths in meters!!)
+    static final double SHED_TAG_NODE_XOFFSET = 0.3;
+    static final double SHED_TAG_NODE_ZOFFSET = 0.3;
+    static final double SHED_TAG_SUBSTATION_YOFFSET = 1.0;
+
+    // // Values for the Shed in late January
+    // private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
+    //     {
+    //         add(constructTag(26, 0, 1.636, 0.865, 0));
+    //         add(constructTag(25, 0, 3.24, 0.895, 0));
+    //         add(constructTag(24, 1.915, 0, 0.857, 90));
+    //         add(constructTag(23, 4.958, 0, 0.845, 90));
+    //         add(constructTag(22, 7.763, 0, 0.896, 90));
+    //         add(constructTag(21, 8.780, 1.373, 0.895, 180));
+    //         add(constructTag(20, 8.780, 2.392, 0.946, 180));
+    //     }
+    // }, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
 
     // Simulation support
     // private VisionSystemSim m_visionSim = null;  // future version
@@ -80,20 +86,35 @@ public class Vision {
     private final PhotonPoseEstimator m_photonPoseEstimator;
 
     public Vision() {
-        if (USE_PRIVATE_TAG_LAYOUT) {
-            m_aprilTagFieldLayout = SHED_TAG_FIELD_LAYOUT;
-            System.out.println("Vision is currently using: SHED_TAG_FIELD_LAYOUT");
-        } else {
-            try {
-                m_aprilTagFieldLayout = AprilTagFieldLayout
+        try {
+            m_aprilTagFieldLayout = AprilTagFieldLayout
                         .loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-            } catch (IOException e) {
-                System.out.println("Unable to load AprilTag layout" + e.getMessage());
-                m_aprilTagFieldLayout = null;
-            }
+        } catch (IOException e) {
+            System.out.println("Unable to load AprilTag layout " + e.getMessage());
+            m_aprilTagFieldLayout = null;
+        }
+
+        if (USE_PRIVATE_TAG_LAYOUT && m_aprilTagFieldLayout != null) {
+            System.out.println("Vision is currently using supplemented SHED tag layout");
+            List<AprilTag> tags = m_aprilTagFieldLayout.getTags();
+            // Red nodes
+            tags.add(constructTagRelative(21, m_aprilTagFieldLayout.getTagPose(1).get(), SHED_TAG_NODE_XOFFSET, 0, SHED_TAG_NODE_ZOFFSET));
+            tags.add(constructTagRelative(22, m_aprilTagFieldLayout.getTagPose(2).get(), SHED_TAG_NODE_XOFFSET, 0, SHED_TAG_NODE_ZOFFSET));
+            tags.add(constructTagRelative(23, m_aprilTagFieldLayout.getTagPose(3).get(), SHED_TAG_NODE_XOFFSET, 0, SHED_TAG_NODE_ZOFFSET));
+            // Red substation
+            tags.add(constructTagRelative(24, m_aprilTagFieldLayout.getTagPose(4).get(), 0, SHED_TAG_SUBSTATION_YOFFSET, 0));
+            // Blue substation
+            tags.add(constructTagRelative(25, m_aprilTagFieldLayout.getTagPose(5).get(), 0, -SHED_TAG_SUBSTATION_YOFFSET, 0));
+            // Blue nodes
+            tags.add(constructTagRelative(26, m_aprilTagFieldLayout.getTagPose(6).get(), -SHED_TAG_NODE_XOFFSET, 0, SHED_TAG_NODE_ZOFFSET));
+            tags.add(constructTagRelative(27, m_aprilTagFieldLayout.getTagPose(7).get(), -SHED_TAG_NODE_XOFFSET, 0, SHED_TAG_NODE_ZOFFSET));
+            tags.add(constructTagRelative(28, m_aprilTagFieldLayout.getTagPose(8).get(), -SHED_TAG_NODE_XOFFSET, 0, SHED_TAG_NODE_ZOFFSET));
+
+            m_aprilTagFieldLayout = new AprilTagFieldLayout(tags, Constants.CUSTOM_FIELD_LENGTH, Constants.CUSTOM_FIELD_WIDTH);
         }
 
         if (Constants.SIMULATION_SUPPORT) {
+            // initialize a simulated camera. Must be done after creating the tag layout
             initializeSimulation();
         }
 
@@ -121,31 +142,35 @@ public class Vision {
 
         PhotonPipelineResult targetResult = m_aprilTagCamera.getLatestResult();
 
-        if (PLOT_TAG_SOLUTIONS) {
-            plotTagSolutions(field, targetResult);
-        }
-
         SmartDashboard.putBoolean("vision/hasTargets", targetResult.hasTargets());
         if (!targetResult.hasTargets()) {
             // if no target, clean out the numbers
-            SmartDashboard.putNumber("vision/targetID", 0);
-            SmartDashboard.putNumber("vision/tagOffsetX", 0);
-            SmartDashboard.putNumber("vision/tagOffsetY", 0);
-            SmartDashboard.putNumber("vision/tagOffsetYaw", 0);
+            SmartDashboard.putNumber("vision/targetID", -1);
+            // SmartDashboard.putNumber("vision/tagOffsetX", 0);
+            // SmartDashboard.putNumber("vision/tagOffsetY", 0);
+            // SmartDashboard.putNumber("vision/tagOffsetYaw", 0);
+
+            if (PLOT_TAG_SOLUTIONS) {
+                clearTagSolutions(field);
+            }    
             return;
         } else {
             // For debug: get the current best target.
             PhotonTrackedTarget target = targetResult.getBestTarget();
             SmartDashboard.putNumber("vision/targetID", target.getFiducialId());
-            Transform3d cameraToTarget = target.getBestCameraToTarget();
-            SmartDashboard.putNumber("vision/tagOffsetX", Units.metersToInches(cameraToTarget.getX()));
-            SmartDashboard.putNumber("vision/tagOffsetY", Units.metersToInches(cameraToTarget.getY()));
-            SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
+            // Transform3d cameraToTarget = target.getBestCameraToTarget();
+            // SmartDashboard.putNumber("vision/tagOffsetX", Units.metersToInches(cameraToTarget.getX()));
+            // SmartDashboard.putNumber("vision/tagOffsetY", Units.metersToInches(cameraToTarget.getY()));
+            // SmartDashboard.putNumber("vision/tagOffsetYaw", Math.toDegrees(cameraToTarget.getRotation().getZ()));
         }
 
         if (m_aprilTagFieldLayout == null)
             return;
 
+        if (PLOT_TAG_SOLUTIONS) {
+            plotTagSolutions(field, targetResult);
+        }    
+    
         // Estimate the robot pose.
         // If successful, update the odometry using the timestamp of the measurement
         Optional<EstimatedRobotPose> result = getEstimatedGlobalPose(odometry.getEstimatedPosition());
@@ -167,11 +192,20 @@ public class Vision {
                 // plotPose(field, "visionAltPose", alt.toPose2d());
             }
         }
+        else if (PLOT_TAG_SOLUTIONS) {
+            plotPose(field, "visionPose", null);
+        }
     }
 
     private Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-        m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-        return m_photonPoseEstimator.update();
+        try {
+            m_photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+            return m_photonPoseEstimator.update();
+        } catch (Exception e) {
+            // bad! log this and keep going
+            DriverStation.reportError("Exception running PhotonPoseEstimator", e.getStackTrace());
+            return Optional.empty();
+        }
     }
 
     // get the tag ID closest to vertical center of camera
@@ -210,6 +244,7 @@ public class Vision {
                     continue;
                 }
             }
+
             // get transformation to target
             Transform3d tagTransform = tag.getBestCameraToTarget();
             // get abs translation to target from transformation
@@ -241,6 +276,11 @@ public class Vision {
         return new AprilTag(id, new Pose3d(x, y, z, new Rotation3d(0, 0, Math.toRadians(angle))));
     }
 
+    // add a new tag relative to another tag. Assume the orientation is the same
+    private static AprilTag constructTagRelative(int id, Pose3d basePose, double x, double y, double z) {
+        return new AprilTag(id, new Pose3d(basePose.getX() + x, basePose.getY() + y, basePose.getZ() + z, basePose.getRotation()));
+    }
+
     private void initializeSimulation() {
         // m_visionSim = new VisionSystemSim("LigerVision");
         // // for now, cheat on the specs of the camera
@@ -253,6 +293,15 @@ public class Vision {
                 CAM_RES_Y, 10.0);
 
         m_aprilTagCamSim.addVisionTargets(m_aprilTagFieldLayout);
+    }
+
+    // --- Routines to plot the vision solutions on a Field2d   ---------
+
+    private void clearTagSolutions(Field2d field) {
+        if (field == null) return;
+        field.getObject("tagSolutions").setPoses();
+        field.getObject("visionPose").setPoses();        
+        // field.getObject("visionAltPose").setPoses();        
     }
 
     private void plotTagSolutions(Field2d field, PhotonPipelineResult result) {
@@ -276,13 +325,13 @@ public class Vision {
         }
 
         field.getObject("tagSolutions").setPoses(poses);
-
-        // clear the visionPose, just in case
-        field.getObject("visionPose").setPoses();        
-        field.getObject("visionAltPose").setPoses();        
     }
 
     private void plotPose(Field2d field, String label, Pose2d pose) {
-        if (field != null) field.getObject(label).setPose(pose);
+        if (field == null) return;
+        if (pose == null) 
+            field.getObject(label).setPoses();
+        else
+            field.getObject(label).setPose(pose);
     }
 }
