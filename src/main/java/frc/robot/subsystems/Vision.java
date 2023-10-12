@@ -49,9 +49,9 @@ public class Vision {
     public static final boolean PLOT_TAG_SOLUTIONS = true;
     
     // constants for extra tags in the shed  (lengths in meters!!)
-    static final double SHED_TAG_NODE_XOFFSET = 0.3;
-    static final double SHED_TAG_NODE_ZOFFSET = 0.3;
-    static final double SHED_TAG_SUBSTATION_YOFFSET = 1.0;
+    static final double SHED_TAG_NODE_XOFFSET = 0.45;
+    static final double SHED_TAG_NODE_ZOFFSET = 0.31;
+    static final double SHED_TAG_SUBSTATION_YOFFSET = 1.19;
 
     // // Values for the Shed in late January
     // private static final AprilTagFieldLayout SHED_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(new ArrayList<AprilTag>() {
