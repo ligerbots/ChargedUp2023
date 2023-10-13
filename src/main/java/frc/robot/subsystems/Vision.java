@@ -40,7 +40,7 @@ import frc.robot.Constants;
 public class Vision {
     // variable to turn on/off our private tag layout
     // if this is false, the compiler should remove all the unused code.
-    public static final boolean USE_PRIVATE_TAG_LAYOUT = true;
+    public static final boolean USE_PRIVATE_TAG_LAYOUT = false;
     
     // Use the multitag pose estimator
     public static final boolean USE_MULTITAG = true;
