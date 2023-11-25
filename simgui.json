@@ -7,6 +7,11 @@
       "/SmartDashboard/Field": "Field2d"
     },
     "windows": {
+      "/SmartDashboard/ArmSimulation": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Chosen Trajectory": {
         "window": {
           "visible": true
