@@ -395,9 +395,14 @@ public class DriveTrain extends SubsystemBase {
     public void periodic() {
         m_odometry.update(getGyroscopeRotation(), getModulePositions());
 
-        // Have the vision system update based on the Apriltags, if seen
-        m_vision.updateOdometry(m_odometry);
+        if (Constants.SIMULATION_SUPPORT) {
+            m_vision.updateSimulation(getPose());
+        }
 
+        // Have the vision system update based on the Apriltags, if seen
+        m_vision.updateOdometry(m_odometry, m_field);
+        m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        
         // Pose2d pose = m_odometry.getEstimatedPosition();
         // SmartDashboard.putNumber("drivetrain/xPosition", pose.getX());
         // SmartDashboard.putNumber("drivetrain/yPosition", pose.getY());
@@ -410,9 +415,9 @@ public class DriveTrain extends SubsystemBase {
 
         SmartDashboard.putBoolean("drivetrain/precisionMode", m_precisionMode);
 
-        // for (SwerveModule mod : m_swerveModules) {
-        //     mod.updateSmartDashboard();
-        // }
+        for (SwerveModule mod : m_swerveModules) {
+            mod.updateSmartDashboard();
+        }
     }
 
     @Override
@@ -423,7 +428,8 @@ public class DriveTrain extends SubsystemBase {
         double newHeading = m_simPose.getRotation().getRadians() + m_simChassisSpeeds.omegaRadiansPerSecond * SIM_LOOP_TIME;
         // double newHeading = m_simPose.getRotation().getRadians();
                 
-        m_simPose = new Pose2d(newX, newY, Rotation2d.fromRadians(newHeading));
+        // set the sim variable, and force the odometry to match
+        setPose(new Pose2d(newX, newY, Rotation2d.fromRadians(newHeading)));
         m_field.setRobotPose(m_simPose);
 
         SmartDashboard.putNumber("drivetrain/simX", newX);
