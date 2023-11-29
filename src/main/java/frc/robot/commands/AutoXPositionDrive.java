@@ -23,6 +23,7 @@ public class AutoXPositionDrive extends CommandBase {
     private double m_goalXBlue;
     private double m_directionX;
     private double m_goalX;
+    private final double m_goalY;
 
     private final double Y_MAX_SPEED = 0.25; // we want 0.5 m/s
     private final double Y_PID_CONTROLLER_P = 1.0;
@@ -32,11 +33,17 @@ public class AutoXPositionDrive extends CommandBase {
     private final double ROT_MAX_SPEED = 0.2; // we want 10.0 deg/s
     private final double ROT_PID_CONTROLLER_P = 1.0;
 
-    /** Creates a new ChargeStationDrive. */
     public AutoXPositionDrive(DriveTrain driveTrain, double goalXBlue, double driveMPS) {
+        this(driveTrain, goalXBlue, driveMPS, FieldConstants.CHARGE_STATION_CENTER_Y);
+    }
+    
+    /** Creates a new ChargeStationDrive. */
+    public AutoXPositionDrive(DriveTrain driveTrain, double goalXBlue, double driveMPS, double goalY) {
         m_driveTrain = driveTrain;
         m_goalXBlue = goalXBlue;
         m_driveMPSX = driveMPS;
+        m_goalY = goalY;
+        
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(driveTrain);
     }
@@ -66,7 +73,7 @@ public class AutoXPositionDrive extends CommandBase {
         Pose2d curPose = m_driveTrain.getPose();
 
         // this includes the Y direction for the robot to move 
-        double yError = FieldConstants.CHARGE_STATION_CENTER_Y - curPose.getY();
+        double yError = m_goalY - curPose.getY();
         double driveSpeedY = MathUtil.clamp(yError * Y_PID_CONTROLLER_P, -Y_MAX_SPEED, Y_MAX_SPEED);
 
         // The angle error is the difference between the target and actual heading

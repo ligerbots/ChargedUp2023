@@ -2,8 +2,11 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/ApriltagCamera Sim Field": "Field2d",
       "/SmartDashboard/Chosen Trajectory": "String Chooser",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-LigerVision/Sim Field": "Field2d",
+      "/SmartDashboard/aprilTag Sim Field": "Field2d"
     },
     "windows": {
       "/SmartDashboard/Chosen Trajectory": {
@@ -14,9 +17,14 @@
       "/SmartDashboard/Field": {
         "bottom": 544,
         "height": 8.013679504394531,
-        "image": "/scratch/ligerbots/projects/ChargedUp2023/2023-field.png",
+        "image": "2023-field.png",
         "left": 46,
         "right": 1088,
+        "tagSolutions": {
+          "image": "blue_arrow.png",
+          "length": 0.30000001192092896,
+          "width": 0.30000001192092896
+        },
         "top": 36,
         "trajectory": {
           "length": 0.10000000149011612,
@@ -29,6 +37,11 @@
         "trajectory2": {
           "length": 0.10000000149011612,
           "width": 0.10000000149011612
+        },
+        "visionPose": {
+          "image": "red_arrow.png",
+          "length": 0.30000001192092896,
+          "width": 0.30000001192092896
         },
         "waypoints": {
           "length": 0.10000000149011612,

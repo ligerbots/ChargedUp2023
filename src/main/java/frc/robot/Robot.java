@@ -18,8 +18,9 @@ import frc.robot.commands.AutoWallTwoCones;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoBarrierTwoCones;
+// import frc.robot.commands.AutoChargeStationOneCone;
 import frc.robot.commands.AutoChargeStationOneConeOtherSide;
-import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
+// import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
 import frc.robot.commands.TrajectoryPlotter;
 
 import frc.robot.subsystems.Arm;
@@ -86,6 +87,10 @@ public class Robot extends TimedRobot {
         // m_chosenTrajectory.addOption("Charge Station Cube", new AutoChargeStationOneCubeOtherSide(driveTrain, arm, vision, claw));
         m_chosenTrajectory.addOption("Charge Station WALL Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, true, overrideButton));
         m_chosenTrajectory.addOption("Charge Station BARRIER Cone", new AutoChargeStationOneConeOtherSide(driveTrain, arm, vision, claw, false, overrideButton));
+
+        // For BattleCry, no need to go over and back
+        // m_chosenTrajectory.addOption("Charge Station WALL Cone", new AutoChargeStationOneCone(driveTrain, arm, vision, claw, true, overrideButton));
+        // m_chosenTrajectory.addOption("Charge Station BARRIER Cone", new AutoChargeStationOneCone(driveTrain, arm, vision, claw, false, overrideButton));
         // m_chosenTrajectory.addOption("drive_and_slide", new AutoFollowTrajectory(driveTrain, "drive_and_slide"));
         // m_chosenTrajectory.addOption("drive_and_turn", new AutoFollowTrajectory(driveTrain, "drive_and_turn"));
         // m_chosenTrajectory.addOption("c_forward_balance", new AutoFollowTrajectory(driveTrain, "c_forward_balance"));
@@ -134,7 +139,7 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         m_robotContainer.getDriveTrain().syncSwerveAngleEncoders();
 
-        // Make sure the Arm Sooulder and Reacher won't move again when we re-enable.
+        // Make sure the Arm Shoulder and Reacher won't move again when we re-enable.
         m_robotContainer.getArm().resetGoal();
 
         // auto trajectory plotter
@@ -181,6 +186,7 @@ public class Robot extends TimedRobot {
         // this line or comment it out.
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
+            m_plotter.clear();
         }
 
         // for safety, some autos need to raise the arm 
@@ -189,8 +195,6 @@ public class Robot extends TimedRobot {
 
         m_robotContainer.getDriveCommand().schedule();
         m_robotContainer.getDriveTrain().resetDrivingModes();
-        
-        // m_robotContainer.getClaw().enableCompressor();
     }
 
     /** This function is called periodically during operator control. */
