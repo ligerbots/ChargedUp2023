@@ -4,7 +4,16 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -13,21 +22,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Position;
-
-import frc.robot.commands.AutoWallTwoCones;
-import frc.robot.commands.AutoCommandInterface;
-import frc.robot.commands.AutoFollowTrajectory;
 import frc.robot.commands.AutoBarrierTwoCones;
 // import frc.robot.commands.AutoChargeStationOneCone;
 import frc.robot.commands.AutoChargeStationOneConeOtherSide;
+import frc.robot.commands.AutoCommandInterface;
+import frc.robot.commands.AutoFollowTrajectory;
+import frc.robot.commands.AutoWallTwoCones;
 // import frc.robot.commands.AutoChargeStationOneCubeOtherSide;
 import frc.robot.commands.TrajectoryPlotter;
-
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LedLight.Color;
+import frc.robot.subsystems.Vision;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,7 +45,8 @@ import frc.robot.subsystems.LedLight.Color;
  * build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+// public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
     private SendableChooser<AutoCommandInterface> m_chosenTrajectory = new SendableChooser<>();
     private RobotContainer m_robotContainer;
@@ -52,6 +60,34 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
 
+
+
+        // AdvantageKit sample init
+
+        Logger logger = Logger.getInstance();
+
+        logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
+
+        if (isReal()) {
+            logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
+            logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        } else {
+            setUseTiming(false); // Run as fast as possible
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the
+                                                          // user)
+            logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a
+                                                                                                  // new log
+        }
+
+        // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow"
+        // page
+        logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+        /////////////////////////////
+        /////////////////////////////
+        
         // If you are trying to work with a running PV and simulation, enable this code.
         // Otherwise it is not needed, even when running a simulation
         // if (isSimulation()) {
@@ -103,8 +139,8 @@ public class Robot extends TimedRobot {
         m_robotContainer.getLED().setColor(Color.OFF);
         m_robotContainer.getClaw().enableCompressor();
 
-        // update Claw sensor every 2ms
-        addPeriodic(claw.updateIRSensorPeriodic(), 0.002);
+        // // update Claw sensor every 2ms
+        // addPeriodic(claw.updateIRSensorPeriodic(), 0.002);
     }
 
     /**
