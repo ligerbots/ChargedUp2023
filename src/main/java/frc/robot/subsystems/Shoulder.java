@@ -123,6 +123,9 @@ public class Shoulder extends TrapezoidProfileSubsystem {
                 SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ / SHOULDER_RADIAN_PER_UNIT),
                 (SHOULDER_OFFSET_RADIAN-dutyCycleEncoder.getDistance() * 2 * Math.PI) / SHOULDER_RADIAN_PER_UNIT);
 
+        SmartDashboard.putNumber("shoulder/v_Max_DegreePerSec", Math.toDegrees(SHOULDER_MAX_VEL_RADIAN_PER_SEC));
+        SmartDashboard.putNumber("shoulder/a_Max_DegreePerSec2", Math.toDegrees(SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ));
+
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
         m_motorFollower = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_FOLLOWER);
 
