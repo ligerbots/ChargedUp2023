@@ -69,21 +69,12 @@ public class Robot extends LoggedRobot {
         logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
 
         if (isReal()) {
-            logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
+            // 3 lines sample code from Mech Advantage
+            // logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
             logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-        } else {
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the
-                                                          // user)
-            logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a
-                                                                                                  // new log
-        }
 
-        // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow"
-        // page
-        logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+            //////// Original Ligerbots robotInit() START
 
         /////////////////////////////
         /////////////////////////////
@@ -141,6 +132,27 @@ public class Robot extends LoggedRobot {
 
         // // update Claw sensor every 2ms
         // addPeriodic(claw.updateIRSensorPeriodic(), 0.002);
+
+
+            //////// Original Ligerbots robotInit() END
+            
+        } else {
+            setUseTiming(false); // Run as fast as possible
+            // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the
+            //                                               // user)
+            String logPath = "C:\\Users\\Jake Hendrickson\\Downloads\\6328 @ 2023 CMPTX - 19 Einstein 5.wpilog-20231205T000329Z-001\\6328 @ 2023 CMPTX - 19 Einstein 5.wpilog"; 
+            logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            
+            // logger.setReplaySource(new WPILOGReader("C:\\Users\\Jake Hendrickson\\Downloads\\6328 @ 2023 CMPTX - 19 Einstein 5.wpilog-20231205T000329Z-001\\6328 @ 2023 CMPTX - 19 Einstein 5.wpilog")); // Read replay log
+            
+            logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a
+                                                                                                  // new log
+        }
+
+        // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow"
+        // page
+        logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
     }
 
     /**
