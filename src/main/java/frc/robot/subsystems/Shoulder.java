@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
@@ -127,7 +128,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("shoulder/a_Max_DegreePerSec2", Math.toDegrees(SHOULDER_MAX_ACC_RADIAN_PER_SEC_SQ));
         SmartDashboard.putNumber("shoulder/gearRatio", SHOULDER_GEAR_RATIO);
         SmartDashboard.putNumber("shoulder/kP", SHOULDER_K_P);
-        SmartDashboard.putNumber("shoulder/numberOfFalcons", 2);
+        SmartDashboard.putNumber("shoulder/numberOfFalcons", 1);
         
 
         m_motorLeader = new WPI_TalonFX(Constants.SHOULDER_CAN_ID_LEADER);
@@ -141,6 +142,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
         // Set follower
         m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
+        m_motorFollower.setNeutralMode(NeutralMode.Coast);
 
         m_motorLeader.config_kF(kPIDLoopIdx, SHOULDER_K_FF, kTimeoutMs);
 		m_motorLeader.config_kP(kPIDLoopIdx, SHOULDER_K_P, kTimeoutMs);
@@ -151,6 +153,7 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         // always limit current to the values. Trigger limit = 0 so that it is always enforced.
         m_motorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, 0, 0));
         m_motorFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, FOLLOW_CURRENT_LIMIT, 0, 0));
+        // m_motorLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, LEADER_CURRENT_LIMIT, LEADER_CURRENT_LIMIT, 0));
 
         m_dutyEncoder = dutyCycleEncoder;
 
