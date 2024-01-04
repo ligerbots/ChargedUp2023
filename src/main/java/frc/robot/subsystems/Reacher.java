@@ -114,7 +114,7 @@ public class Reacher extends TrapezoidProfileSubsystem {
         SmartDashboard.putNumber("Reacher/encoder", Units.metersToInches(encoderValue));
         SmartDashboard.putNumber("Reacher/encoderMeter", encoderValue);
         SmartDashboard.putNumber("Reacher/goal", Units.metersToInches(m_goal));
-        // SmartDashboard.putBoolean("Reacher/mesetReacherPos", m_resetReacherPos);
+        SmartDashboard.putNumber("Reacher/motorSignal", m_motor.get());
         
         SmartDashboard.putNumber("Reacher/stringPotMeter", getPotentiometerReadingMeters());
 

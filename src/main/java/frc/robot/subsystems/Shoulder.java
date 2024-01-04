@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
@@ -137,11 +138,18 @@ public class Shoulder extends TrapezoidProfileSubsystem {
         m_motorLeader.configFactoryDefault();
         m_motorFollower.configFactoryDefault();
 
+        // set CAN update to 20 ms for sensors
+        int period = m_motorLeader.getStatusFramePeriod(StatusFrame.Status_2_Feedback0);
+        System.out.println("Shoulder original statusFrame period = " + period);
+        m_motorLeader.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+        period = m_motorLeader.getStatusFramePeriod(StatusFrame.Status_2_Feedback0);
+        SmartDashboard.putNumber("shoulder/sensorStatusFramePeriod", period);
+       
         m_encoder = m_motorLeader.getSensorCollection();
 
         m_motorLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
         // Set follower
-        m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
+        // m_motorFollower.follow(m_motorLeader, FollowerType.PercentOutput);
         m_motorFollower.setNeutralMode(NeutralMode.Coast);
 
         m_motorLeader.config_kF(kPIDLoopIdx, SHOULDER_K_FF, kTimeoutMs);
